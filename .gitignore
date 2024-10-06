@@ -1,0 +1,8 @@
+# Visual Studio 2015 user specific files
+.vs/
+*.sln
+*.vsconfig
+/bin/*
+# local rider files
+source/.idea/*
+source/TempFiles/*
