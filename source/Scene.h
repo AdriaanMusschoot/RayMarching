@@ -50,6 +50,7 @@ namespace geo
 		void AddSphere(const Vector3& origin, float radius, unsigned char materialIndex = 0);
 		void AddPlane(const Vector3& origin, const Vector3& normal, unsigned char materialIndex = 0);
 		void AddBox(const Vector3& origin, const Vector3& boxExtent, unsigned char materialIndex = 0);
+		void AddSphereBox(const SDSphere& sphere, const SDBox& box, unsigned char materialIndex = 0);
 		
 		Light* AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color);
 		Light* AddDirectionalLight(const Vector3& direction, float intensity, const ColorRGB& color);

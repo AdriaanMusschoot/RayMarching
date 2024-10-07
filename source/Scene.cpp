@@ -26,7 +26,7 @@ namespace geo
 		float currentDistance{ 0.f };
 		Vector3 const& rayOrigin{ ray.origin };
 
-		for (int i = 0; i < 50; ++i)
+		for (int i = 0; i < 100; ++i)
 		{
 			Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
 			float distanceAbleToTravel{	GetDistanceToSphere(newPoint) };
@@ -54,6 +54,11 @@ namespace geo
 	void Scene::AddBox(const Vector3& origin, const Vector3& boxExtent, unsigned char materialIndex)
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDBox>(origin, boxExtent));
+	}
+
+	void Scene::AddSphereBox(const SDSphere& sphere, const SDBox& box, unsigned char materialIndex)
+	{
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSphereBox>(box, sphere));
 	}
 
 	Light* Scene::AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color)
@@ -111,9 +116,8 @@ namespace geo
 		m_Camera.origin = { 0.f,0,1.f };
 		m_Camera.fovAngle = 45.f;
 
-		AddSphere(Vector3{ 0, 0, 5 }, 1);
 		AddPlane(Vector3{ 0, -1, 0 }, Vector3{ 0, 1, 0 });
-		AddBox(Vector3{ 0, 2, 5 }, Vector3{ 2, 1, 1 });
+		AddSphereBox(SDSphere{ Vector3{ 0, 0, 5}, 1}, SDBox{ Vector3{ 1, 0, 5 }, Vector3{ 1, 1, 1 } });
 	}
 	
 	void RayMarchingScene::Update(Timer* pTimer)
