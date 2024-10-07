@@ -5,7 +5,7 @@
 #include "Vector4.h"
 #include <cmath>
 
-namespace dae {
+namespace geo {
 	const Vector3 Vector3::UnitX = Vector3{ 1, 0, 0 };
 	const Vector3 Vector3::UnitY = Vector3{ 0, 1, 0 };
 	const Vector3 Vector3::UnitZ = Vector3{ 0, 0, 1 };
@@ -90,6 +90,11 @@ namespace dae {
 			std::min(v1.y, v2.y),
 			std::min(v1.z, v2.z)
 		};
+	}
+
+	Vector3 Vector3::Abs(const Vector3& v)
+	{
+		return { std::abs(v.x), std::abs(v.y), std::abs(v.z) };
 	}
 
 	Vector4 Vector3::ToPoint4() const

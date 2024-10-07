@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace dae
+namespace geo
 {
 	class Timer
 	{

@@ -104,11 +104,11 @@ xcopy "$(SolutionDir)..\lib\vld\x64\Microsoft.DTfW.DHL.manifest" "$(OutDir)" /y 
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Math.h" />
-    <ClInclude Include="Utils.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DataTypes.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Renderer.cpp" />

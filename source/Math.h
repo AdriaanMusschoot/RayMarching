@@ -7,8 +7,8 @@
 
 namespace math
 {
-    float DistanceSquared(dae::Vector3 const& p1, dae::Vector3 const& p2);
+    float DistanceSquared(geo::Vector3 const& p1, geo::Vector3 const& p2);
 
-    float Distance(dae::Vector3 const& p1, dae::Vector3 const& p2);
+    float Distance(geo::Vector3 const& p1, geo::Vector3 const& p2);
 }
 

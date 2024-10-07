@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-namespace dae
+namespace geo
 {
 	struct Camera
 	{
@@ -42,7 +42,7 @@ namespace dae
 
 		int mouseX{}, mouseY{};
 
-		inline const Matrix & CalculateCameraToWorld()
+		Matrix CalculateCameraToWorld()
 		{
 			right = Vector3::Cross(Vector3::UnitY, forward);
 			right.Normalize();
@@ -50,7 +50,8 @@ namespace dae
 			up = Vector3::Cross(forward, right);
 			up.Normalize();
 			return 
-			{ { right.x, right.y, right.z, 0 },
+			{
+				{ right.x, right.y, right.z, 0 },
 			  { up.x, up.y, up.z, 0 },
 			  { forward.x, forward.y, forward.z, 0 },
 			  { origin.x, origin.y, origin.z, 0 } 

@@ -6,13 +6,12 @@
 #include "Math.h"
 #include "Material.h"
 #include "Scene.h"
-#include "Utils.h"
 #include "Execution"
 
 #define MULTITHREADING
 //#define REFLECTIONS 2
 
-using namespace dae;
+using namespace geo;
 
 Renderer::Renderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow),
@@ -20,7 +19,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 {
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
-	m_AspectRatio = float(m_Width) / float(m_Height);
+	m_AspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 	m_pBufferPixels = static_cast<uint32_t*>(m_pBuffer->pixels);
 	const int nrOfPixels{ m_Width * m_Height };
 
@@ -29,7 +28,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 }
 
-void dae::Renderer::Render(Scene* pScene) const
+void geo::Renderer::Render(Scene* pScene) const
 {
 	Camera& camera = pScene->GetCamera();
 	const std::vector<Material*>& materialsVec{ pScene->GetMaterials() };
@@ -72,12 +71,12 @@ void Renderer::CycleLightingMode()
 	}
 }
 
-void dae::Renderer::ToggleShadows()
+void geo::Renderer::ToggleShadows()
 {
 	m_ShadowsEnabled = !m_ShadowsEnabled;
 }
 
-void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<Light>& lightsVec) const
+void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<Light>& lightsVec) const
 {
 	const uint32_t px{ pixelIdx % m_Width };
 	const uint32_t py{ pixelIdx / m_Width };
@@ -151,6 +150,8 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, con
 #else
 	float t =  pScene->GetClosestHit(cameraToWorldRay);
 	finalColor.r = t / 6.f;
+	finalColor.g = t / 6.f;
+	finalColor.b = t / 6.f;
 #endif // REFLECTIONS
 	finalColor.MaxToOne();
 	

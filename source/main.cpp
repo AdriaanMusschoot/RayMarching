@@ -13,7 +13,7 @@
 #include "Scene.h"
 
 
-using namespace dae;
+using namespace geo;
 
 void ShutDown(SDL_Window* pWindow)
 {
@@ -25,8 +25,8 @@ int main(int argc, char* args[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 1920;
-	const uint32_t height = 1080;
+	const uint32_t width = 800;
+	const uint32_t height = 800;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
 		"RayTracer - **Adriaan Musschoot(2DAE10)**",
@@ -41,10 +41,7 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
-	//const auto pScene = new Scene_W4ReferenceScene();
-	const auto pScene = new Scene_W4BunnyScene();
-	//const auto pScene = new Scene_W4F1Scene();
-	pScene->Initialize();
+	const auto pScene = new RayMarchingScene();
 
 	//Start loop
 	pTimer->Start();

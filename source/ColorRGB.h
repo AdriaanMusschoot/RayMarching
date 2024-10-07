@@ -1,7 +1,7 @@
 #pragma once
 #include "MathHelpers.h"
 
-namespace dae
+namespace geo
 {
 	struct ColorRGB
 	{

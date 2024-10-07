@@ -7,7 +7,7 @@
 #include <fstream>
 
 #include "SDL.h"
-using namespace dae;
+using namespace geo;
 
 Timer::Timer()
 {

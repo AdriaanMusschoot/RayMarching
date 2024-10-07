@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dae
+namespace geo
 {
 	struct Vector3;
 	struct Vector4

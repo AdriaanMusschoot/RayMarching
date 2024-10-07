@@ -2,7 +2,7 @@
 #include <cassert>
 #include "Math.h"
 
-namespace dae
+namespace geo
 {
 	namespace BRDF
 	{
@@ -71,7 +71,7 @@ namespace dae
 			float normalDistribution{	Vector3::Dot(n, h) * Vector3::Dot(n, h)
 										* ((roughnessSquared * roughnessSquared) - 1.f)
 										+ 1.f };
-			return { roughnessSquared * roughnessSquared / (dae::PI * normalDistribution * normalDistribution) };
+			return { roughnessSquared * roughnessSquared / (geo::PI * normalDistribution * normalDistribution) };
 		}
 
 

@@ -8,7 +8,7 @@
 struct SDL_Window;
 struct SDL_Surface;
 
-namespace dae
+namespace geo
 {
 	class Scene;
 

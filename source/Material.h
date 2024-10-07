@@ -3,7 +3,7 @@
 #include "DataTypes.h"
 #include "BRDFs.h"
 
-namespace dae
+namespace geo
 {
 #pragma region Material BASE
 	class Material
