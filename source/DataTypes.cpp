@@ -1,11 +1,15 @@
 #include "DataTypes.h"
 
+#include <iostream>
+#include <ostream>
 #include <valarray>
+
 
 float geo::ISDObject::SmoothMin(float dist1, float dist2, float smoothness)
 {
     float h{ std::max(smoothness - std::abs(dist1 - dist2), 0.0f) / smoothness };
-    return std::min(dist1, dist2) - h * h * h * smoothness * (1.0 / 6.0);
+    constexpr float smoothFraction{ 1.0f / 6.0f };
+    return std::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
 }
 
 geo::SDSphere::SDSphere(Vector3 const& center, float radius)
@@ -42,13 +46,25 @@ float geo::SDBox::GetDistance(const Vector3& point)
     return Vector3::Max(Vector3::Abs(point - m_Origin) - m_BoxExtent, Vector3::Zero).Magnitude();
 }
 
-geo::SDSphereBox::SDSphereBox(SDBox const& box, SDSphere const& sphere)
+geo::SDSmoothSphereBoxPlane::SDSmoothSphereBoxPlane(SDBox const& box, SDSphere const& sphere, SDPlane const& plane,
+    float smoothness)
     : m_Box{ box }
     , m_Sphere{ sphere }
+    , m_Plane{ plane }
+    , m_Smoothness{ smoothness }
 {
 }
 
-float geo::SDSphereBox::GetDistance(const Vector3& point)
+float geo::SDSmoothSphereBoxPlane::GetDistance(const Vector3& point)
 {
-    return SmoothMin(m_Sphere.GetDistance(point), m_Box.GetDistance(point), 1);
+    Vector3 const SpaceRepeatedPoint{ Vector3::Frac(point) - Vector3{ 0.5f, 0.5f, 0.5f } };
+    Vector3 rotatedPoint{ Matrix::CreateRotationZ(m_TotalTime).TransformVector(SpaceRepeatedPoint) };
+    float distSB = SmoothMin(m_Sphere.GetDistance(point), m_Box.GetDistance(rotatedPoint), 1);
+    return  SmoothMin(distSB, m_Plane.GetDistance(point), m_Smoothness);
+}
+
+void geo::SDSmoothSphereBoxPlane::Update(float elapsedSec)
+{
+    m_TotalTime += elapsedSec;
+    m_Sphere.m_Origin.x = std::sin(m_TotalTime) * 2;
 }

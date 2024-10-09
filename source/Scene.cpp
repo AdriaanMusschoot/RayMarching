@@ -5,6 +5,7 @@ namespace geo
 {
 #pragma region Base Scene
 	Scene::Scene()
+		: m_Camera{ Vector3{ 0.f,0,1.f }, 45 }
 	{
 		m_Materials.reserve(32);
 		m_Lights.reserve(32);
@@ -41,25 +42,6 @@ namespace geo
 	}
 
 #pragma region Scene Helpers
-	void Scene::AddSphere(const Vector3& origin, float radius, unsigned char materialIndex)
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSphere>(origin, radius));
-	}
-
-	void Scene::AddPlane(const Vector3& origin, const Vector3& normal, unsigned char materialIndex)
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDPlane>(origin, normal));
-	}
-
-	void Scene::AddBox(const Vector3& origin, const Vector3& boxExtent, unsigned char materialIndex)
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDBox>(origin, boxExtent));
-	}
-
-	void Scene::AddSphereBox(const SDSphere& sphere, const SDBox& box, unsigned char materialIndex)
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSphereBox>(box, sphere));
-	}
 
 	Light* Scene::AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color)
 	{
@@ -113,16 +95,23 @@ namespace geo
 #pragma region BunnyScene
 	RayMarchingScene::RayMarchingScene()
 	{
-		m_Camera.origin = { 0.f,0,1.f };
-		m_Camera.fovAngle = 45.f;
-
-		AddPlane(Vector3{ 0, -1, 0 }, Vector3{ 0, 1, 0 });
-		AddSphereBox(SDSphere{ Vector3{ 0, 0, 5}, 1}, SDBox{ Vector3{ 1, 0, 5 }, Vector3{ 1, 1, 1 } });
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSmoothSphereBoxPlane>
+			(
+				SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.05f, 0.05f, 0.05f } },
+				SDSphere{ Vector3{ 0, 0, 5 }, 0.4f },
+				SDPlane{ Vector3{ 0, -0.6, 0 }, Vector3{ 0, 1, 0 } },
+				0.5
+			));
 	}
 	
 	void RayMarchingScene::Update(Timer* pTimer)
 	{
 		Scene::Update(pTimer);
+
+		for (auto const& object : m_SDObjectUPtrVec)
+		{
+			object->Update(pTimer->GetElapsed());
+		}
 	}
 	
 #pragma endregion BunnyScene

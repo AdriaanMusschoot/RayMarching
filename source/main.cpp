@@ -25,7 +25,7 @@ int main(int argc, char* args[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 800;
+	const uint32_t width = 1400;
 	const uint32_t height = 800;
 
 	SDL_Window* pWindow = SDL_CreateWindow(

@@ -50,6 +50,16 @@ namespace geo {
 		return { v1.x * v2.x + v1.y * v2.y + v1.z * v2.z };
 	}
 
+	Vector3 Vector3::Frac(const Vector3& v1)
+	{
+		return
+		{
+			v1.x - std::floor(v1.x),
+			v1.y - std::floor(v1.y),
+			v1.z - std::floor(v1.z)
+		};
+	}
+
 	Vector3 Vector3::Cross(const Vector3& v1, const Vector3& v2)
 	{
 		//todo W1
