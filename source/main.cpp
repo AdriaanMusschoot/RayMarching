@@ -25,11 +25,11 @@ int main(int argc, char* args[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 1400;
-	const uint32_t height = 800;
+	const uint32_t width = 600;
+	const uint32_t height = 600;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
-		"RayTracer - **Adriaan Musschoot(2DAE10)**",
+		"Raymarcher, Adriaan Musschoot",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width, height, 0);

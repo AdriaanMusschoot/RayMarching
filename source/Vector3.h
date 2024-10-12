@@ -34,6 +34,7 @@ namespace geo
 
 		//Member Operators
 		Vector3 operator*(float scale) const;
+		Vector3 operator*(Vector3 other) const;
 		Vector3 operator/(float scale) const;
 		Vector3 operator+(const Vector3& v) const;
 		Vector3 operator-(const Vector3& v) const;

@@ -9,7 +9,6 @@
 #include "Execution"
 
 #define MULTITHREADING
-//#define REFLECTIONS 2
 
 using namespace geo;
 
@@ -40,6 +39,8 @@ void geo::Renderer::Render(Scene* pScene) const
 			RenderPixel(pScene, pixelIdx, camera.fovValue, camera, materialsVec, lights);
 		});
 #else
+	const int nrOfPixels{ m_Width * m_Height };
+
 	for (int pixelIdx{}; pixelIdx < nrOfPixels; ++pixelIdx)
 	{
 		RenderPixel(pScene, pixelIdx, camera.fovValue, camera, materialsVec, lights);
@@ -89,75 +90,27 @@ void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, con
 	const Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(Vector3{ cx, cy, 1 }.Normalized()) };
 	ColorRGB finalColor{};
 
-#ifdef REFLECTIONS
-	float reflectionValue{ 1.f };
-	for (int idx{}; idx < REFLECTIONS; ++idx)
-	{
-		HitRecord closestHit{};
-		pScene->GetClosestHit(cameraToWorldRay, closestHit);
-
-		if (closestHit.didHit)
-		{
-			Vector3 lightToHitDirection;
-			Ray lightToHitRay;
-
-			const Vector3 hitPointOffset{ closestHit.origin + closestHit.normal * 0.001f };
-
-			for (int idx{}; idx < lightsVec.size(); ++idx)
-			{
-				lightToHitDirection = { hitPointOffset - lightsVec[idx].origin };
-				const float lightToHitDistance{ lightToHitDirection.Magnitude() };
-				lightToHitRay = { lightsVec[idx].origin, lightToHitDirection / lightToHitDistance };
-				lightToHitRay.max = lightToHitDistance;
-
-				if (m_ShadowsEnabled && pScene->DoesHit(lightToHitRay)) continue;
-
-				switch (m_CurrentLightingMode)
-				{
-				case LightingMode::ObservedArea:
-				{
-					float observedAreaValue{ Vector3::Dot(-lightToHitRay.direction, closestHit.normal) };
-					if (observedAreaValue > 0) finalColor += ColorRGB{ 1, 1, 1 } *observedAreaValue;
-				}
-				break;
-				case LightingMode::Radiance:
-				{
-					finalColor += LightUtils::GetRadiance(pScene->GetLights()[idx], hitPointOffset);
-				}
-				break;
-				case LightingMode::BRDF:
-				{
-					finalColor += materialsVec[closestHit.materialIndex]->Shade(closestHit, -lightToHitRay.direction, -cameraToWorldRay.direction.Normalized());
-				}
-				break;
-				case LightingMode::Combined:
-				{
-					float observedAreaValue{ Vector3::Dot(-lightToHitRay.direction, closestHit.normal) };
-					if (observedAreaValue < 0) observedAreaValue = 0;
-					finalColor += reflectionValue * LightUtils::GetRadiance(pScene->GetLights()[idx], closestHit.origin) *
-						observedAreaValue *
-						materialsVec[closestHit.materialIndex]->Shade(closestHit, -lightToHitRay.direction, -cameraToWorldRay.direction.Normalized());
-				}
-				break;
-				}
-			}
-		}
-		//Update Color in Buffer
-		cameraToWorldRay.origin = closestHit.origin;
-		cameraToWorldRay.direction = Vector3::Reflect(cameraToWorldRay.direction, closestHit.normal);
-		reflectionValue -= reflectionValue / REFLECTIONS;
-	}
-#else
-	float t =  pScene->GetClosestHit(cameraToWorldRay);
-	finalColor.r = t / 6.f;
-	finalColor.g = t / 6.f;
-	finalColor.b = t / 6.f;
-#endif // REFLECTIONS
+	auto[distance, iteration] = pScene->GetClosestHit(cameraToWorldRay);
+	finalColor = Palette(distance * 0.04f + iteration * 0.005f);
 	finalColor.MaxToOne();
 	
 	m_pBufferPixels[int(px) + int(py) * m_Width] = SDL_MapRGB(m_pBuffer->format,
 		static_cast<uint8_t>(finalColor.r * 255),
 		static_cast<uint8_t>(finalColor.g * 255),
 		static_cast<uint8_t>(finalColor.b * 255));
+}
+
+ColorRGB Renderer::Palette(float distance)
+{
+	Vector3 const a = Vector3(0.5, 0.5, 0.5);
+	Vector3 const b = Vector3(0.5, 0.5, 0.5);
+	Vector3 const c = Vector3(1.0, 1.0, 1.0);
+	Vector3 const d = Vector3(0.263,0.416,0.557);
+
+	Vector3 const e = c * distance + d;
+	Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
+	Vector3 const t{ a + cosE * 6.28318f * b };
+	
+	return ColorRGB{ t.x, t.y, t.z };
 }
 

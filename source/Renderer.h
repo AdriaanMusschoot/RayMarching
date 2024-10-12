@@ -28,6 +28,7 @@ namespace geo
 		void ToggleShadows();
 		void Render(Scene* pScene) const;
 		void RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera & camera, const std::vector<Material*> & materialsVec, const std::vector<Light> & lightsVec) const;
+
 	private:
 		SDL_Window* m_pWindow{};
 
@@ -52,5 +53,7 @@ namespace geo
 		bool m_ShadowsEnabled{ false };
 
 		std::vector<uint32_t> m_PixelIndices{};
+
+		static ColorRGB Palette(float distance);
 	};
 }

@@ -57,14 +57,14 @@ geo::SDSmoothSphereBoxPlane::SDSmoothSphereBoxPlane(SDBox const& box, SDSphere c
 
 float geo::SDSmoothSphereBoxPlane::GetDistance(const Vector3& point)
 {
-    Vector3 const SpaceRepeatedPoint{ Vector3::Frac(point) - Vector3{ 0.5f, 0.5f, 0.5f } };
-    Vector3 rotatedPoint{ Matrix::CreateRotationZ(m_TotalTime).TransformVector(SpaceRepeatedPoint) };
-    float distSB = SmoothMin(m_Sphere.GetDistance(point), m_Box.GetDistance(rotatedPoint), 1);
-    return  SmoothMin(distSB, m_Plane.GetDistance(point), m_Smoothness);
+    Vector3 const OffsetPoint{ point.x, point.y, point.z + m_TotalTime };
+    Vector3 const SpaceRepeatedPoint{ Vector3::Frac(OffsetPoint) - Vector3{ 0.5f, 0.5f, 0.5f } };
+    return SmoothMin(m_Sphere.GetDistance(point), m_Box.GetDistance(SpaceRepeatedPoint), m_Smoothness);
 }
 
 void geo::SDSmoothSphereBoxPlane::Update(float elapsedSec)
 {
     m_TotalTime += elapsedSec;
-    m_Sphere.m_Origin.x = std::sin(m_TotalTime) * 2;
+    m_Sphere.m_Origin.x = std::sin(m_TotalTime);
+    m_Sphere.m_Origin.y = std::cos(m_TotalTime);
 }

@@ -5,7 +5,7 @@ namespace geo
 {
 #pragma region Base Scene
 	Scene::Scene()
-		: m_Camera{ Vector3{ 0.f,0,1.f }, 45 }
+		: m_Camera{ Vector3{ 0.f,0,0.f }, 45 }
 	{
 		m_Materials.reserve(32);
 		m_Lights.reserve(32);
@@ -22,23 +22,28 @@ namespace geo
 		m_Materials.clear();
 	}
 
-	float geo::Scene::GetClosestHit(const Ray& ray) const
+	std::pair<float,int> geo::Scene::GetClosestHit(const Ray& ray) const
 	{
 		float currentDistance{ 0.f };
 		Vector3 const& rayOrigin{ ray.origin };
 
-		for (int i = 0; i < 100; ++i)
+		int i{};
+		for (i = 0; i < 80; ++i)
 		{
-			Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
-			float distanceAbleToTravel{	GetDistanceToSphere(newPoint) };
+			Vector3 const newPoint{ rayOrigin + ray.direction * currentDistance };
+			float const distanceAbleToTravel{ GetDistanceToScene(newPoint) };
 			currentDistance += distanceAbleToTravel;
 
-			if (distanceAbleToTravel < 0.01)
+			if (distanceAbleToTravel < 0.001f)
+			{
+				break;
+			}
+			if (currentDistance > 100.f)
 			{
 				break;
 			}
 		}
-		return currentDistance;
+		return { currentDistance, i };
 	}
 
 #pragma region Scene Helpers
@@ -73,7 +78,7 @@ namespace geo
 		return static_cast<unsigned char>(m_Materials.size() - 1);
 	}
 
-	float Scene::GetDistanceToSphere(const Vector3& rayOrigin) const
+	float Scene::GetDistanceToScene(const Vector3& rayOrigin) const
 	{
 		auto minDistanceIt =
 			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
@@ -97,7 +102,7 @@ namespace geo
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSmoothSphereBoxPlane>
 			(
-				SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.05f, 0.05f, 0.05f } },
+				SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.1f, 0.1f, 0.1f } },
 				SDSphere{ Vector3{ 0, 0, 5 }, 0.4f },
 				SDPlane{ Vector3{ 0, -0.6, 0 }, Vector3{ 0, 1, 0 } },
 				0.5

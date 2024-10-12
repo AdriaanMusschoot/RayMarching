@@ -42,7 +42,7 @@ namespace geo
 
 		int mouseX{}, mouseY{};
 
-		Matrix CalculateCameraToWorld()
+		const Matrix& CalculateCameraToWorld()
 		{
 			right = Vector3::Cross(Vector3::UnitY, forward);
 			right.Normalize();

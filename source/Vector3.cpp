@@ -123,6 +123,11 @@ namespace geo {
 		return { x * scale, y * scale, z * scale };
 	}
 
+	Vector3 Vector3::operator*(Vector3 other) const
+	{
+		return { other.x * x, other.y * y, other.z * z };
+	}
+	
 	Vector3 Vector3::operator/(float scale) const
 	{
 		return { x / scale, y / scale, z / scale };

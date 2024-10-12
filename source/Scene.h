@@ -27,7 +27,7 @@ namespace geo
 		Scene& operator=(const Scene&) = delete;
 		Scene& operator=(Scene&&) noexcept = delete;
 
-		float GetClosestHit(const Ray& ray) const;
+		std::pair<float,int> GetClosestHit(const Ray& ray) const;
 
 		virtual void Update(geo::Timer* pTimer)
 		{
@@ -51,7 +51,7 @@ namespace geo
 		Light* AddDirectionalLight(const Vector3& direction, float intensity, const ColorRGB& color);
 		unsigned char AddMaterial(Material* pMaterial);
 	private:
-		float GetDistanceToSphere(const Vector3& rayOrigin) const;
+		float GetDistanceToScene(const Vector3& rayOrigin) const;
 	};
 	
 	class RayMarchingScene final : public Scene
