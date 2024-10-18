@@ -67,27 +67,27 @@ namespace geo
 			
 			if (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP])
 			{
-				origin.x -= forward.x * SPEED_TRANSLATION * deltaTime;
-				origin.y -= forward.y * SPEED_TRANSLATION * deltaTime;
-				origin.z -= forward.z * SPEED_TRANSLATION * deltaTime;
-			}
-			if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
-			{
 				origin.x += forward.x * SPEED_TRANSLATION * deltaTime;
 				origin.y += forward.y * SPEED_TRANSLATION * deltaTime;
 				origin.z += forward.z * SPEED_TRANSLATION * deltaTime;
 			}
+			if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
+			{
+				origin.x -= forward.x * SPEED_TRANSLATION * deltaTime;
+				origin.y -= forward.y * SPEED_TRANSLATION * deltaTime;
+				origin.z -= forward.z * SPEED_TRANSLATION * deltaTime;
+			}
 			if (pKeyboardState[SDL_SCANCODE_D] || pKeyboardState[SDL_SCANCODE_RIGHT])
 			{
-				origin.x -= right.x * SPEED_TRANSLATION * deltaTime;
-				origin.y -= right.y * SPEED_TRANSLATION * deltaTime;
-				origin.z -= right.z * SPEED_TRANSLATION * deltaTime;
+				origin.x += right.x * SPEED_TRANSLATION * deltaTime;
+				origin.y += right.y * SPEED_TRANSLATION * deltaTime;
+				origin.z += right.z * SPEED_TRANSLATION * deltaTime;
 			}
 			if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT])
 			{
-				origin.x += right.x * SPEED_TRANSLATION * deltaTime;
-				origin.z += right.z * SPEED_TRANSLATION * deltaTime;
-				origin.y += right.y * SPEED_TRANSLATION * deltaTime;
+				origin.x -= right.x * SPEED_TRANSLATION * deltaTime;
+				origin.z -= right.z * SPEED_TRANSLATION * deltaTime;
+				origin.y -= right.y * SPEED_TRANSLATION * deltaTime;
 			}
 
 			//Mouse Input

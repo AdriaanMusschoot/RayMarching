@@ -57,9 +57,9 @@ geo::SDSmoothSphereBoxPlane::SDSmoothSphereBoxPlane(SDBox const& box, SDSphere c
 
 float geo::SDSmoothSphereBoxPlane::GetDistance(const Vector3& point)
 {
-    Vector3 const OffsetPoint{ point.x, point.y, point.z + m_TotalTime };
+    Vector3 const OffsetPoint{ point.x, point.y, point.z + m_TotalTime * 0.5f };
     Vector3 const SpaceRepeatedPoint{ Vector3::Frac(OffsetPoint) - Vector3{ 0.5f, 0.5f, 0.5f } };
-    return SmoothMin(m_Sphere.GetDistance(point), m_Box.GetDistance(SpaceRepeatedPoint), m_Smoothness);
+    return m_Box.GetDistance(SpaceRepeatedPoint);
 }
 
 void geo::SDSmoothSphereBoxPlane::Update(float elapsedSec)
@@ -67,4 +67,65 @@ void geo::SDSmoothSphereBoxPlane::Update(float elapsedSec)
     m_TotalTime += elapsedSec;
     m_Sphere.m_Origin.x = std::sin(m_TotalTime);
     m_Sphere.m_Origin.y = std::cos(m_TotalTime);
+}
+
+float geo::SDMandelBulb::GetDistance(const Vector3& point)
+{
+    Vector3 z = point;
+    float dr = 2.0;
+    float r = 0.0;
+    float power{ 5 + (std::cos(m_TotalTime * 0.2f) + 1) * 0.5f * (10 - 5) };
+    for (int i = 0; i < 10 ; i++) {
+        r = z.Magnitude();
+        if (r>2) break;
+    
+        // convert to polar coordinates
+        float theta = acos( z.z/r );
+        float phi = atan2( z.y,z.x );
+        dr =  pow( r, power-1.0)*4*dr + 1.0;
+        // scale and rotate the point
+        float zr = pow( r,power);
+        theta = theta*power;
+        phi = phi*power;
+        // convert back to cartesian coordinates
+        z = zr*Vector3( cos(theta)*cos(phi), cos(theta)*sin(phi), sin(theta) );
+        z+=point;
+    }
+    return 0.5f*log(r)*r/dr;
+    //
+    // Vector3 w = point;
+    // float m = Vector3::Dot(w,w);
+    //
+    // Vector3 absW{ Vector3::Abs(w) };
+    // Vector4 trap = Vector4( absW,m);
+    // float dz = 1.0;
+    //
+    // for( int i=0; i<4; i++ )
+    // {
+    //     // trigonometric version (MUCH faster than polynomial)
+    //     
+    //     // dz = 8*z^7*dz
+    //     dz = 8.0*pow(m,3.5)*dz + 1.0;
+    //   
+    //     // z = z^8+c
+    //     float r = w.Magnitude();
+    //     float b = 8.0*acos( w.y/r);
+    //     float a = 8.0*atan2( w.x, w.z );
+    //     w = point + pow(r,8.0) * Vector3( sin(b)*sin(a), cos(b), sin(b)*cos(a) );
+    //
+    //     Vector4 vectorWM{ absW,m };
+    //     trap = Vector4( std::min(trap.x, vectorWM.x), std::min(trap.y, vectorWM.y), std::min(trap.z, vectorWM.z), std::min(trap.w, vectorWM.w) );
+    //
+    //     m = Vector3::Dot(w,w);
+    //     if( m > 256.0 )
+    //         break;
+    // }
+    //
+    // // distance estimation (through the Hubbard-Douady potential)
+    // return 0.25*log(m)*sqrt(m)/dz;
+}
+
+void geo::SDMandelBulb::Update(float elapsedSec)
+{
+    m_TotalTime += elapsedSec;
 }

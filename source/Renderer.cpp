@@ -91,7 +91,7 @@ void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, con
 	ColorRGB finalColor{};
 
 	auto[distance, iteration] = pScene->GetClosestHit(cameraToWorldRay);
-	finalColor = Palette(distance * 0.04f + iteration * 0.005f);
+	finalColor = ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.06f + iteration * 0.01);
 	finalColor.MaxToOne();
 	
 	m_pBufferPixels[int(px) + int(py) * m_Width] = SDL_MapRGB(m_pBuffer->format,
@@ -105,7 +105,7 @@ ColorRGB Renderer::Palette(float distance)
 	Vector3 const a = Vector3(0.5, 0.5, 0.5);
 	Vector3 const b = Vector3(0.5, 0.5, 0.5);
 	Vector3 const c = Vector3(1.0, 1.0, 1.0);
-	Vector3 const d = Vector3(0.263,0.416,0.557);
+	Vector3 const d = Vector3(0.263,0.416,0.457);
 
 	Vector3 const e = c * distance + d;
 	Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };

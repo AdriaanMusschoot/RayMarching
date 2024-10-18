@@ -31,6 +31,8 @@ namespace geo
 
 		virtual void Update(geo::Timer* pTimer)
 		{
+			m_TotalTime = pTimer->GetTotal();
+			m_DeltaTime = pTimer->GetElapsed();
 			m_Camera.Update(pTimer);
 		}
 
@@ -41,6 +43,8 @@ namespace geo
 	protected:
 		std::string	m_SceneName;
 
+		float m_TotalTime{};
+		float m_DeltaTime{};
 		
 		std::vector<std::unique_ptr<ISDObject>> m_SDObjectUPtrVec{};
 		std::vector<Material*> m_Materials{};

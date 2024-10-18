@@ -1,11 +1,14 @@
 #include "Scene.h"
+
+#include <algorithm>
+
 #include "Material.h"
 
 namespace geo
 {
 #pragma region Base Scene
 	Scene::Scene()
-		: m_Camera{ Vector3{ 0.f,0,0.f }, 45 }
+		: m_Camera{ Vector3{ 0.f,0,-4.f }, 45 }
 	{
 		m_Materials.reserve(32);
 		m_Lights.reserve(32);
@@ -28,9 +31,13 @@ namespace geo
 		Vector3 const& rayOrigin{ ray.origin };
 
 		int i{};
-		for (i = 0; i < 80; ++i)
+		for (i = 0; i < 10000; ++i)
 		{
-			Vector3 const newPoint{ rayOrigin + ray.direction * currentDistance };
+			Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
+			// const float sinDist{ std::sin(currentDistance * 0.3f) };
+			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
+			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
+			// newPoint += Vector3{ 0.f, sinDist * sinTime * 10, 0.f } * 0.3f;
 			float const distanceAbleToTravel{ GetDistanceToScene(newPoint) };
 			currentDistance += distanceAbleToTravel;
 
@@ -38,7 +45,7 @@ namespace geo
 			{
 				break;
 			}
-			if (currentDistance > 100.f)
+			if (currentDistance > 50.f)
 			{
 				break;
 			}
@@ -100,13 +107,14 @@ namespace geo
 #pragma region BunnyScene
 	RayMarchingScene::RayMarchingScene()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSmoothSphereBoxPlane>
-			(
-				SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.1f, 0.1f, 0.1f } },
-				SDSphere{ Vector3{ 0, 0, 5 }, 0.4f },
-				SDPlane{ Vector3{ 0, -0.6, 0 }, Vector3{ 0, 1, 0 } },
-				0.5
-			));
+		//m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSmoothSphereBoxPlane>
+		//	(
+		//		SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.05f, 0.05f, 0.3f } },
+		//		SDSphere{ Vector3{ 0, 0, 0 }, 0.3f },
+		//		SDPlane{ Vector3{ 0, -0.6, 0 }, Vector3{ 0, 1, 0 } },
+		//		0.5
+		//	));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDMandelBulb>());
 	}
 	
 	void RayMarchingScene::Update(Timer* pTimer)

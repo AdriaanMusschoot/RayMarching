@@ -63,10 +63,20 @@ namespace geo
 		SDBox m_Box{ Vector3::Zero, Vector3::Zero };
 		SDSphere m_Sphere{ Vector3::Zero, 0 };
 		SDPlane m_Plane{ Vector3::Zero, Vector3::UnitY };
+		SDBox m_Box2{ Vector3::Zero, Vector3{ 0.2, 0.2, 0.2 } };
 
 	private:
 		float m_TotalTime{};
 		float m_Smoothness{};
+	};
+
+	struct SDMandelBulb final : public ISDObject
+	{
+		float GetDistance(const Vector3& point) override;
+		void Update(float elapsedSec) override;
+
+	private:
+		float m_TotalTime{};
 	};
 #pragma endregion
 #pragma region LIGHT
