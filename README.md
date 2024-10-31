@@ -1,5 +1,5 @@
 # RayMarching
 
-Welcome to the world of tracing spheres.
+Welcome to the beautiful world of sphere tracing.
 
 ![Alt text](Readme/FractalsSmooth.gif)
