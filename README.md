@@ -2,4 +2,4 @@
 
 Welcome to the world of tracing spheres.
 
-![Alt text](Readme/Cubespheresmooth.mp4)
+![Alt text](Readme/CubeSphereSmooth.mp4)
