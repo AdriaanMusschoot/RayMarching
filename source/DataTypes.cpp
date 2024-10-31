@@ -80,7 +80,7 @@ float geo::SDMandelBulb::GetDistance(const Vector3& point)
         if (r>2) break;
     
         // convert to polar coordinates
-        float theta = acos( z.z/r );
+        float theta = asin( z.z/r );
         float phi = atan2( z.y,z.x );
         dr =  pow( r, power-1.0)*4*dr + 1.0;
         // scale and rotate the point
