@@ -8,5 +8,16 @@ Welcome to the beautiful world of sphere tracing.
 
 In raytracing you shoot a ray into the scene from the camera pov and calculate the intersection point of a ray. In sphere tracing you still shoot a ray from the camera, but you calculate the distance from the current point (initially the camera) to the closest object. Once you know the minimum distance to the closest object you know that you can travel along the ray to that minimum distance and get a new current point. And you repeat these steps until the minimum distance to the closest object is smaller than an arbitrary value (0.001) and you know you have hit something.
 
-## My implementation
+## My implementations
 
+### Smooth blending
+
+![Alt text](Readme/CubeSphereSmooth.gif)
+
+### Fractals
+
+![Alt text](Readme/FractalsSmooth.gif)
+
+### MandelBulb
+
+![Alt text](Readme/MandelBulb.gif)
