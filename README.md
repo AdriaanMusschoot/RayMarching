@@ -30,3 +30,8 @@ The scene is now also coloured but it is still using a remap formula based on di
 ### MandelBulb
 
 ![Alt text](Readme/MandelBulb.gif)
+
+For the final frame I present to you the MandelBulb, a manifestation of the Mandelbrot set.
+If you had a super computer and a crazy amount of GPU-power you can keep zooming in and keep discovering more detail.
+To visualize this shape I needed some form of ambient occlusion, otherwise you can't really see the detail. To achieve this in a cheap manner, I used the number of steps the ray had to take to hit a point.
+After updating one of the values in the complex sdf, it resulted in this cool animated MandelBulb.
