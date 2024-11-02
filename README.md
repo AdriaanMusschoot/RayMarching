@@ -22,6 +22,11 @@ When the shpere or cube overlaps with the plane it takes whatever is closest. Ho
 
 ![Alt text](Readme/FractalsRotation.gif)
 
+This second frame is me exploring something similar to instanced rendering. There is but one cube in this scene.
+When calculating the distance to this cube we pass along the point in space where the raymarcher is querying from. By remapping this point in the zero to one space, we can hit the same cube at different distances in space.
+As the ray travels further into the scene a stronger rotation is applied to it.
+The scene is now also coloured but it is still using a remap formula based on distance (Inigo Quilez).
+
 ### MandelBulb
 
 ![Alt text](Readme/MandelBulb.gif)
