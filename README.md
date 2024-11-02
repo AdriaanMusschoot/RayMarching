@@ -1,6 +1,9 @@
 # RayMarching
 
 Welcome to the beautiful world of sphere tracing.
+I used the framework of a previousy made raytracer, and transformed it into a spheretracing raymarcher.
+This project was made completely on the cpu, so to at least achieve some frames to look at the beautiful scenes, I had to make the application multi-threaded.
+Later, I would like to port this to Vulkan, to experiment some more and have some decent performance.
 
 ![Alt text](Readme/FractalsSmooth.gif)
 
