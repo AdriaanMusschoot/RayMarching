@@ -16,7 +16,7 @@ In raytracing you shoot a ray into the scene from the camera pov and calculate t
 
 ### Fractals
 
-![Alt text](Readme/FractalsSmooth.gif)
+![Alt text](Readme/FractalsRotation.gif)
 
 ### MandelBulb
 
