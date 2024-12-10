@@ -5,139 +5,101 @@
 
 #include <iostream>
 #include <fstream>
+#include <variant>
 
+#include "Renderer.h"
 #include "SDL.h"
 using namespace VM;
 
 Timer::Timer()
 {
-	const uint64_t countsPerSecond = SDL_GetPerformanceFrequency();
-	m_SecondsPerCount = 1.0f / static_cast<float>(countsPerSecond);
-}
-
-void Timer::Reset()
-{
-	const uint64_t currentTime = SDL_GetPerformanceCounter();
-
-	m_BaseTime = currentTime;
-	m_PreviousTime = currentTime;
-	m_StopTime = 0;
-	m_FPSTimer = 0.0f;
-	m_FPSCount = 0;
-	m_IsStopped = false;
-}
-
-void Timer::Start()
-{
-	const uint64_t startTime = SDL_GetPerformanceCounter();
-
-	if (m_IsStopped)
-	{
-		m_PausedTime += startTime - m_StopTime;
-
-		m_PreviousTime = startTime;
-		m_StopTime = 0;
-		m_IsStopped = false;
-	}
+	m_StartTime = std::chrono::high_resolution_clock::now();
+	m_PreviousTime = m_StartTime;
 }
 
 void Timer::StartBenchmark(int numFrames)
 {
 	if (m_BenchmarkActive)
 	{
-		std::cout << "(Benchmark already running)";
+		std::cout << "Benchmark already active\n";
 		return;
 	}
 
 	m_BenchmarkActive = true;
-
-	m_BenchmarkAvg = 0.f;
-	m_BenchmarkHigh = FLT_MIN;
-	m_BenchmarkLow = FLT_MAX;
-
-	m_BenchmarkFrames = numFrames;
-	m_BenchmarkCurrFrame = 0;
-
-	m_Benchmarks.clear();
-	m_Benchmarks.resize(m_BenchmarkFrames);
+	m_BenchmarkTargetFrames = numFrames;
+	m_BenchmarkFrameTimeVec.clear();
+	m_BenchmarkFrameTimeVec.reserve(numFrames);
 
 	std::cout << "**BENCHMARK STARTED**\n";
 }
 
 void Timer::Update()
 {
-	if (m_IsStopped)
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float> elapsed = currentTime - m_PreviousTime;
+	m_ElapsedTime = elapsed.count();
+	m_PreviousTime = currentTime;
+
+	m_CurrentFrameFPS = 1.0f / m_ElapsedTime;
+
+	m_OutputTimer += m_ElapsedTime;
+	++m_OutputFPSCount;
+
+	//reset after 1 second -> so fpS
+	if (m_OutputTimer >= 1.0f)
 	{
-		m_FPS = 0;
-		m_ElapsedTime = 0.0f;
-		m_TotalTime = static_cast<float>(m_StopTime - m_PausedTime - m_BaseTime) * static_cast<float>(m_BaseTime);
-		return;
+		m_TotalTime += m_OutputTimer;
+		m_TotalFPSCount += m_OutputFPSCount;
+		
+		PrintFPS();
+
+		m_OutputFPSCount = 0;
+		m_OutputTimer = 0.0f;
 	}
 
-	const uint64_t currentTime = SDL_GetPerformanceCounter();
-	m_CurrentTime = currentTime;
-
-	m_ElapsedTime = static_cast<float>(m_CurrentTime - m_PreviousTime) * m_SecondsPerCount;
-	m_PreviousTime = m_CurrentTime;
-
-	if (m_ElapsedTime < 0.0f)
-		m_ElapsedTime = 0.0f;
-
-	if (m_ForceElapsedUpperBound && m_ElapsedTime > m_ElapsedUpperBound)
+	if (m_BenchmarkActive)
 	{
-		m_ElapsedTime = m_ElapsedUpperBound;
-	}
-
-	m_TotalTime = static_cast<float>(m_CurrentTime - m_PausedTime - m_BaseTime) * m_SecondsPerCount;
-
-	m_FPSTimer += m_ElapsedTime;
-	++m_FPSCount;
-	if (m_FPSTimer >= 1.0f)
-	{
-		m_dFPS = static_cast<float>(m_FPSCount) / m_FPSTimer;
-		m_FPS = m_FPSCount;
-		m_FPSCount = 0;
-		m_FPSTimer = 0.0f;
-
-		if (m_BenchmarkActive)
+		m_BenchmarkFrameTimeVec.emplace_back(m_ElapsedTime); // Record the instantaneous FPS for the frame
+		if (m_BenchmarkFrameTimeVec.size() >= m_BenchmarkTargetFrames)
 		{
-			m_Benchmarks[m_BenchmarkCurrFrame] = m_dFPS;
-
-			m_BenchmarkLow = std::min(m_BenchmarkLow, m_dFPS);
-			m_BenchmarkHigh = std::max(m_BenchmarkHigh, m_dFPS);
-
-			++m_BenchmarkCurrFrame;
-			if (m_BenchmarkCurrFrame >= m_BenchmarkFrames)
-			{
-				m_BenchmarkActive = false;
-				m_BenchmarkAvg = std::accumulate(m_Benchmarks.begin(), m_Benchmarks.end(), 0.f) / float(m_BenchmarkFrames);
-
-				//print
-				std::cout << "**BENCHMARK FINISHED**\n";
-				std::cout << ">> FRAMES = " << m_BenchmarkCurrFrame << '\n';
-				std::cout << ">> HIGH = " << m_BenchmarkHigh << '\n';
-				std::cout << ">> LOW = " << m_BenchmarkLow << '\n';
-				std::cout << ">> AVG = " << m_BenchmarkAvg << '\n';
-
-				//file save
-				std::ofstream fileStream("benchmark.txt");
-				fileStream << "FRAMES = " << m_BenchmarkCurrFrame << '\n';
-				fileStream << "HIGH = " << m_BenchmarkHigh << '\n';
-				fileStream << "LOW = " << m_BenchmarkLow << '\n';
-				fileStream << "AVG = " << m_BenchmarkAvg << '\n';
-				fileStream.close();
-			}
+			EndBenchmark();
 		}
 	}
 }
 
-void Timer::Stop()
+void Timer::PrintFPS() const
 {
-	if (!m_IsStopped)
-	{
-		const uint64_t currentTime = SDL_GetPerformanceCounter();
+	std::cout << "FPS: " << m_OutputFPSCount << "\n";
+	std::cout << "AVG FPS: " << static_cast<float>(m_TotalFPSCount) / m_TotalTime << " = (" << m_TotalFPSCount << " : " << m_TotalTime << ")\n";
+}
 
-		m_StopTime = currentTime;
-		m_IsStopped = true;
-	}
+void Timer::EndBenchmark()
+{
+	m_BenchmarkActive = false;
+
+	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, std::cout);
+	
+	std::ofstream fileStream("benchmark.txt");
+	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, fileStream);
+	fileStream.close();
+}
+
+void Timer::OutputBenchmarkResults(std::vector<float> const& frameTimeVec, std::ostream& outputStream)
+{
+	if (frameTimeVec.empty()) return;
+
+	float benchMarkTotalTime{ std::accumulate(frameTimeVec.begin(), frameTimeVec.end(), 0.0f) };
+	float avgFrameTime{ benchMarkTotalTime / frameTimeVec.size() }; 
+	float maxFrameTime{ *std::ranges::max_element(frameTimeVec) };
+	float minFrameTime{ *std::ranges::min_element(frameTimeVec) };
+
+	outputStream << "**BENCHMARK FINISHED**\n";
+	outputStream << ">> TOTAL TIME = " << benchMarkTotalTime << " seconds\n";
+	outputStream << ">> TOTAL FRAMES = " << frameTimeVec.size() << "\n\n";
+	outputStream << ">> LONGEST TIME = " << maxFrameTime << "\n";
+	outputStream << ">> LOWEST FPS = " << 1 / maxFrameTime << "\n\n";
+	outputStream << ">> SHORTEST TIME = " << minFrameTime << "\n";
+	outputStream << ">> HIGHEST FPS = " << 1 / minFrameTime << "\n\n";
+	outputStream << ">> AVG TIME = " << avgFrameTime << "\n";
+	outputStream << ">> AVG FPS = " << 1 / avgFrameTime << "\n\n";
 }

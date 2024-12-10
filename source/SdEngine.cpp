@@ -12,8 +12,6 @@ VM::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
 
 void VM::SdEngine::Run()
 {
-    Timer.Start();
-    
     while (not ShouldQuit)
     {
         Timer.Update();
@@ -24,8 +22,6 @@ void VM::SdEngine::Run()
         
         Renderer.Render(Scene);
     }
-
-    Timer.Stop();
 }
 
 void VM::SdEngine::HandleInput()
@@ -42,7 +38,7 @@ void VM::SdEngine::HandleInput()
             break;
         case SDL_KEYDOWN:
             if (e.key.keysym.scancode == SDL_SCANCODE_F6)
-                Timer.StartBenchmark();
+                Timer.StartBenchmark(1000);
             break;
         default: ;
         }
