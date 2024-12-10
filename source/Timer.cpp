@@ -70,14 +70,14 @@ void Timer::Update()
 	{
 		m_FPS = 0;
 		m_ElapsedTime = 0.0f;
-		m_TotalTime = (float)(((m_StopTime - m_PausedTime) - m_BaseTime) * m_BaseTime);
+		m_TotalTime = static_cast<float>(m_StopTime - m_PausedTime - m_BaseTime) * static_cast<float>(m_BaseTime);
 		return;
 	}
 
 	const uint64_t currentTime = SDL_GetPerformanceCounter();
 	m_CurrentTime = currentTime;
 
-	m_ElapsedTime = (float)((m_CurrentTime - m_PreviousTime) * m_SecondsPerCount);
+	m_ElapsedTime = static_cast<float>(m_CurrentTime - m_PreviousTime) * m_SecondsPerCount;
 	m_PreviousTime = m_CurrentTime;
 
 	if (m_ElapsedTime < 0.0f)
@@ -88,14 +88,13 @@ void Timer::Update()
 		m_ElapsedTime = m_ElapsedUpperBound;
 	}
 
-	m_TotalTime = (float)(((m_CurrentTime - m_PausedTime) - m_BaseTime) * m_SecondsPerCount);
+	m_TotalTime = static_cast<float>(m_CurrentTime - m_PausedTime - m_BaseTime) * m_SecondsPerCount;
 
-	//FPS LOGIC
 	m_FPSTimer += m_ElapsedTime;
 	++m_FPSCount;
 	if (m_FPSTimer >= 1.0f)
 	{
-		m_dFPS = m_FPSCount / m_FPSTimer;
+		m_dFPS = static_cast<float>(m_FPSCount) / m_FPSTimer;
 		m_FPS = m_FPSCount;
 		m_FPSCount = 0;
 		m_FPSTimer = 0.0f;
@@ -115,16 +114,16 @@ void Timer::Update()
 
 				//print
 				std::cout << "**BENCHMARK FINISHED**\n";
-				std::cout << ">> HIGH = " << m_BenchmarkHigh << std::endl;
-				std::cout << ">> LOW = " << m_BenchmarkLow << std::endl;
-				std::cout << ">> AVG = " << m_BenchmarkAvg << std::endl;
+				std::cout << ">> HIGH = " << m_BenchmarkHigh << '\n';
+				std::cout << ">> LOW = " << m_BenchmarkLow << '\n';
+				std::cout << ">> AVG = " << m_BenchmarkAvg << '\n';
 
 				//file save
 				std::ofstream fileStream("benchmark.txt");
-				fileStream << "FRAMES = " << m_BenchmarkCurrFrame << std::endl;
-				fileStream << "HIGH = " << m_BenchmarkHigh << std::endl;
-				fileStream << "LOW = " << m_BenchmarkLow << std::endl;
-				fileStream << "AVG = " << m_BenchmarkAvg << std::endl;
+				fileStream << "FRAMES = " << m_BenchmarkCurrFrame << '\n';
+				fileStream << "HIGH = " << m_BenchmarkHigh << '\n';
+				fileStream << "LOW = " << m_BenchmarkLow << '\n';
+				fileStream << "AVG = " << m_BenchmarkAvg << '\n';
 				fileStream.close();
 			}
 		}

@@ -26,8 +26,9 @@ namespace VM
 
 		void CycleLightingMode();
 		void ToggleShadows();
-		void Render(Scene* pScene) const;
-		void RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera & camera, const std::vector<Material*> & materialsVec, const std::vector<SDF::Light> & lightsVec) const;
+		void Render(const Scene& pScene) const;
+		void RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const
+		                 std::vector<SDF::Light>& lightsVec) const;
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -54,6 +55,6 @@ namespace VM
 
 		std::vector<uint32_t> m_PixelIndices{};
 
-		static VM::ColorRGB Palette(float distance);
+		static ColorRGB Palette(float distance);
 	};
 }

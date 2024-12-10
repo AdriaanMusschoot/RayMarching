@@ -57,36 +57,34 @@ namespace VM
 			};
 		}
 
-		void Update(Timer* pTimer)
+		void Update(float ElapsedTime)
 		{
-			const float deltaTime = pTimer->GetElapsed();
-
 			//Keyboard Input
 			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
 			
 			if (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP])
 			{
-				origin.x += forward.x * SPEED_TRANSLATION * deltaTime;
-				origin.y += forward.y * SPEED_TRANSLATION * deltaTime;
-				origin.z += forward.z * SPEED_TRANSLATION * deltaTime;
+				origin.x += forward.x * SPEED_TRANSLATION * ElapsedTime;
+				origin.y += forward.y * SPEED_TRANSLATION * ElapsedTime;
+				origin.z += forward.z * SPEED_TRANSLATION * ElapsedTime;
 			}
 			if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
 			{
-				origin.x -= forward.x * SPEED_TRANSLATION * deltaTime;
-				origin.y -= forward.y * SPEED_TRANSLATION * deltaTime;
-				origin.z -= forward.z * SPEED_TRANSLATION * deltaTime;
+				origin.x -= forward.x * SPEED_TRANSLATION * ElapsedTime;
+				origin.y -= forward.y * SPEED_TRANSLATION * ElapsedTime;
+				origin.z -= forward.z * SPEED_TRANSLATION * ElapsedTime;
 			}
 			if (pKeyboardState[SDL_SCANCODE_D] || pKeyboardState[SDL_SCANCODE_RIGHT])
 			{
-				origin.x += right.x * SPEED_TRANSLATION * deltaTime;
-				origin.y += right.y * SPEED_TRANSLATION * deltaTime;
-				origin.z += right.z * SPEED_TRANSLATION * deltaTime;
+				origin.x += right.x * SPEED_TRANSLATION * ElapsedTime;
+				origin.y += right.y * SPEED_TRANSLATION * ElapsedTime;
+				origin.z += right.z * SPEED_TRANSLATION * ElapsedTime;
 			}
 			if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT])
 			{
-				origin.x -= right.x * SPEED_TRANSLATION * deltaTime;
-				origin.z -= right.z * SPEED_TRANSLATION * deltaTime;
-				origin.y -= right.y * SPEED_TRANSLATION * deltaTime;
+				origin.x -= right.x * SPEED_TRANSLATION * ElapsedTime;
+				origin.z -= right.z * SPEED_TRANSLATION * ElapsedTime;
+				origin.y -= right.y * SPEED_TRANSLATION * ElapsedTime;
 			}
 
 			//Mouse Input
@@ -96,20 +94,20 @@ namespace VM
 			bool holdingRightMouseButton{ (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0 };
 			if (holdingRightMouseButton && holdingLeftMouseButton)
 			{
-				origin.y += up.y * mouseY * SPEED_TRANSLATION * deltaTime;
+				origin.y += up.y * mouseY * SPEED_TRANSLATION * ElapsedTime;
 			}
 			else if (holdingRightMouseButton)
 			{
-				totalPitch += mouseX * SPEED_ROTATION * deltaTime;
-				totalYaw -= mouseY * SPEED_ROTATION * deltaTime;
+				totalPitch += mouseX * SPEED_ROTATION * ElapsedTime;
+				totalYaw -= mouseY * SPEED_ROTATION * ElapsedTime;
 			}
 			else if (holdingLeftMouseButton)
 			{
-				origin.x += forward.x * mouseY * SPEED_TRANSLATION * deltaTime;
-				origin.y += forward.y * mouseY * SPEED_TRANSLATION * deltaTime;
-				origin.z += forward.z * mouseY * SPEED_TRANSLATION * deltaTime;
+				origin.x += forward.x * mouseY * SPEED_TRANSLATION * ElapsedTime;
+				origin.y += forward.y * mouseY * SPEED_TRANSLATION * ElapsedTime;
+				origin.z += forward.z * mouseY * SPEED_TRANSLATION * ElapsedTime;
 
-				totalPitch += mouseX * SPEED_ROTATION * deltaTime;
+				totalPitch += mouseX * SPEED_ROTATION * ElapsedTime;
 			}
 			if (holdingLeftMouseButton != holdingRightMouseButton)
 			{

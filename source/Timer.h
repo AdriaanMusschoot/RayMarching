@@ -27,7 +27,7 @@ namespace VM
 		uint32_t GetFPS() const { return m_FPS; };
 		float GetdFPS() const { return m_dFPS; };
 		float GetElapsed() const { return m_ElapsedTime; };
-		float GetTotal() const { return m_TotalTime; };
+		float GetTotalTime() const { return m_TotalTime; };
 		bool IsRunning() const { return !m_IsStopped; };
 
 	private:

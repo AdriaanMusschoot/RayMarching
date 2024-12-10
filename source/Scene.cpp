@@ -110,13 +110,13 @@ namespace VM
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDF::MandelBulb>());
 	}
 	
-	void RayMarchingScene::Update(Timer* pTimer)
+	void RayMarchingScene::Update(float ElapsedSec)
 	{
-		Scene::Update(pTimer);
+		Scene::Update(ElapsedSec);
 
 		for (auto const& object : m_SDObjectUPtrVec)
 		{
-			object->Update(pTimer->GetElapsed());
+			object->Update(ElapsedSec);
 		}
 	}
 	

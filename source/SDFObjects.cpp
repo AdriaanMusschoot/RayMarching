@@ -50,7 +50,7 @@ float SDF::MandelBulb::GetDistance(const VM::Vector3& point)
     VM::Vector3 z = point;
     float dr{ 2.0f };
     float r{ 0.0f };
-    float power{ 5.f + (std::cos(m_TotalTime * 0.2f) + 1.f) * 0.5f * (10.f - 5.f) };
+    float power{ 10.f };
     for (int i = 0; i < 10 ; i++)
     {
         r = z.Magnitude();

@@ -12,47 +12,37 @@
 #include "Renderer.h"
 #include "Scene.h"
 
-
-using namespace VM;
-
-void ShutDown(SDL_Window* pWindow)
-{
-	SDL_DestroyWindow(pWindow);
-	SDL_Quit();
-}
-
 int main(int argc, char* args[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 600;
-	const uint32_t height = 600;
+	constexpr uint32_t width = 600;
+	constexpr uint32_t height = 600;
 
-	SDL_Window* pWindow = SDL_CreateWindow(
+	SDL_Window* pWindow = SDL_CreateWindow
+	(
 		"Raymarcher, Adriaan Musschoot",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		width, height, 0);
+		width, height, 0
+	);
 
 	if (!pWindow)
 		return 1;
 
-	//Initialize "framework"
-	const auto pTimer = new Timer();
-	const auto pRenderer = new Renderer(pWindow);
+	VM::Timer Timer{};
+	VM::Renderer Renderer{ pWindow };
+	VM::RayMarchingScene Scene{};
 
-	const auto pScene = new RayMarchingScene();
-
-	//Start loop
-	pTimer->Start();
+	Timer.Start();
 
 	// Start Benchmark
-	// pTimer->StartBenchmark();
+	Timer.StartBenchmark();
 
 	float printTimer = 0.f;
 	bool isLooping = true;
 	bool takeScreenshot = false;
-	const int lightMoveSpeed{ 10 };
+	constexpr int lightMoveSpeed{ 10 };
 	float totalFrames{};
 	while (isLooping)
 	{
@@ -71,51 +61,43 @@ int main(int argc, char* args[])
 				if(e.key.keysym.scancode == SDL_SCANCODE_X)
 					takeScreenshot = true;
 				if (e.key.keysym.scancode == SDL_SCANCODE_F2)
-					pRenderer->ToggleShadows();
+					Renderer.ToggleShadows();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F3)
-					pRenderer->CycleLightingMode();
+					Renderer.CycleLightingMode();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F6)
-					pTimer->StartBenchmark();
+					Timer.StartBenchmark();
 
 				break;
+			default: ;
 			}
 		}
 	
 		
-		//--------- Update ---------
-		pScene->Update(pTimer);
+		Scene.Update(Timer.GetElapsed());
 
-		//--------- Render ---------
-		pRenderer->Render(pScene);
+		Renderer.Render(Scene);
 
-		//--------- Timer ---------
-		pTimer->Update();
-		printTimer += pTimer->GetElapsed();
+		Timer.Update();
+		printTimer += Timer.GetElapsed();
 		if (printTimer >= 1.f)
 		{
 			printTimer = 0.f;
-			std::cout << "current FPS: " << pTimer->GetdFPS() << ", \n";
-			/*totalFrames += pTimer->GetdFPS();
-			std::cout << "average FPS: " << totalFrames / pTimer->GetTotal() << std::endl;*/
+			std::cout << "current FPS: " << Timer.GetdFPS() << ", \n";
+			totalFrames += Timer.GetdFPS();
+			std::cout << "average FPS: " << totalFrames / Timer.GetTotalTime() << '\n';
 		}
 
-		//Save screenshot after full render
 		if (takeScreenshot)
 		{
-			if (!pRenderer->SaveBufferToImage())
-				std::cout << "Screenshot saved!" << std::endl;
+			if (!Renderer.SaveBufferToImage())
+				std::cout << "Screenshot saved!" << '\n';
 			else
-				std::cout << "Something went wrong. Screenshot not saved!" << std::endl;
+				std::cout << "Something went wrong. Screenshot not saved!" << '\n';
 			takeScreenshot = false;
 		}
 	}
-	pTimer->Stop();
+	Timer.Stop();
 
-	//Shutdown "framework"
-	delete pScene;
-	delete pRenderer;
-	delete pTimer;
-
-	ShutDown(pWindow);
-	return 0;
+	SDL_DestroyWindow(pWindow);
+	SDL_Quit();
 }

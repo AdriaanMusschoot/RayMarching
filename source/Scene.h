@@ -29,14 +29,12 @@ namespace VM
 
 		std::pair<float,int> GetClosestHit(const SDF::Ray& ray) const;
 
-		virtual void Update(VM::Timer* pTimer)
+		virtual void Update(float ElapsedSec)
 		{
-			m_TotalTime = pTimer->GetTotal();
-			m_DeltaTime = pTimer->GetElapsed();
-			m_Camera.Update(pTimer);
+			m_Camera.Update(ElapsedSec);
 		}
 
-		Camera& GetCamera() { return m_Camera; }
+		const Camera& GetCamera() const { return m_Camera; }
 
 		const std::vector<SDF::Light>& GetLights() const { return m_Lights; }
 		const std::vector<Material*>& GetMaterials() const { return m_Materials; }
@@ -69,7 +67,7 @@ namespace VM
 		RayMarchingScene& operator=(const RayMarchingScene&) = delete;
 		RayMarchingScene& operator=(RayMarchingScene&&) noexcept = delete;
 
-		void Update(Timer* pTimer) override;
+		void Update(float ElapsedSec) override;
 	};
 	
 }
