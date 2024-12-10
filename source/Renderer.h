@@ -15,46 +15,33 @@ namespace VM
 	class Renderer final
 	{
 	public:
-		Renderer(SDL_Window* pWindow);
-		~Renderer() = default;
+		Renderer(uint32_t const& width, uint32_t const& height);
+		~Renderer();
 
 		Renderer(const Renderer&) = delete;
 		Renderer(Renderer&&) noexcept = delete;
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
+		
 		bool SaveBufferToImage() const;
 
-		void CycleLightingMode();
-		void ToggleShadows();
 		void Render(const Scene& pScene) const;
-		void RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const
-		                 std::vector<SDF::Light>& lightsVec) const;
+		
 
 	private:
-		SDL_Window* m_pWindow{};
+		SDL_Window* m_WindowPtr{};
 
-		SDL_Surface* m_pBuffer{};
-		uint32_t* m_pBufferPixels{};
+		SDL_Surface* m_SurfacePtr{};
+		uint32_t* m_SurfacePixels{};
 
-		int m_Width{};
-		int m_Height{};
+		uint32_t m_Width{};
+		uint32_t m_Height{};
 		float m_AspectRatio{};
-
-		enum class LightingMode
-		{
-			ObservedArea,
-			Radiance, 
-			BRDF,
-			Combined,
-
-			NrOfEnums
-		};
-
-		LightingMode m_CurrentLightingMode{ LightingMode::Combined };
-		bool m_ShadowsEnabled{ false };
 
 		std::vector<uint32_t> m_PixelIndices{};
 
 		static ColorRGB Palette(float distance);
+		void RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const
+						 std::vector<sdf::Light>& lightsVec) const;
 	};
 }

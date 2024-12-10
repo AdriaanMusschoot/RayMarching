@@ -1,0 +1,50 @@
+#include "SdEngine.h"
+
+#include <SDL.h>
+#include <SDL_events.h>
+
+VM::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
+    : Renderer{ width, height }
+    , Timer{}
+    , Scene{}
+{
+}
+
+void VM::SdEngine::Run()
+{
+    Timer.Start();
+    
+    while (not ShouldQuit)
+    {
+        Timer.Update();
+        
+        HandleInput();
+
+        Scene.Update(Timer.GetElapsed());
+        
+        Renderer.Render(Scene);
+    }
+
+    Timer.Stop();
+}
+
+void VM::SdEngine::HandleInput()
+{
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
+    {
+        const Uint8* pStates = SDL_GetKeyboardState(nullptr);
+			
+        switch (e.type)
+        {
+        case SDL_QUIT:
+            ShouldQuit = true;
+            break;
+        case SDL_KEYDOWN:
+            if (e.key.keysym.scancode == SDL_SCANCODE_F6)
+                Timer.StartBenchmark();
+            break;
+        default: ;
+        }
+    }
+}

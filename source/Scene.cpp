@@ -25,7 +25,7 @@ namespace VM
 		m_Materials.clear();
 	}
 
-	std::pair<float,int> VM::Scene::GetClosestHit(const SDF::Ray& ray) const
+	std::pair<float,int> VM::Scene::GetClosestHit(const sdf::Ray& ray) const
 	{
 		float currentDistance{ 0.f };
 		Vector3 const& rayOrigin{ ray.origin };
@@ -55,25 +55,25 @@ namespace VM
 
 #pragma region Scene Helpers
 
-	SDF::Light* Scene::AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color)
+	sdf::Light* Scene::AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color)
 	{
-		SDF::Light l;
+		sdf::Light l;
 		l.origin = origin;
 		l.intensity = intensity;
 		l.color = color;
-		l.type = SDF::LightType::Point;
+		l.type = sdf::LightType::Point;
 
 		m_Lights.emplace_back(l);
 		return &m_Lights.back();
 	}
 
-	SDF::Light* Scene::AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color)
+	sdf::Light* Scene::AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color)
 	{
-		SDF::Light l;
+		sdf::Light l;
 		l.direction = direction;
 		l.intensity = intensity;
 		l.color = color;
-		l.type = SDF::LightType::Directional;
+		l.type = sdf::LightType::Directional;
 
 		m_Lights.emplace_back(l);
 		return &m_Lights.back();
@@ -89,7 +89,7 @@ namespace VM
 	{
 		auto minDistanceIt =
 			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-		[&rayOrigin](const std::unique_ptr<SDF::Object>& a, const std::unique_ptr<SDF::Object>& b)
+		[&rayOrigin](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
 			{
 				return a->GetDistance(rayOrigin) < b->GetDistance(rayOrigin);
 			});
@@ -107,7 +107,7 @@ namespace VM
 #pragma region BunnyScene
 	RayMarchingScene::RayMarchingScene()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDF::MandelBulb>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
 	}
 	
 	void RayMarchingScene::Update(float ElapsedSec)

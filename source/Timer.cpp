@@ -33,7 +33,7 @@ void Timer::Start()
 
 	if (m_IsStopped)
 	{
-		m_PausedTime += (startTime - m_StopTime);
+		m_PausedTime += startTime - m_StopTime;
 
 		m_PreviousTime = startTime;
 		m_StopTime = 0;
@@ -114,6 +114,7 @@ void Timer::Update()
 
 				//print
 				std::cout << "**BENCHMARK FINISHED**\n";
+				std::cout << ">> FRAMES = " << m_BenchmarkCurrFrame << '\n';
 				std::cout << ">> HIGH = " << m_BenchmarkHigh << '\n';
 				std::cout << ">> LOW = " << m_BenchmarkLow << '\n';
 				std::cout << ">> AVG = " << m_BenchmarkAvg << '\n';

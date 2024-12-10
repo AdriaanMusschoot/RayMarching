@@ -24,7 +24,7 @@ namespace VM
 		 * \param v view direction
 		 * \return color
 		 */
-		virtual VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) = 0;
+		virtual VM::ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) = 0;
 	};
 #pragma endregion
 
@@ -38,7 +38,7 @@ namespace VM
 		{
 		}
 
-		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord, const Vector3& l, const Vector3& v) override
+		VM::ColorRGB Shade(const sdf::HitRecord& hitRecord, const Vector3& l, const Vector3& v) override
 		{
 			return m_Color;
 		}
@@ -57,7 +57,7 @@ namespace VM
 		Material_Lambert(const VM::ColorRGB& diffuseColor, float diffuseReflectance) :
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(diffuseReflectance){}
 
-		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
@@ -81,7 +81,7 @@ namespace VM
 		{
 		}
 
-		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor) + BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, v, hitRecord.normal);
@@ -105,7 +105,7 @@ namespace VM
 		{
 		}
 
-		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			Vector3 halfVector{ ((v + l) / (v + l).Magnitude()) };
 

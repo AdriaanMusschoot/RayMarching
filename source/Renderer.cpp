@@ -12,28 +12,46 @@
 
 using namespace VM;
 
-Renderer::Renderer(SDL_Window* pWindow) :
-	m_pWindow(pWindow),
-	m_pBuffer(SDL_GetWindowSurface(pWindow))
+Renderer::Renderer(uint32_t const& width, uint32_t const& height)
+	: m_Width{ width }
+	, m_Height{ height }
 {
-	//Initialize
-	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
+	m_WindowPtr = SDL_CreateWindow
+	(
+		"Raymarcher, Adriaan Musschoot",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		width, height, 0
+	);
+
+	assert(m_WindowPtr, "Window creation failed");
+	
+	m_SurfacePtr = SDL_GetWindowSurface(m_WindowPtr);
+
 	m_AspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
-	m_pBufferPixels = static_cast<uint32_t*>(m_pBuffer->pixels);
-	const int nrOfPixels{ m_Width * m_Height };
+
+	m_SurfacePixels = static_cast<uint32_t*>(m_SurfacePtr->pixels);
+
+	const uint32_t nrOfPixels{ m_Width * m_Height };
 
 	m_PixelIndices.reserve(nrOfPixels);
-	for (int pixelIdx{}; pixelIdx < nrOfPixels; ++pixelIdx)
+	for (uint32_t pixelIdx{}; pixelIdx < nrOfPixels; ++pixelIdx)
 	{
 		m_PixelIndices.emplace_back(pixelIdx);
 	}
+}
+
+Renderer::~Renderer()
+{
+	SDL_DestroyWindow(m_WindowPtr);
+	SDL_Quit();
 }
 
 void VM::Renderer::Render(const Scene& pScene) const
 {
 	const Camera& camera = pScene.GetCamera();
 	const std::vector<Material*>& materialsVec{ pScene.GetMaterials() };
-	const std::vector<SDF::Light>& lights = pScene.GetLights();
+	const std::vector<sdf::Light>& lights = pScene.GetLights();
 	
 #ifdef MULTITHREADING
 	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](int pixelIdx)
@@ -53,33 +71,16 @@ void VM::Renderer::Render(const Scene& pScene) const
 	
 	//@END
 	//Update SDL Surface
-	SDL_UpdateWindowSurface(m_pWindow);
+	SDL_UpdateWindowSurface(m_WindowPtr);
 
 }
 
 bool Renderer::SaveBufferToImage() const
 {
-	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
+	return SDL_SaveBMP(m_SurfacePtr, "RayTracing_Buffer.bmp");
 }
 
-void Renderer::CycleLightingMode()
-{
-	if (static_cast<int>(m_CurrentLightingMode) == static_cast<int>(LightingMode::NrOfEnums) - 1)
-	{
-		m_CurrentLightingMode = LightingMode::ObservedArea;
-	}
-	else 
-	{
-		m_CurrentLightingMode = static_cast<LightingMode>(static_cast<int>(m_CurrentLightingMode) + 1);
-	}
-}
-
-void VM::Renderer::ToggleShadows()
-{
-	m_ShadowsEnabled = !m_ShadowsEnabled;
-}
-
-void VM::Renderer::RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<SDF::Light>& lightsVec) const
+void VM::Renderer::RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<sdf::Light>& lightsVec) const
 {
 	const uint32_t px{ pixelIdx % m_Width };
 	const uint32_t py{ pixelIdx / m_Width };
@@ -89,17 +90,17 @@ void VM::Renderer::RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov
 	const float cx{ (2 * (rx / static_cast<float>(m_Width)) - 1) * m_AspectRatio * fov };
 	const float cy{ (1 - (2 * (ry / static_cast<float>(m_Height)))) * fov };
 
-	const SDF::Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(Vector3{ cx, cy, 1 }.Normalized()) };
+	const sdf::Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(Vector3{ cx, cy, 1 }.Normalized()) };
 	VM::ColorRGB finalColor{};
 
 	auto[distance, iteration] = pScene.GetClosestHit(cameraToWorldRay);
 	finalColor = VM::ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.06f + iteration * 0.01);
 	finalColor.MaxToOne();
 	
-	m_pBufferPixels[static_cast<int>(px) + static_cast<int>(py) * m_Width] =
+	m_SurfacePixels[static_cast<int>(px) + static_cast<int>(py) * m_Width] =
 		SDL_MapRGB
 		(
-			m_pBuffer->format,
+			m_SurfacePtr->format,
            static_cast<uint8_t>(finalColor.r * 255),
            static_cast<uint8_t>(finalColor.g * 255),
            static_cast<uint8_t>(finalColor.b * 255)

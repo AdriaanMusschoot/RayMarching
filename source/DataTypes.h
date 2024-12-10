@@ -3,7 +3,7 @@
 #include "vector"
 #include "Vector3.h"
 
-namespace SDF
+namespace sdf
 {
 #pragma region GEOMETRY
 	
