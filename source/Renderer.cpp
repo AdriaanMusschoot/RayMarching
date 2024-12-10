@@ -10,7 +10,7 @@
 
 #define MULTITHREADING
 
-using namespace geo;
+using namespace VM;
 
 Renderer::Renderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow),
@@ -27,11 +27,11 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 }
 
-void geo::Renderer::Render(Scene* pScene) const
+void VM::Renderer::Render(Scene* pScene) const
 {
 	Camera& camera = pScene->GetCamera();
 	const std::vector<Material*>& materialsVec{ pScene->GetMaterials() };
-	const std::vector<Light>& lights = pScene->GetLights();
+	const std::vector<SDF::Light>& lights = pScene->GetLights();
 	
 #ifdef MULTITHREADING
 	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](int pixelIdx)
@@ -72,12 +72,12 @@ void Renderer::CycleLightingMode()
 	}
 }
 
-void geo::Renderer::ToggleShadows()
+void VM::Renderer::ToggleShadows()
 {
 	m_ShadowsEnabled = !m_ShadowsEnabled;
 }
 
-void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<Light>& lightsVec) const
+void VM::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const std::vector<SDF::Light>& lightsVec) const
 {
 	const uint32_t px{ pixelIdx % m_Width };
 	const uint32_t py{ pixelIdx / m_Width };
@@ -87,11 +87,11 @@ void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, con
 	const float cx{ (2 * (rx / float(m_Width)) - 1) * m_AspectRatio * fov };
 	const float cy{ (1 - (2 * (ry / float(m_Height)))) * fov };
 
-	const Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(Vector3{ cx, cy, 1 }.Normalized()) };
-	ColorRGB finalColor{};
+	const SDF::Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(Vector3{ cx, cy, 1 }.Normalized()) };
+	VM::ColorRGB finalColor{};
 
 	auto[distance, iteration] = pScene->GetClosestHit(cameraToWorldRay);
-	finalColor = ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.06f + iteration * 0.01);
+	finalColor = VM::ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.06f + iteration * 0.01);
 	finalColor.MaxToOne();
 	
 	m_pBufferPixels[int(px) + int(py) * m_Width] = SDL_MapRGB(m_pBuffer->format,
@@ -100,7 +100,7 @@ void geo::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, con
 		static_cast<uint8_t>(finalColor.b * 255));
 }
 
-ColorRGB Renderer::Palette(float distance)
+VM::ColorRGB Renderer::Palette(float distance)
 {
 	Vector3 const a = Vector3(0.5, 0.5, 0.5);
 	Vector3 const b = Vector3(0.5, 0.5, 0.5);
@@ -111,6 +111,6 @@ ColorRGB Renderer::Palette(float distance)
 	Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
 	Vector3 const t{ a + cosE * 6.28318f * b };
 	
-	return ColorRGB{ t.x, t.y, t.z };
+	return VM::ColorRGB{ t.x, t.y, t.z };
 }
 

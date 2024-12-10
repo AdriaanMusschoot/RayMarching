@@ -1,8 +1,9 @@
 #pragma once
 
-namespace geo
+namespace VM
 {
 	struct Vector3;
+	
 	struct Vector4
 	{
 		float x;

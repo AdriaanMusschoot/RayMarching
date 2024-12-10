@@ -13,7 +13,7 @@
 #include "Scene.h"
 
 
-using namespace geo;
+using namespace VM;
 
 void ShutDown(SDL_Window* pWindow)
 {

@@ -1,12 +1,12 @@
 #pragma once
+#include <memory>
 #include <string>
 #include <vector>
-
-#include "Math.h"
 #include "DataTypes.h"
 #include "Camera.h"
+#include "SDFObjects.h"
 
-namespace geo
+namespace VM
 {
 	//Forward Declarations
 	class Timer;
@@ -27,9 +27,9 @@ namespace geo
 		Scene& operator=(const Scene&) = delete;
 		Scene& operator=(Scene&&) noexcept = delete;
 
-		std::pair<float,int> GetClosestHit(const Ray& ray) const;
+		std::pair<float,int> GetClosestHit(const SDF::Ray& ray) const;
 
-		virtual void Update(geo::Timer* pTimer)
+		virtual void Update(VM::Timer* pTimer)
 		{
 			m_TotalTime = pTimer->GetTotal();
 			m_DeltaTime = pTimer->GetElapsed();
@@ -38,7 +38,7 @@ namespace geo
 
 		Camera& GetCamera() { return m_Camera; }
 
-		const std::vector<Light>& GetLights() const { return m_Lights; }
+		const std::vector<SDF::Light>& GetLights() const { return m_Lights; }
 		const std::vector<Material*>& GetMaterials() const { return m_Materials; }
 	protected:
 		std::string	m_SceneName;
@@ -46,13 +46,13 @@ namespace geo
 		float m_TotalTime{};
 		float m_DeltaTime{};
 		
-		std::vector<std::unique_ptr<ISDObject>> m_SDObjectUPtrVec{};
+		std::vector<std::unique_ptr<SDF::Object>> m_SDObjectUPtrVec{};
 		std::vector<Material*> m_Materials{};
-		std::vector<Light> m_Lights{};
+		std::vector<SDF::Light> m_Lights{};
 		Camera m_Camera{};
 
-		Light* AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color);
-		Light* AddDirectionalLight(const Vector3& direction, float intensity, const ColorRGB& color);
+		SDF::Light* AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color);
+		SDF::Light* AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color);
 		unsigned char AddMaterial(Material* pMaterial);
 	private:
 		float GetDistanceToScene(const Vector3& rayOrigin) const;

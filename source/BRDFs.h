@@ -1,8 +1,10 @@
 #pragma once
 #include <cassert>
+#include <valarray>
+
 #include "Math.h"
 
-namespace geo
+namespace VM
 {
 	namespace BRDF
 	{
@@ -11,16 +13,16 @@ namespace geo
 		 * \param cd Diffuse Color
 		 * \return Lambert Diffuse Color
 		 */
-		static ColorRGB Lambert(float kd, const ColorRGB& cd)
+		static VM::ColorRGB Lambert(float kd, const VM::ColorRGB& cd)
 		{
 			//todo: W3
-			return { cd * kd / PI };
+			return { cd * kd / std::numbers::pi_v<float> };
 		}
 
-		static ColorRGB Lambert(const ColorRGB& kd, const ColorRGB& cd)
+		static VM::ColorRGB Lambert(const VM::ColorRGB& kd, const VM::ColorRGB& cd)
 		{
 			//todo: W3
-			return { cd * kd / PI };
+			return { cd * kd / std::numbers::pi_v<float> };
 		}
 
 		/**
@@ -32,13 +34,13 @@ namespace geo
 		 * \param n Normal of the Surface
 		 * \return Phong Specular Color
 		 */
-		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
+		static VM::ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
 			//todo: W3
 			const Vector3 reflectionVector{ Vector3::Reflect(l, n)};
 			float cosAngle{ Vector3::Dot(reflectionVector, v) };
 			if (cosAngle < 0) cosAngle = 0;
-			const float phongSpecularReflection{ ks * std::powf(cosAngle, exp) };
+			const float phongSpecularReflection{ ks * std::pow(cosAngle, exp) };
 			return { phongSpecularReflection, phongSpecularReflection, phongSpecularReflection };
 		}
 
@@ -49,12 +51,12 @@ namespace geo
 		 * \param f0 Base reflectivity of a surface based on IOR (Indices Of Refrection), this is different for Dielectrics (Non-Metal) and Conductors (Metal)
 		 * \return
 		 */
-		static ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const ColorRGB& f0)
+		static VM::ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const VM::ColorRGB& f0)
 		{
 			//todo: W3
 			float angle{ Vector3::Dot(h, v) };
 			if (angle < 0) angle = 0;
-			return f0 + (ColorRGB{ 1, 1, 1 } - f0) * ((1 - angle) * (1 - angle) * (1 - angle) * (1 - angle) * (1 - angle));
+			return f0 + (VM::ColorRGB{ 1, 1, 1 } - f0) * ((1 - angle) * (1 - angle) * (1 - angle) * (1 - angle) * (1 - angle));
 		}
 
 		/**
@@ -71,7 +73,7 @@ namespace geo
 			float normalDistribution{	Vector3::Dot(n, h) * Vector3::Dot(n, h)
 										* ((roughnessSquared * roughnessSquared) - 1.f)
 										+ 1.f };
-			return { roughnessSquared * roughnessSquared / (geo::PI * normalDistribution * normalDistribution) };
+			return { roughnessSquared * roughnessSquared / (std::numbers::pi_v<float> * normalDistribution * normalDistribution) };
 		}
 
 

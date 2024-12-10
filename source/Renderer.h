@@ -8,7 +8,7 @@
 struct SDL_Window;
 struct SDL_Surface;
 
-namespace geo
+namespace VM
 {
 	class Scene;
 
@@ -27,7 +27,7 @@ namespace geo
 		void CycleLightingMode();
 		void ToggleShadows();
 		void Render(Scene* pScene) const;
-		void RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera & camera, const std::vector<Material*> & materialsVec, const std::vector<Light> & lightsVec) const;
+		void RenderPixel(Scene* pScene, uint32_t pixelIdx, float fov, const Camera & camera, const std::vector<Material*> & materialsVec, const std::vector<SDF::Light> & lightsVec) const;
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -54,6 +54,6 @@ namespace geo
 
 		std::vector<uint32_t> m_PixelIndices{};
 
-		static ColorRGB Palette(float distance);
+		static VM::ColorRGB Palette(float distance);
 	};
 }

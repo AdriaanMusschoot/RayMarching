@@ -2,10 +2,9 @@
 
 #include <cassert>
 
-#include "MathHelpers.h"
 #include <cmath>
 
-namespace geo {
+namespace VM {
 	Matrix::Matrix(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& t) :
 		Matrix({ xAxis, 0 }, { yAxis, 0 }, { zAxis, 0 }, { t, 1 })
 	{
@@ -104,7 +103,6 @@ namespace geo {
 
 	Matrix Matrix::CreateTranslation(float x, float y, float z)
 	{
-		//todo W2
 		return { Vector3::UnitX, Vector3::UnitY, Vector3::UnitZ, Vector3{x,y,z} };
 	}
 
@@ -115,25 +113,21 @@ namespace geo {
 
 	Matrix Matrix::CreateRotationX(float pitch)
 	{
-		//todo W2
 		return { Vector3{1, 0, 0},  Vector3{0,cos(pitch),-sin(pitch)},  Vector3{0, sin(pitch), cos(pitch)},  Vector3{0, 0, 0} };
 	}
 
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
-		//todo W2
 		return { Vector3{cos(yaw), 0, -sin(yaw)},  Vector3{0,1,0},  Vector3{sin(yaw), 0, cos(yaw)},  Vector3{0, 0, 0} };
 	}
 
 	Matrix Matrix::CreateRotationZ(float roll)
 	{
-		//todo W2
 		return { Vector3{cos(roll), sin(roll), 0},  Vector3{-sin(roll), cos(roll), 0},  Vector3{0, 0, 1},  Vector3{0, 0, 0} };
 	}
 
 	Matrix Matrix::CreateRotation(const Vector3& r)
 	{
-		//todo W2
 		return { CreateRotationX(r.x) * CreateRotationY(r.y) * CreateRotationZ(r.z) };
 	}
 
@@ -144,7 +138,6 @@ namespace geo {
 
 	Matrix Matrix::CreateScale(float sx, float sy, float sz)
 	{
-		//todo W2
 		return { Vector3{sx,0,0},Vector3{0,sy,0}, Vector3{0,0,sz}, Vector3{0,0,1} };
 	}
 

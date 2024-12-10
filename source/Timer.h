@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace geo
+namespace VM
 {
 	class Timer
 	{

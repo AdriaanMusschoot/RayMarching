@@ -3,7 +3,7 @@
 #include "DataTypes.h"
 #include "BRDFs.h"
 
-namespace geo
+namespace VM
 {
 #pragma region Material BASE
 	class Material
@@ -24,7 +24,7 @@ namespace geo
 		 * \param v view direction
 		 * \return color
 		 */
-		virtual ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) = 0;
+		virtual VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) = 0;
 	};
 #pragma endregion
 
@@ -34,17 +34,17 @@ namespace geo
 	class Material_SolidColor final : public Material
 	{
 	public:
-		Material_SolidColor(const ColorRGB& color): m_Color(color)
+		Material_SolidColor(const VM::ColorRGB& color): m_Color(color)
 		{
 		}
 
-		ColorRGB Shade(const HitRecord& hitRecord, const Vector3& l, const Vector3& v) override
+		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord, const Vector3& l, const Vector3& v) override
 		{
 			return m_Color;
 		}
 
 	private:
-		ColorRGB m_Color{colors::White};
+		VM::ColorRGB m_Color{VM::colors::White};
 	};
 #pragma endregion
 
@@ -54,17 +54,17 @@ namespace geo
 	class Material_Lambert final : public Material
 	{
 	public:
-		Material_Lambert(const ColorRGB& diffuseColor, float diffuseReflectance) :
+		Material_Lambert(const VM::ColorRGB& diffuseColor, float diffuseReflectance) :
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(diffuseReflectance){}
 
-		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
 		}
 
 	private:
-		ColorRGB m_DiffuseColor{colors::White};
+		VM::ColorRGB m_DiffuseColor{VM::colors::White};
 		float m_DiffuseReflectance{1.f}; //kd
 	};
 #pragma endregion
@@ -75,20 +75,20 @@ namespace geo
 	class Material_LambertPhong final : public Material
 	{
 	public:
-		Material_LambertPhong(const ColorRGB& diffuseColor, float kd, float ks, float phongExponent):
+		Material_LambertPhong(const VM::ColorRGB& diffuseColor, float kd, float ks, float phongExponent):
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(kd), m_SpecularReflectance(ks),
 			m_PhongExponent(phongExponent)
 		{
 		}
 
-		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor) + BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, v, hitRecord.normal);
 		}
 
 	private:
-		ColorRGB m_DiffuseColor{colors::White};
+		VM::ColorRGB m_DiffuseColor{VM::colors::White};
 		float m_DiffuseReflectance{0.5f}; //kd
 		float m_SpecularReflectance{0.5f}; //ks
 		float m_PhongExponent{1.f}; //Phong Exponent
@@ -100,31 +100,31 @@ namespace geo
 	class Material_CookTorrence final : public Material
 	{
 	public:
-		Material_CookTorrence(const ColorRGB& albedo, float metalness, float roughness):
+		Material_CookTorrence(const VM::ColorRGB& albedo, float metalness, float roughness):
 			m_Albedo(albedo), m_Metalness(metalness), m_Roughness(roughness)
 		{
 		}
 
-		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
+		VM::ColorRGB Shade(const SDF::HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
 			Vector3 halfVector{ ((v + l) / (v + l).Magnitude()) };
 
-			ColorRGB f0{ (m_Metalness == 0) ? ColorRGB{ 0.04f, 0.04f, 0.04f } : m_Albedo };
+			VM::ColorRGB f0{ (m_Metalness == 0) ? VM::ColorRGB{ 0.04f, 0.04f, 0.04f } : m_Albedo };
 			float D{ BRDF::NormalDistribution_GGX(hitRecord.normal, halfVector, m_Roughness) };
-			ColorRGB F{ BRDF::FresnelFunction_Schlick(halfVector, v, f0) };
+			VM::ColorRGB F{ BRDF::FresnelFunction_Schlick(halfVector, v, f0) };
 			float G{ BRDF::GeometryFunction_Smith(hitRecord.normal, v, l, m_Roughness) };
 
-			ColorRGB specular{ (D * G * F) / (4.0f * Vector3::Dot(v, hitRecord.normal) * Vector3::Dot(l, hitRecord.normal)) };
+			VM::ColorRGB specular{ (D * G * F) / (4.0f * Vector3::Dot(v, hitRecord.normal) * Vector3::Dot(l, hitRecord.normal)) };
 			//specular.MaxToOne();
 
-			ColorRGB kd{ (m_Metalness == 0) ? ColorRGB{ 1.f, 1.f, 1.f } - F :  ColorRGB{ 0, 0, 0 } };
-			ColorRGB diffuse{ BRDF::Lambert(kd, m_Albedo) };
+			VM::ColorRGB kd{ (m_Metalness == 0) ? VM::ColorRGB{ 1.f, 1.f, 1.f } - F :  VM::ColorRGB{ 0, 0, 0 } };
+			VM::ColorRGB diffuse{ BRDF::Lambert(kd, m_Albedo) };
 
 			return { diffuse + specular };
 		}
 
 	private:
-		ColorRGB m_Albedo{0.955f, 0.637f, 0.538f}; //Copper
+		VM::ColorRGB m_Albedo{0.955f, 0.637f, 0.538f}; //Copper
 		float m_Metalness{1.0f};
 		float m_Roughness{0.1f}; // [1.0 > 0.0] >> [ROUGH > SMOOTH]
 	};

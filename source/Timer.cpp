@@ -7,7 +7,7 @@
 #include <fstream>
 
 #include "SDL.h"
-using namespace geo;
+using namespace VM;
 
 Timer::Timer()
 {

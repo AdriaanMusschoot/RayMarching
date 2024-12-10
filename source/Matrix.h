@@ -2,7 +2,8 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-namespace geo {
+namespace VM
+{
 	struct Matrix
 	{
 		Matrix() = default;

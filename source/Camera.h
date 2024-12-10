@@ -1,15 +1,14 @@
 #pragma once
-#include <cassert>
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
 #include "Math.h"
 #include "Timer.h"
-
-#include <iostream>
-
-namespace geo
+#include "Matrix.h"
+#include "numbers"
+namespace VM
 {
+	static float TO_RADIANS{ std::numbers::pi_v<float> / 180.f };
 	struct Camera
 	{
 		Camera() = default;

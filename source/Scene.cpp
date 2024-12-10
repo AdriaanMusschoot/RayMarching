@@ -4,7 +4,7 @@
 
 #include "Material.h"
 
-namespace geo
+namespace VM
 {
 #pragma region Base Scene
 	Scene::Scene()
@@ -25,7 +25,7 @@ namespace geo
 		m_Materials.clear();
 	}
 
-	std::pair<float,int> geo::Scene::GetClosestHit(const Ray& ray) const
+	std::pair<float,int> VM::Scene::GetClosestHit(const SDF::Ray& ray) const
 	{
 		float currentDistance{ 0.f };
 		Vector3 const& rayOrigin{ ray.origin };
@@ -55,25 +55,25 @@ namespace geo
 
 #pragma region Scene Helpers
 
-	Light* Scene::AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color)
+	SDF::Light* Scene::AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color)
 	{
-		Light l;
+		SDF::Light l;
 		l.origin = origin;
 		l.intensity = intensity;
 		l.color = color;
-		l.type = LightType::Point;
+		l.type = SDF::LightType::Point;
 
 		m_Lights.emplace_back(l);
 		return &m_Lights.back();
 	}
 
-	Light* Scene::AddDirectionalLight(const Vector3& direction, float intensity, const ColorRGB& color)
+	SDF::Light* Scene::AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color)
 	{
-		Light l;
+		SDF::Light l;
 		l.direction = direction;
 		l.intensity = intensity;
 		l.color = color;
-		l.type = LightType::Directional;
+		l.type = SDF::LightType::Directional;
 
 		m_Lights.emplace_back(l);
 		return &m_Lights.back();
@@ -89,7 +89,7 @@ namespace geo
 	{
 		auto minDistanceIt =
 			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-		[&rayOrigin](const std::unique_ptr<ISDObject>& a, const std::unique_ptr<ISDObject>& b)
+		[&rayOrigin](const std::unique_ptr<SDF::Object>& a, const std::unique_ptr<SDF::Object>& b)
 			{
 				return a->GetDistance(rayOrigin) < b->GetDistance(rayOrigin);
 			});
@@ -107,14 +107,7 @@ namespace geo
 #pragma region BunnyScene
 	RayMarchingScene::RayMarchingScene()
 	{
-		//m_SDObjectUPtrVec.emplace_back(std::make_unique<SDSmoothSphereBoxPlane>
-		//	(
-		//		SDBox{ Vector3{0, 0, 0 }, Vector3{ 0.05f, 0.05f, 0.3f } },
-		//		SDSphere{ Vector3{ 0, 0, 0 }, 0.3f },
-		//		SDPlane{ Vector3{ 0, -0.6, 0 }, Vector3{ 0, 1, 0 } },
-		//		0.5
-		//	));
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDMandelBulb>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<SDF::MandelBulb>());
 	}
 	
 	void RayMarchingScene::Update(Timer* pTimer)
