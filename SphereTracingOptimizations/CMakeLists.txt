@@ -34,12 +34,12 @@ set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
     ${PROJECT_DIR}/Matrix.h
     ${PROJECT_DIR}/Matrix.cpp
 
-    ${PROJECT_DIR}/Material.h
+    
     
     ${PROJECT_DIR}/ColorRGB.h
     ${PROJECT_DIR}/Camera.h
-    ${PROJECT_DIR}/BRDFs.h
-    ${PROJECT_DIR}/DataTypes.h
+    
+    
 )
 
 FetchContent_Declare(

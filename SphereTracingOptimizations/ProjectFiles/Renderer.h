@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "DataTypes.h"
 #include "Camera.h"
-#include "Material.h"
 #include "ColorRGB.h"
 
 struct SDL_Window;
@@ -26,8 +24,8 @@ namespace sdf
 		
 		bool SaveBufferToImage() const;
 
+
 		void Render(const Scene& pScene) const;
-		
 
 	private:
 		SDL_Window* m_WindowPtr{};
@@ -42,7 +40,7 @@ namespace sdf
 		std::vector<uint32_t> m_PixelIndices{};
 
 		static ColorRGB Palette(float distance);
-		void RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const
-						 std::vector<Light>& lightsVec) const;
+
+		void RenderPixel(const Scene& pScene, float fovValue, vm::Matrix const& cameraToWorld, vm::Vector3 const& cameraOrigin, uint32_t pixelIdx) const;
 	};
 }

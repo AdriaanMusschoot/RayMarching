@@ -2,37 +2,26 @@
 
 #include <algorithm>
 
-#include "Material.h"
-
 namespace sdf
 {
 	Scene::Scene()
 		: m_Camera{ vm::Vector3{ 0.f,0,-4.f }, 45 }
 	{
-		m_Materials.reserve(32);
-		m_Lights.reserve(32);
 	}
 
 	Scene::~Scene()
 	{
-		for (auto& pMaterial : m_Materials)
-		{
-			delete pMaterial;
-			pMaterial = nullptr;
-		}
-
-		m_Materials.clear();
 	}
 
-	std::pair<float,int> Scene::GetClosestHit(const sdf::Ray& ray, float minDistance, float maxDistance, int maxSteps) const
+	std::pair<float,int> Scene::GetClosestHit(const vm::Vector3& origin, const vm::Vector3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
 		float currentDistance{ 0.f };
-		vm::Vector3 const& rayOrigin{ ray.origin };
+		vm::Vector3 const& rayOrigin{ origin };
 
 		int i{};
 		for (i = 0; i < maxSteps; ++i)
 		{
-			vm::Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
+			vm::Vector3 const newPoint{ rayOrigin + direction * currentDistance };
 			// const float sinDist{ std::sin(currentDistance * 0.3f) };
 			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
 			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
@@ -50,36 +39,6 @@ namespace sdf
 			}
 		}
 		return { currentDistance, i };
-	}
-
-	sdf::Light* Scene::AddPointLight(const vm::Vector3& origin, float intensity, const ColorRGB& color)
-	{
-		sdf::Light l;
-		l.origin = origin;
-		l.intensity = intensity;
-		l.color = color;
-		l.type = sdf::LightType::Point;
-
-		m_Lights.emplace_back(l);
-		return &m_Lights.back();
-	}
-
-	sdf::Light* Scene::AddDirectionalLight(const vm::Vector3& direction, float intensity, const ColorRGB& color)
-	{
-		sdf::Light l;
-		l.direction = direction;
-		l.intensity = intensity;
-		l.color = color;
-		l.type = sdf::LightType::Directional;
-
-		m_Lights.emplace_back(l);
-		return &m_Lights.back();
-	}
-
-	unsigned char Scene::AddMaterial(Material* pMaterial)
-	{
-		m_Materials.push_back(pMaterial);
-		return static_cast<unsigned char>(m_Materials.size() - 1);
 	}
 
 	float Scene::GetDistanceToScene(const vm::Vector3& rayOrigin) const

@@ -38,7 +38,7 @@ void sdf::SdEngine::HandleInput()
             break;
         case SDL_KEYDOWN:
             if (e.key.keysym.scancode == SDL_SCANCODE_F6)
-                Timer.StartBenchmark(1000);
+                Timer.StartBenchmark(100);
             break;
         default: ;
         }
