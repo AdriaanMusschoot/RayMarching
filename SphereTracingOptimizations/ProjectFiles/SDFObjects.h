@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector3.h"
+#include "glm/glm.hpp"
 
 namespace sdf
 {
@@ -9,7 +9,7 @@ namespace sdf
     public:
         virtual ~Object() = default;
 
-        virtual float GetDistance(vm::Vector3 const& point) = 0;
+        virtual float GetDistance(glm::vec3 const& point) = 0;
 		
         static float SmoothMin(float dist1, float dist2, float smoothness);
     private:
@@ -18,40 +18,47 @@ namespace sdf
     class Sphere final : public Object
     {
     public:
-        Sphere(vm::Vector3 const& center, float radius);
-        float GetDistance(const vm::Vector3& point) override;
+        Sphere(glm::vec3 const& center, float radius);
+        float GetDistance(const glm::vec3& point) override;
     private:
-        vm::Vector3 m_Origin{};
+        glm::vec3 m_Origin{};
         float m_Radius{};
     };
 
     class Plane final : public Object
     {
     public:
-        Plane(vm::Vector3 const& origin, vm::Vector3 const& normal);
+        Plane(glm::vec3 const& origin, glm::vec3 const& normal);
 		
-        float GetDistance(const vm::Vector3& point) override;
+        float GetDistance(const glm::vec3& point) override;
     private:
-        vm::Vector3 m_Origin{};
-        vm::Vector3 m_Normal{};
+        glm::vec3 m_Origin{};
+        glm::vec3 m_Normal{};
     };
 
     class Box final : public Object
     {
     public:
-        Box(vm::Vector3 const& center, vm::Vector3 const& boxExtent, float roundedValue = 0);
+        Box(glm::vec3 const& center, glm::vec3 const& boxExtent, float roundedValue = 0);
 		
-        float GetDistance(const vm::Vector3& point) override;
+        float GetDistance(const glm::vec3& point) override;
     private:
-        vm::Vector3 m_Origin{};
-        vm::Vector3 m_BoxExtent{};
+        glm::vec3 m_Origin{};
+        glm::vec3 m_BoxExtent{};
         float m_RoundedValue{};
     };
 
     class MandelBulb final : public Object
     {
     public:
-        float GetDistance(const vm::Vector3& point) override;
+        float GetDistance(const glm::vec3& point) override;
+    private:
+    };
+
+    class HexagonalPrism final : public Object
+    {
+    public:
+        float GetDistance(const glm::vec3& point) override;
     private:
     };
     

@@ -5,7 +5,7 @@ int main(int argc, char* args[])
 	constexpr uint32_t width{ 600 };
 	constexpr uint32_t height{ 600 };
 
-	sdf::SdEngine Engine{ width, height };
+	sdf::Engine Engine{ width, height };
 
 	Engine.Run();
 }

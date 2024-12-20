@@ -4,7 +4,8 @@
 
 #include "Math.h"
 #include "Timer.h"
-#include "Matrix.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <numbers>
 
 namespace sdf
@@ -12,24 +13,22 @@ namespace sdf
 	static float TO_RADIANS{ std::numbers::pi_v<float> / 180.f };
 	struct Camera
 	{
-		Camera() = default;
-
-		Camera(const vm::Vector3& _origin, float _fovAngle) :
+		explicit Camera(const glm::vec3& _origin, float _fovAngle) :
 			origin{ _origin },
 			fovAngle{ _fovAngle }
 		{
+			CalculateCameraToWorld();
 		}
 
-
-		vm::Vector3 origin{};
+		glm::vec3 origin{};
 		float fovAngle{ 45.f };
 		float fovValue{ tanf(fovAngle * TO_RADIANS / 2.0f) };
 		const float SPEED_ROTATION{ 0.2f };
 		const float SPEED_TRANSLATION{ 10.f };
 
-		vm::Vector3 forward{ vm::Vector3::UnitZ };
-		vm::Vector3 up{ vm::Vector3::UnitY };
-		vm::Vector3 right{ vm::Vector3::UnitX };
+		glm::vec3 forward{ 0.f, 0.f, 1.f };
+		glm::vec3 up{ 0.f, 1.f, 0.f };
+		glm::vec3 right{ 1.f, 0.f, 0.f };
 
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
@@ -38,23 +37,23 @@ namespace sdf
 		const float MAX_FOV{ 179.f };
 		const float MIN_FOV{ 10.f };
 
-		vm::Matrix cameraToWorld{};
+		glm::mat3 cameraToWorld{};
 
 		int mouseX{}, mouseY{};
 
-		const vm::Matrix& CalculateCameraToWorld()
+		const glm::mat3& CalculateCameraToWorld()
 		{
-			right = vm::Vector3::Cross(vm::Vector3::UnitY, forward);
-			right.Normalize();
+			right = glm::cross(glm::vec3{ 0.f, 1.f, 0.f }, forward);
+			right = glm::normalize(right);
 
-			up = vm::Vector3::Cross(forward, right);
-			up.Normalize();
+			up = glm::cross(forward, right);
+			up = glm::normalize(up);
+
 			return 
 			{
-				{ right.x, right.y, right.z, 0 },
-			  { up.x, up.y, up.z, 0 },
-			  { forward.x, forward.y, forward.z, 0 },
-			  { origin.x, origin.y, origin.z, 0 } 
+				{ right.x, right.y, right.z },
+				{ up.x, up.y, up.z },
+				{ forward.x, forward.y, forward.z }
 			};
 		}
 
@@ -112,9 +111,9 @@ namespace sdf
 			}
 			if (holdingLeftMouseButton != holdingRightMouseButton)
 			{
-				vm::Matrix final{ vm::Matrix::CreateRotationX(totalYaw) * vm::Matrix::CreateRotationY(totalPitch) };
-				forward = final.TransformVector(vm::Vector3::UnitZ);
-				forward.Normalize();
+				glm::mat4 final{ glm::rotate(glm::mat4{ 1.0f }, totalYaw, glm::vec3{ 1.0f, 0.f, 0.f }) * glm::rotate(glm::mat4{ 1.0f }, totalPitch, glm::vec3{ 0.f, 1.0f, 0.f }) };
+				forward = glm::mat3(final) * glm::vec3{ 0.f, 0.f, 1.f };
+				forward = glm::normalize(forward);
 				cameraToWorld = CalculateCameraToWorld();
 			}
 		}

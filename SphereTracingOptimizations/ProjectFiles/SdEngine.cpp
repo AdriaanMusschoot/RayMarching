@@ -3,16 +3,16 @@
 #include <SDL.h>
 #include <SDL_events.h>
 
-sdf::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
+sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : Renderer{ width, height }
     , Timer{}
 {
-    m_SceneUPtrVec.emplace_back(std::make_unique<BoxScene>());
-    m_SceneUPtrVec.emplace_back(std::make_unique<MandelBulbScene>());
-
+    m_SceneUPtrVec.emplace_back(std::make_unique<PrismLinkScene>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<OctahedronTorusScene>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<PyramidMandelBulbScene>());
 }
 
-void sdf::SdEngine::Run()
+void sdf::Engine::Run()
 {
     while (not ShouldQuit)
     {
@@ -26,7 +26,7 @@ void sdf::SdEngine::Run()
     }
 }
 
-void sdf::SdEngine::HandleInput()
+void sdf::Engine::HandleInput()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))

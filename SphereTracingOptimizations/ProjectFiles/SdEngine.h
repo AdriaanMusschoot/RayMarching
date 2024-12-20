@@ -7,16 +7,16 @@
 namespace sdf
 {
 
-    class SdEngine final
+    class Engine final
     {
     public:
-        SdEngine(uint32_t const& width, uint32_t const& height);
-        ~SdEngine() = default;
+        Engine(uint32_t const& width, uint32_t const& height);
+        ~Engine() = default;
 
-        SdEngine(const SdEngine&) = delete;
-        SdEngine(SdEngine&&) noexcept = delete;
-        SdEngine& operator=(const SdEngine&) = delete;
-        SdEngine& operator=(SdEngine&&) noexcept = delete;
+        Engine(const Engine&) = delete;
+        Engine(Engine&&) noexcept = delete;
+        Engine& operator=(const Engine&) = delete;
+        Engine& operator=(Engine&&) noexcept = delete;
     
         void Run();
     private:

@@ -3,7 +3,7 @@
 
 //Project includes
 #include "Renderer.h"
-#include "Math.h"
+#include "glm/glm.hpp"
 #include "Scene.h"
 #include "Execution"
 #include <cassert>
@@ -48,12 +48,12 @@ void sdf::Renderer::Render(const Scene& pScene) const
 	Camera const& camera{ pScene.GetCamera() };
 
 	float const fovValue{ camera.fovValue };
-	vm::Matrix const& cameraToWorld{ camera.cameraToWorld };
-	vm::Vector3 const& origin{ camera.origin };
+	glm::mat3 const& cameraToWorld{ camera.cameraToWorld };
+	glm::vec3 const& origin{ camera.origin };
 
 	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](int pixelIdx)
 		{
-			RenderPixel(pScene, fovValue, cameraToWorld, origin, pixelIdx);
+			RenderPixel(pScene, fovValue, origin, cameraToWorld, pixelIdx);
 		});
 
 	SDL_UpdateWindowSurface(m_WindowPtr);
@@ -66,19 +66,19 @@ bool sdf::Renderer::SaveBufferToImage() const
 
 sdf::ColorRGB sdf::Renderer::Palette(float distance)
 {
-	vm::Vector3 const a{ 0.5, 0.5, 0.5 };
-	vm::Vector3 const b{ 0.5, 0.5, 0.5 };
-	vm::Vector3 const c{ 1.0, 1.0, 1.0 };
-	vm::Vector3 const d{ 0.263f,0.416f,0.457f };
-
-	vm::Vector3 const e{ c * distance + d };
-	vm::Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
-	vm::Vector3 const t{ a + cosE * 6.28318f * b };
+	glm::vec3 const a{ 0.5, 0.5, 0.5 };
+	glm::vec3 const b{ 0.5, 0.5, 0.5 };
+	glm::vec3 const c{ 1.0, 1.0, 1.0 };
+	glm::vec3 const d{ 0.263f,0.416f,0.457f };
+	
+	glm::vec3 const e{ c * distance + d };
+	glm::vec3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
+	glm::vec3 const t{ a + cosE * 6.28318f * b };
 	
 	return ColorRGB{ t.x, t.y, t.z };
 }
 
-void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, vm::Matrix const& cameraToWorld, vm::Vector3 const& cameraOrigin, uint32_t pixelIdx) const
+void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const
 {
 	uint32_t const px{ pixelIdx % m_Width };
 	uint32_t const py{ pixelIdx / m_Width };
@@ -88,7 +88,9 @@ void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, vm::Matrix 
 	float const cx{ (2 * (rx / static_cast<float>(m_Width)) - 1) * m_AspectRatio * fovValue };
 	float const cy{ (1 - (2 * (ry / static_cast<float>(m_Height)))) * fovValue };
 
-	vm::Vector3 const cameraDirection{ cameraToWorld.TransformVector(vm::Vector3{ cx, cy, 1 }).Normalized() };
+	glm::vec3 cameraDirection{ cameraToWorld * glm::vec3{ cx, cy, 1.f } };
+	cameraDirection = glm::normalize(cameraDirection);
+
 	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.01f, 100.f, 100);
 	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } *(distance * 0.06f + iteration * 0.01) };
 	finalColor.MaxToOne();

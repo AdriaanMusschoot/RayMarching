@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.6)
 
 project(RaymarchingOptimizations VERSION 1.0 LANGUAGES CXX)
 set(TARGET_NAME RaymarchingOptimizations)
@@ -10,12 +10,6 @@ include(FetchContent)
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ProjectFiles)
 
 set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
-    ${PROJECT_DIR}/Vector3.h
-    ${PROJECT_DIR}/Vector3.cpp
-
-    ${PROJECT_DIR}/Vector3.h
-    ${PROJECT_DIR}/Vector4.cpp
-
     ${PROJECT_DIR}/Timer.h
     ${PROJECT_DIR}/Timer.cpp
 
@@ -31,16 +25,25 @@ set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
     ${PROJECT_DIR}/Renderer.h
     ${PROJECT_DIR}/Renderer.cpp
 
-    ${PROJECT_DIR}/Matrix.h
-    ${PROJECT_DIR}/Matrix.cpp
-
-    
-    
     ${PROJECT_DIR}/ColorRGB.h
     ${PROJECT_DIR}/Camera.h
-    
-    
 )
+
+include(FetchContent)
+# add glm
+FetchContent_Declare(
+  glm
+  URL https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip
+  DOWNLOAD_NO_PROGRESS ON
+  DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+)
+FetchContent_MakeAvailable(glm)
+
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+  FetchContent_Populate(glm)
+endif()
+
 
 FetchContent_Declare(
     SDL2
@@ -67,6 +70,8 @@ target_include_directories(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${SDL2_LIBRARIES}
 )
+
+target_link_libraries(${TARGET_NAME} PUBLIC glm::glm)
 
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_LIBRARY_DLL}" ${CMAKE_BINARY_DIR}

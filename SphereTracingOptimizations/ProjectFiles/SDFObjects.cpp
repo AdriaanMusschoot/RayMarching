@@ -11,49 +11,49 @@ float sdf::Object::SmoothMin(float dist1, float dist2, float smoothness)
     return std::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
 }
 
-sdf::Sphere::Sphere(vm::Vector3 const& center, float radius)
+sdf::Sphere::Sphere(glm::vec3 const& center, float radius)
     : m_Origin{ center }
-, m_Radius{ radius }
+    , m_Radius{ radius }
 {
 }
 
-float sdf::Sphere::GetDistance(const vm::Vector3& point)
+float sdf::Sphere::GetDistance(const glm::vec3& point)
 {
-    return (m_Origin + point).Magnitude() - m_Radius;
+    return glm::length(m_Origin + point) - m_Radius;
 }
 
-sdf::Plane::Plane(vm::Vector3 const& origin, vm::Vector3 const& normal)
+sdf::Plane::Plane(glm::vec3 const& origin, glm::vec3 const& normal)
     : m_Origin{ origin }
     , m_Normal{ normal }
 {
 }
 
-float sdf::Plane::GetDistance(const vm::Vector3& point)
+float sdf::Plane::GetDistance(const glm::vec3& point)
 {
-    return vm::Vector3::Dot(m_Normal, point) - m_Origin.y;
+    return glm::dot(m_Normal, point) - m_Origin.y;
 }
 
-sdf::Box::Box(vm::Vector3 const& center, vm::Vector3 const& boxExtent, float roundedValue)
+sdf::Box::Box(glm::vec3 const& center, glm::vec3 const& boxExtent, float roundedValue)
     : m_Origin{ center }
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
 }
 
-float sdf::Box::GetDistance(const vm::Vector3& point)
+float sdf::Box::GetDistance(const glm::vec3& point)
 {
-    return vm::Vector3::Max(vm::Vector3::Abs(point - m_Origin) - m_BoxExtent, vm::Vector3::Zero).Magnitude();
+    return glm::length(glm::max(glm::abs(point - m_Origin) - m_BoxExtent, glm::vec3{ 0, 0, 0 }));
 }
 
-float sdf::MandelBulb::GetDistance(const vm::Vector3& point)
+float sdf::MandelBulb::GetDistance(const glm::vec3& point)
 {
-    vm::Vector3 z = point;
+    glm::vec3 z = point;
     float dr{ 2.0f };
     float r{ 0.0f };
     float power{ 10.f };
     for (int i = 0; i < 10 ; i++)
     {
-        r = z.Magnitude();
+        r = glm::length(z);
         if (r > 2.f) break;
     
         // convert to polar coordinates
@@ -67,8 +67,19 @@ float sdf::MandelBulb::GetDistance(const vm::Vector3& point)
         phi = phi * power;
         
         // convert back to cartesian coordinates
-        z = zr*vm::Vector3( std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta) );
+        z = zr*glm::vec3( std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta) );
         z += point;
     }
     return 0.5f * std::log(r) * r / dr;
+}
+
+float sdf::HexagonalPrism::GetDistance(const glm::vec3& point)
+{
+    glm::vec3 const k{ -0.8660254f, 0.5f, 0.57735 };
+
+    glm::vec3 absolutePoint{ glm::abs(point) };
+
+    //float subtractionValueX{ 2.0 * std::min(vm::Vector3::Dot(), 0.0f)}
+    
+    return 0.0f;
 }
