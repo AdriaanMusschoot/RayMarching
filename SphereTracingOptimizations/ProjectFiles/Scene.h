@@ -48,11 +48,11 @@ namespace sdf
 		std::vector<sdf::Light> m_Lights{};
 		Camera m_Camera{};
 
-		sdf::Light* AddPointLight(const VM::Vector3& origin, float intensity, const ColorRGB& color);
-		sdf::Light* AddDirectionalLight(const VM::Vector3& direction, float intensity, const ColorRGB& color);
+		sdf::Light* AddPointLight(const vm::Vector3& origin, float intensity, const ColorRGB& color);
+		sdf::Light* AddDirectionalLight(const vm::Vector3& direction, float intensity, const ColorRGB& color);
 		unsigned char AddMaterial(Material* pMaterial);
 	private:
-		float GetDistanceToScene(const VM::Vector3& rayOrigin) const;
+		float GetDistanceToScene(const vm::Vector3& rayOrigin) const;
 	};
 	
 	class RayMarchingScene final : public Scene

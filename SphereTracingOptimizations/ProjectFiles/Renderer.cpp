@@ -76,7 +76,7 @@ void sdf::Renderer::RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fo
 	const float cx{ (2 * (rx / static_cast<float>(m_Width)) - 1) * m_AspectRatio * fov };
 	const float cy{ (1 - (2 * (ry / static_cast<float>(m_Height)))) * fov };
 
-	const sdf::Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(VM::Vector3{ cx, cy, 1 }.Normalized()) };
+	const sdf::Ray cameraToWorldRay{ camera.origin, camera.cameraToWorld.TransformVector(vm::Vector3{ cx, cy, 1 }.Normalized()) };
 	ColorRGB finalColor{};
 
 	auto[distance, iteration] = pScene.GetClosestHit(cameraToWorldRay, 0.01f, 100.f, 100);
@@ -95,14 +95,14 @@ void sdf::Renderer::RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fo
 
 sdf::ColorRGB sdf::Renderer::Palette(float distance)
 {
-	VM::Vector3 const a{ 0.5, 0.5, 0.5 };
-	VM::Vector3 const b{ 0.5, 0.5, 0.5 };
-	VM::Vector3 const c{ 1.0, 1.0, 1.0 };
-	VM::Vector3 const d{ 0.263f,0.416f,0.457f };
+	vm::Vector3 const a{ 0.5, 0.5, 0.5 };
+	vm::Vector3 const b{ 0.5, 0.5, 0.5 };
+	vm::Vector3 const c{ 1.0, 1.0, 1.0 };
+	vm::Vector3 const d{ 0.263f,0.416f,0.457f };
 
-	VM::Vector3 const e{ c * distance + d };
-	VM::Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
-	VM::Vector3 const t{ a + cosE * 6.28318f * b };
+	vm::Vector3 const e{ c * distance + d };
+	vm::Vector3 const cosE{ std::cos(e.x), std::cos(e.y),  std::cos(e.z) };
+	vm::Vector3 const t{ a + cosE * 6.28318f * b };
 	
 	return ColorRGB{ t.x, t.y, t.z };
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace VM
+namespace vm
 {
 	struct Vector3;
 	

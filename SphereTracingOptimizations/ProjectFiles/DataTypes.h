@@ -14,8 +14,8 @@ namespace sdf
 
 	struct Light
 	{
-		VM::Vector3 origin{};
-		VM::Vector3 direction{};
+		vm::Vector3 origin{};
+		vm::Vector3 direction{};
 		ColorRGB color{};
 		float intensity{};
 
@@ -25,8 +25,8 @@ namespace sdf
 #pragma region MISC
 	struct Ray
 	{
-		VM::Vector3 origin{};
-		VM::Vector3 direction{};
+		vm::Vector3 origin{};
+		vm::Vector3 direction{};
 
 		float min{ 0.0001f };
 		float max{ FLT_MAX };
@@ -34,8 +34,8 @@ namespace sdf
 
 	struct HitRecord
 	{
-		VM::Vector3 origin{};
-		VM::Vector3 normal{};
+		vm::Vector3 origin{};
+		vm::Vector3 normal{};
 		float t = FLT_MAX;
 
 		bool didHit{ false };

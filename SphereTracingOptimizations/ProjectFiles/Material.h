@@ -24,7 +24,7 @@ namespace sdf
 		 * \param v view direction
 		 * \return color
 		 */
-		virtual ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const VM::Vector3& l = {}, const VM::Vector3& v = {}) = 0;
+		virtual ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const vm::Vector3& l = {}, const vm::Vector3& v = {}) = 0;
 	};
 
 	//SOLID COLOR
@@ -36,7 +36,7 @@ namespace sdf
 		{
 		}
 
-		ColorRGB Shade(const sdf::HitRecord& hitRecord, const VM::Vector3& l, const VM::Vector3& v) override
+		ColorRGB Shade(const sdf::HitRecord& hitRecord, const vm::Vector3& l, const vm::Vector3& v) override
 		{
 			return m_Color;
 		}
@@ -53,7 +53,7 @@ namespace sdf
 		Material_Lambert(const ColorRGB& diffuseColor, float diffuseReflectance) :
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(diffuseReflectance){}
 
-		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const VM::Vector3& l = {}, const VM::Vector3& v = {}) override
+		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const vm::Vector3& l = {}, const vm::Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
@@ -75,7 +75,7 @@ namespace sdf
 		{
 		}
 
-		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const VM::Vector3& l = {}, const VM::Vector3& v = {}) override
+		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const vm::Vector3& l = {}, const vm::Vector3& v = {}) override
 		{
 			//todo: W3
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor) + BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, v, hitRecord.normal);
@@ -97,16 +97,16 @@ namespace sdf
 		{
 		}
 
-		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const VM::Vector3& l = {}, const VM::Vector3& v = {}) override
+		ColorRGB Shade(const sdf::HitRecord& hitRecord = {}, const vm::Vector3& l = {}, const vm::Vector3& v = {}) override
 		{
-			VM::Vector3 halfVector{ ((v + l) / (v + l).Magnitude()) };
+			vm::Vector3 halfVector{ ((v + l) / (v + l).Magnitude()) };
 
 			ColorRGB f0{ (m_Metalness == 0) ? ColorRGB{ 0.04f, 0.04f, 0.04f } : m_Albedo };
 			float D{ BRDF::NormalDistribution_GGX(hitRecord.normal, halfVector, m_Roughness) };
 			ColorRGB F{ BRDF::FresnelFunction_Schlick(halfVector, v, f0) };
 			float G{ BRDF::GeometryFunction_Smith(hitRecord.normal, v, l, m_Roughness) };
 
-			ColorRGB specular{ (D * G * F) / (4.0f * VM::Vector3::Dot(v, hitRecord.normal) * VM::Vector3::Dot(l, hitRecord.normal)) };
+			ColorRGB specular{ (D * G * F) / (4.0f * vm::Vector3::Dot(v, hitRecord.normal) * vm::Vector3::Dot(l, hitRecord.normal)) };
 			//specular.MaxToOne();
 
 			ColorRGB kd{ (m_Metalness == 0) ? ColorRGB{ 1.f, 1.f, 1.f } - F :  ColorRGB{ 0, 0, 0 } };

@@ -14,22 +14,22 @@ namespace sdf
 	{
 		Camera() = default;
 
-		Camera(const VM::Vector3& _origin, float _fovAngle) :
+		Camera(const vm::Vector3& _origin, float _fovAngle) :
 			origin{ _origin },
 			fovAngle{ _fovAngle }
 		{
 		}
 
 
-		VM::Vector3 origin{};
+		vm::Vector3 origin{};
 		float fovAngle{ 45.f };
 		float fovValue{ tanf(fovAngle * TO_RADIANS / 2.0f) };
 		const float SPEED_ROTATION{ 0.2f };
 		const float SPEED_TRANSLATION{ 10.f };
 
-		VM::Vector3 forward{ VM::Vector3::UnitZ };
-		VM::Vector3 up{ VM::Vector3::UnitY };
-		VM::Vector3 right{ VM::Vector3::UnitX };
+		vm::Vector3 forward{ vm::Vector3::UnitZ };
+		vm::Vector3 up{ vm::Vector3::UnitY };
+		vm::Vector3 right{ vm::Vector3::UnitX };
 
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
@@ -38,16 +38,16 @@ namespace sdf
 		const float MAX_FOV{ 179.f };
 		const float MIN_FOV{ 10.f };
 
-		VM::Matrix cameraToWorld{};
+		vm::Matrix cameraToWorld{};
 
 		int mouseX{}, mouseY{};
 
-		const VM::Matrix& CalculateCameraToWorld()
+		const vm::Matrix& CalculateCameraToWorld()
 		{
-			right = VM::Vector3::Cross(VM::Vector3::UnitY, forward);
+			right = vm::Vector3::Cross(vm::Vector3::UnitY, forward);
 			right.Normalize();
 
-			up = VM::Vector3::Cross(forward, right);
+			up = vm::Vector3::Cross(forward, right);
 			up.Normalize();
 			return 
 			{
@@ -112,8 +112,8 @@ namespace sdf
 			}
 			if (holdingLeftMouseButton != holdingRightMouseButton)
 			{
-				VM::Matrix final{ VM::Matrix::CreateRotationX(totalYaw) * VM::Matrix::CreateRotationY(totalPitch) };
-				forward = final.TransformVector(VM::Vector3::UnitZ);
+				vm::Matrix final{ vm::Matrix::CreateRotationX(totalYaw) * vm::Matrix::CreateRotationY(totalPitch) };
+				forward = final.TransformVector(vm::Vector3::UnitZ);
 				forward.Normalize();
 				cameraToWorld = CalculateCameraToWorld();
 			}

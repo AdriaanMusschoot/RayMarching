@@ -7,7 +7,7 @@
 namespace sdf
 {
 	Scene::Scene()
-		: m_Camera{ VM::Vector3{ 0.f,0,-4.f }, 45 }
+		: m_Camera{ vm::Vector3{ 0.f,0,-4.f }, 45 }
 	{
 		m_Materials.reserve(32);
 		m_Lights.reserve(32);
@@ -27,12 +27,12 @@ namespace sdf
 	std::pair<float,int> Scene::GetClosestHit(const sdf::Ray& ray, float minDistance, float maxDistance, int maxSteps) const
 	{
 		float currentDistance{ 0.f };
-		VM::Vector3 const& rayOrigin{ ray.origin };
+		vm::Vector3 const& rayOrigin{ ray.origin };
 
 		int i{};
 		for (i = 0; i < maxSteps; ++i)
 		{
-			VM::Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
+			vm::Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
 			// const float sinDist{ std::sin(currentDistance * 0.3f) };
 			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
 			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
@@ -52,7 +52,7 @@ namespace sdf
 		return { currentDistance, i };
 	}
 
-	sdf::Light* Scene::AddPointLight(const VM::Vector3& origin, float intensity, const ColorRGB& color)
+	sdf::Light* Scene::AddPointLight(const vm::Vector3& origin, float intensity, const ColorRGB& color)
 	{
 		sdf::Light l;
 		l.origin = origin;
@@ -64,7 +64,7 @@ namespace sdf
 		return &m_Lights.back();
 	}
 
-	sdf::Light* Scene::AddDirectionalLight(const VM::Vector3& direction, float intensity, const ColorRGB& color)
+	sdf::Light* Scene::AddDirectionalLight(const vm::Vector3& direction, float intensity, const ColorRGB& color)
 	{
 		sdf::Light l;
 		l.direction = direction;
@@ -82,7 +82,7 @@ namespace sdf
 		return static_cast<unsigned char>(m_Materials.size() - 1);
 	}
 
-	float Scene::GetDistanceToScene(const VM::Vector3& rayOrigin) const
+	float Scene::GetDistanceToScene(const vm::Vector3& rayOrigin) const
 	{
 		auto minDistanceIt =
 			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),

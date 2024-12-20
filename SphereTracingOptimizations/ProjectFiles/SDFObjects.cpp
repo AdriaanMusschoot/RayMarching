@@ -11,43 +11,43 @@ float sdf::Object::SmoothMin(float dist1, float dist2, float smoothness)
     return std::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
 }
 
-sdf::Sphere::Sphere(VM::Vector3 const& center, float radius)
+sdf::Sphere::Sphere(vm::Vector3 const& center, float radius)
     : m_Origin{ center }
 , m_Radius{ radius }
 {
 }
 
-float sdf::Sphere::GetDistance(const VM::Vector3& point)
+float sdf::Sphere::GetDistance(const vm::Vector3& point)
 {
     return (m_Origin + point).Magnitude() - m_Radius;
 }
 
-sdf::Plane::Plane(VM::Vector3 const& origin, VM::Vector3 const& normal)
+sdf::Plane::Plane(vm::Vector3 const& origin, vm::Vector3 const& normal)
     : m_Origin{ origin }
     , m_Normal{ normal }
 {
 }
 
-float sdf::Plane::GetDistance(const VM::Vector3& point)
+float sdf::Plane::GetDistance(const vm::Vector3& point)
 {
-    return VM::Vector3::Dot(m_Normal, point) - m_Origin.y;
+    return vm::Vector3::Dot(m_Normal, point) - m_Origin.y;
 }
 
-sdf::Box::Box(VM::Vector3 const& center, VM::Vector3 const& boxExtent, float roundedValue)
+sdf::Box::Box(vm::Vector3 const& center, vm::Vector3 const& boxExtent, float roundedValue)
     : m_Origin{ center }
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
 }
 
-float sdf::Box::GetDistance(const VM::Vector3& point)
+float sdf::Box::GetDistance(const vm::Vector3& point)
 {
-    return VM::Vector3::Max(VM::Vector3::Abs(point - m_Origin) - m_BoxExtent, VM::Vector3::Zero).Magnitude();
+    return vm::Vector3::Max(vm::Vector3::Abs(point - m_Origin) - m_BoxExtent, vm::Vector3::Zero).Magnitude();
 }
 
-float sdf::MandelBulb::GetDistance(const VM::Vector3& point)
+float sdf::MandelBulb::GetDistance(const vm::Vector3& point)
 {
-    VM::Vector3 z = point;
+    vm::Vector3 z = point;
     float dr{ 2.0f };
     float r{ 0.0f };
     float power{ 10.f };
@@ -67,7 +67,7 @@ float sdf::MandelBulb::GetDistance(const VM::Vector3& point)
         phi = phi * power;
         
         // convert back to cartesian coordinates
-        z = zr*VM::Vector3( std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta) );
+        z = zr*vm::Vector3( std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta) );
         z += point;
     }
     return 0.5f * std::log(r) * r / dr;
