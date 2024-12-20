@@ -57,19 +57,13 @@ namespace sdf
 		return -1;
 	}
 
-	RayMarchingScene::RayMarchingScene()
+	MandelBulbScene::MandelBulbScene()
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
-	}
-	
-	void RayMarchingScene::Update(float ElapsedSec)
-	{
-		Scene::Update(ElapsedSec);
+	}	
 
-		for (auto const& object : m_SDObjectUPtrVec)
-		{
-			object->Update(ElapsedSec);
-		}
+	BoxScene::BoxScene()
+	{
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Box>(vm::Vector3{ 0, 0, 0 }, vm::Vector3{ 1, 1, 1 }));
 	}
-	
 }

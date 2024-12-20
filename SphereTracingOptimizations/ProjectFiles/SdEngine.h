@@ -22,7 +22,8 @@ namespace sdf
     private:
         Renderer Renderer;
         GameTimer Timer;
-        RayMarchingScene Scene;
+        std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
+        int m_CurrentSceneID{ 0 };
 
         bool ShouldQuit{ false };
         void HandleInput();

@@ -26,7 +26,7 @@ namespace sdf
 		//returns the distance and the number of steps
 		std::pair<float,int> GetClosestHit(const vm::Vector3& origin, const vm::Vector3& direction, float minDistance, float maxDistance, int maxSteps) const;
 
-		virtual void Update(float ElapsedSec)
+		void Update(float ElapsedSec)
 		{
 			m_Camera.Update(ElapsedSec);
 		}
@@ -46,18 +46,28 @@ namespace sdf
 		float GetDistanceToScene(const vm::Vector3& rayOrigin) const;
 	};
 	
-	class RayMarchingScene final : public Scene
+	class MandelBulbScene final : public Scene
 	{
 	public:
-		RayMarchingScene();
-		~RayMarchingScene() override = default;
+		MandelBulbScene();
+		~MandelBulbScene() override = default;
 
-		RayMarchingScene(const RayMarchingScene&) = delete;
-		RayMarchingScene(RayMarchingScene&&) noexcept = delete;
-		RayMarchingScene& operator=(const RayMarchingScene&) = delete;
-		RayMarchingScene& operator=(RayMarchingScene&&) noexcept = delete;
+		MandelBulbScene(const MandelBulbScene&) = delete;
+		MandelBulbScene(MandelBulbScene&&) noexcept = delete;
+		MandelBulbScene& operator=(const MandelBulbScene&) = delete;
+		MandelBulbScene& operator=(MandelBulbScene&&) noexcept = delete;
+	};
 
-		void Update(float ElapsedSec) override;
+	class BoxScene final : public Scene
+	{
+	public:
+		BoxScene();
+		~BoxScene() override = default;
+
+		BoxScene(const BoxScene&) = delete;
+		BoxScene(BoxScene&&) noexcept = delete;
+		BoxScene& operator=(const BoxScene&) = delete;
+		BoxScene& operator=(BoxScene&&) noexcept = delete;
 	};
 	
 }

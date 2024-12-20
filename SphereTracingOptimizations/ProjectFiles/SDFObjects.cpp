@@ -72,8 +72,3 @@ float sdf::MandelBulb::GetDistance(const vm::Vector3& point)
     }
     return 0.5f * std::log(r) * r / dr;
 }
-
-void sdf::MandelBulb::Update(float elapsedSec)
-{
-    m_TotalTime += elapsedSec;
-}

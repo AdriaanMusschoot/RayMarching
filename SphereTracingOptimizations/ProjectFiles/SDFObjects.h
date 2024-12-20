@@ -10,11 +10,9 @@ namespace sdf
         virtual ~Object() = default;
 
         virtual float GetDistance(vm::Vector3 const& point) = 0;
-        virtual void Update(float elapsedSec) {}
 		
         static float SmoothMin(float dist1, float dist2, float smoothness);
     private:
-        unsigned char m_MaterialIndex{ 0 };
     };
 	
     class Sphere final : public Object
@@ -54,10 +52,7 @@ namespace sdf
     {
     public:
         float GetDistance(const vm::Vector3& point) override;
-        void Update(float elapsedSec) override;
-
     private:
-        float m_TotalTime{};
     };
     
 }

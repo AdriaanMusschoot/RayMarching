@@ -6,8 +6,10 @@
 sdf::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
     : Renderer{ width, height }
     , Timer{}
-    , Scene{}
 {
+    m_SceneUPtrVec.emplace_back(std::make_unique<BoxScene>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<MandelBulbScene>());
+
 }
 
 void sdf::SdEngine::Run()
@@ -18,9 +20,9 @@ void sdf::SdEngine::Run()
         
         HandleInput();
 
-        Scene.Update(Timer.GetElapsed());
+        m_SceneUPtrVec[m_CurrentSceneID]->Update(Timer.GetElapsed());
         
-        Renderer.Render(Scene);
+        Renderer.Render(*m_SceneUPtrVec[m_CurrentSceneID]);
     }
 }
 
@@ -39,6 +41,8 @@ void sdf::SdEngine::HandleInput()
         case SDL_KEYDOWN:
             if (e.key.keysym.scancode == SDL_SCANCODE_F6)
                 Timer.StartBenchmark(100);
+            else if (e.key.keysym.scancode == SDL_SCANCODE_F8)
+                m_CurrentSceneID = (m_CurrentSceneID + 1) % (m_SceneUPtrVec.size());
             break;
         default: ;
         }
