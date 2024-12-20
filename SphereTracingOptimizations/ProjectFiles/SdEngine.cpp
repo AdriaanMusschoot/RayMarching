@@ -3,14 +3,14 @@
 #include <SDL.h>
 #include <SDL_events.h>
 
-VM::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
+sdf::SdEngine::SdEngine(uint32_t const& width, uint32_t const& height)
     : Renderer{ width, height }
     , Timer{}
     , Scene{}
 {
 }
 
-void VM::SdEngine::Run()
+void sdf::SdEngine::Run()
 {
     while (not ShouldQuit)
     {
@@ -24,7 +24,7 @@ void VM::SdEngine::Run()
     }
 }
 
-void VM::SdEngine::HandleInput()
+void sdf::SdEngine::HandleInput()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))

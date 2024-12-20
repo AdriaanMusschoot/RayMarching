@@ -7,7 +7,7 @@
 #include "iostream"
 
 
-namespace VM
+namespace sdf
 {
 	class GameTimer
 	{
@@ -41,7 +41,7 @@ namespace VM
 		bool m_BenchmarkActive{ false };
 		int m_BenchmarkTargetFrames{ 0 };
 		std::vector<float> m_BenchmarkFrameTimeVec{};
-		float m_AccumulatedBenchmarkTime;
+		float m_AccumulatedBenchmarkTime{ 0.0f };
 
 		void PrintFPS() const;
 		void EndBenchmark();

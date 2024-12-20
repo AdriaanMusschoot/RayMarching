@@ -4,11 +4,10 @@
 
 #include "Material.h"
 
-namespace VM
+namespace sdf
 {
-#pragma region Base Scene
 	Scene::Scene()
-		: m_Camera{ Vector3{ 0.f,0,-4.f }, 45 }
+		: m_Camera{ VM::Vector3{ 0.f,0,-4.f }, 45 }
 	{
 		m_Materials.reserve(32);
 		m_Lights.reserve(32);
@@ -25,15 +24,15 @@ namespace VM
 		m_Materials.clear();
 	}
 
-	std::pair<float,int> VM::Scene::GetClosestHit(const sdf::Ray& ray) const
+	std::pair<float,int> Scene::GetClosestHit(const sdf::Ray& ray, float minDistance, float maxDistance, int maxSteps) const
 	{
 		float currentDistance{ 0.f };
-		Vector3 const& rayOrigin{ ray.origin };
+		VM::Vector3 const& rayOrigin{ ray.origin };
 
 		int i{};
-		for (i = 0; i < 10000; ++i)
+		for (i = 0; i < maxSteps; ++i)
 		{
-			Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
+			VM::Vector3 newPoint{ rayOrigin + ray.direction * currentDistance };
 			// const float sinDist{ std::sin(currentDistance * 0.3f) };
 			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
 			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
@@ -41,11 +40,11 @@ namespace VM
 			float const distanceAbleToTravel{ GetDistanceToScene(newPoint) };
 			currentDistance += distanceAbleToTravel;
 
-			if (distanceAbleToTravel < 0.001f)
+			if (distanceAbleToTravel < minDistance)
 			{
 				break;
 			}
-			if (currentDistance > 50.f)
+			if (currentDistance > maxDistance)
 			{
 				break;
 			}
@@ -53,9 +52,7 @@ namespace VM
 		return { currentDistance, i };
 	}
 
-#pragma region Scene Helpers
-
-	sdf::Light* Scene::AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color)
+	sdf::Light* Scene::AddPointLight(const VM::Vector3& origin, float intensity, const ColorRGB& color)
 	{
 		sdf::Light l;
 		l.origin = origin;
@@ -67,7 +64,7 @@ namespace VM
 		return &m_Lights.back();
 	}
 
-	sdf::Light* Scene::AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color)
+	sdf::Light* Scene::AddDirectionalLight(const VM::Vector3& direction, float intensity, const ColorRGB& color)
 	{
 		sdf::Light l;
 		l.direction = direction;
@@ -85,11 +82,11 @@ namespace VM
 		return static_cast<unsigned char>(m_Materials.size() - 1);
 	}
 
-	float Scene::GetDistanceToScene(const Vector3& rayOrigin) const
+	float Scene::GetDistanceToScene(const VM::Vector3& rayOrigin) const
 	{
 		auto minDistanceIt =
 			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-		[&rayOrigin](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
+			[&rayOrigin](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
 			{
 				return a->GetDistance(rayOrigin) < b->GetDistance(rayOrigin);
 			});
@@ -101,10 +98,6 @@ namespace VM
 		return -1;
 	}
 
-#pragma endregion
-#pragma endregion
-	
-#pragma region BunnyScene
 	RayMarchingScene::RayMarchingScene()
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
@@ -120,5 +113,4 @@ namespace VM
 		}
 	}
 	
-#pragma endregion BunnyScene
 }

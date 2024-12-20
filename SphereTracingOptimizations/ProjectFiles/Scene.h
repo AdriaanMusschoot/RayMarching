@@ -5,17 +5,15 @@
 #include "DataTypes.h"
 #include "Camera.h"
 #include "SDFObjects.h"
+#include "Material.h"
 
-namespace VM
+namespace sdf
 {
-	//Forward Declarations
 	class GameTimer;
-	class Material;
 	struct SDPlane;
 	struct SDSphere;
 	struct Light;
 
-	//Scene Base Class
 	class Scene
 	{
 	public:
@@ -27,7 +25,8 @@ namespace VM
 		Scene& operator=(const Scene&) = delete;
 		Scene& operator=(Scene&&) noexcept = delete;
 
-		std::pair<float,int> GetClosestHit(const sdf::Ray& ray) const;
+		//returns the distance and the number of steps
+		std::pair<float,int> GetClosestHit(const sdf::Ray& ray, float minDistance, float maxDistance, int maxSteps) const;
 
 		virtual void Update(float ElapsedSec)
 		{
@@ -49,11 +48,11 @@ namespace VM
 		std::vector<sdf::Light> m_Lights{};
 		Camera m_Camera{};
 
-		sdf::Light* AddPointLight(const Vector3& origin, float intensity, const VM::ColorRGB& color);
-		sdf::Light* AddDirectionalLight(const Vector3& direction, float intensity, const VM::ColorRGB& color);
+		sdf::Light* AddPointLight(const VM::Vector3& origin, float intensity, const ColorRGB& color);
+		sdf::Light* AddDirectionalLight(const VM::Vector3& direction, float intensity, const ColorRGB& color);
 		unsigned char AddMaterial(Material* pMaterial);
 	private:
-		float GetDistanceToScene(const Vector3& rayOrigin) const;
+		float GetDistanceToScene(const VM::Vector3& rayOrigin) const;
 	};
 	
 	class RayMarchingScene final : public Scene

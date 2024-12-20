@@ -4,7 +4,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 
-namespace VM
+namespace sdf
 {
 
     class SdEngine final

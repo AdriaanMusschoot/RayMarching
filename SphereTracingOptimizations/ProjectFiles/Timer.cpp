@@ -9,15 +9,14 @@
 
 #include "Renderer.h"
 #include "SDL.h"
-using namespace VM;
 
-GameTimer::GameTimer()
+sdf::GameTimer::GameTimer()
 {
 	m_StartTime = std::chrono::high_resolution_clock::now();
 	m_PreviousTime = m_StartTime;
 }
 
-void GameTimer::StartBenchmark(int numFrames)
+void sdf::GameTimer::StartBenchmark(int numFrames)
 {
 	if (m_BenchmarkActive)
 	{
@@ -33,7 +32,7 @@ void GameTimer::StartBenchmark(int numFrames)
 	std::cout << "**BENCHMARK STARTED**\n";
 }
 
-void GameTimer::Update()
+void sdf::GameTimer::Update()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float> elapsed = currentTime - m_PreviousTime;
@@ -67,13 +66,13 @@ void GameTimer::Update()
 	}
 }
 
-void GameTimer::PrintFPS() const
+void sdf::GameTimer::PrintFPS() const
 {
 	std::cout << "FPS: " << m_OutputFPSCount << "\n";
 	std::cout << "AVG FPS: " << static_cast<float>(m_TotalFPSCount) / m_TotalTime << " = (" << m_TotalFPSCount << " : " << m_TotalTime << ")\n";
 }
 
-void GameTimer::EndBenchmark()
+void sdf::GameTimer::EndBenchmark()
 {
 	m_BenchmarkActive = false;
 
@@ -84,7 +83,7 @@ void GameTimer::EndBenchmark()
 	fileStream.close();
 }
 
-void GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeVec, std::ostream& outputStream)
+void sdf::GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeVec, std::ostream& outputStream)
 {
 	if (frameTimeVec.empty()) return;
 

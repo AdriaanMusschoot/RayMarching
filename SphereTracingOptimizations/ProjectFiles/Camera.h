@@ -7,29 +7,29 @@
 #include "Matrix.h"
 #include <numbers>
 
-namespace VM
+namespace sdf
 {
 	static float TO_RADIANS{ std::numbers::pi_v<float> / 180.f };
 	struct Camera
 	{
 		Camera() = default;
 
-		Camera(const Vector3& _origin, float _fovAngle) :
+		Camera(const VM::Vector3& _origin, float _fovAngle) :
 			origin{ _origin },
 			fovAngle{ _fovAngle }
 		{
 		}
 
 
-		Vector3 origin{};
+		VM::Vector3 origin{};
 		float fovAngle{ 45.f };
 		float fovValue{ tanf(fovAngle * TO_RADIANS / 2.0f) };
 		const float SPEED_ROTATION{ 0.2f };
 		const float SPEED_TRANSLATION{ 10.f };
 
-		Vector3 forward{ Vector3::UnitZ };
-		Vector3 up{ Vector3::UnitY };
-		Vector3 right{ Vector3::UnitX };
+		VM::Vector3 forward{ VM::Vector3::UnitZ };
+		VM::Vector3 up{ VM::Vector3::UnitY };
+		VM::Vector3 right{ VM::Vector3::UnitX };
 
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
@@ -38,16 +38,16 @@ namespace VM
 		const float MAX_FOV{ 179.f };
 		const float MIN_FOV{ 10.f };
 
-		Matrix cameraToWorld{};
+		VM::Matrix cameraToWorld{};
 
 		int mouseX{}, mouseY{};
 
-		const Matrix& CalculateCameraToWorld()
+		const VM::Matrix& CalculateCameraToWorld()
 		{
-			right = Vector3::Cross(Vector3::UnitY, forward);
+			right = VM::Vector3::Cross(VM::Vector3::UnitY, forward);
 			right.Normalize();
 
-			up = Vector3::Cross(forward, right);
+			up = VM::Vector3::Cross(forward, right);
 			up.Normalize();
 			return 
 			{
@@ -112,8 +112,8 @@ namespace VM
 			}
 			if (holdingLeftMouseButton != holdingRightMouseButton)
 			{
-				Matrix final{ Matrix::CreateRotationX(totalYaw) * Matrix::CreateRotationY(totalPitch) };
-				forward = final.TransformVector(Vector3::UnitZ);
+				VM::Matrix final{ VM::Matrix::CreateRotationX(totalYaw) * VM::Matrix::CreateRotationY(totalPitch) };
+				forward = final.TransformVector(VM::Vector3::UnitZ);
 				forward.Normalize();
 				cameraToWorld = CalculateCameraToWorld();
 			}

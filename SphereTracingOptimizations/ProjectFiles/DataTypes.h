@@ -5,9 +5,6 @@
 
 namespace sdf
 {
-#pragma region GEOMETRY
-	
-#pragma endregion
 #pragma region LIGHT
 	enum class LightType
 	{
@@ -19,7 +16,7 @@ namespace sdf
 	{
 		VM::Vector3 origin{};
 		VM::Vector3 direction{};
-		VM::ColorRGB color{};
+		ColorRGB color{};
 		float intensity{};
 
 		LightType type{};

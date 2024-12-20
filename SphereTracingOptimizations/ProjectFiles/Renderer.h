@@ -4,11 +4,12 @@
 #include "DataTypes.h"
 #include "Camera.h"
 #include "Material.h"
+#include "ColorRGB.h"
 
 struct SDL_Window;
 struct SDL_Surface;
 
-namespace VM
+namespace sdf
 {
 	class Scene;
 
@@ -42,6 +43,6 @@ namespace VM
 
 		static ColorRGB Palette(float distance);
 		void RenderPixel(const Scene& pScene, uint32_t pixelIdx, float fov, const Camera& camera, const std::vector<Material*>& materialsVec, const
-						 std::vector<sdf::Light>& lightsVec) const;
+						 std::vector<Light>& lightsVec) const;
 	};
 }

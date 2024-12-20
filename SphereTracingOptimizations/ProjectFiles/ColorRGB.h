@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 
-namespace VM
+namespace sdf
 {
 	struct ColorRGB
 	{
