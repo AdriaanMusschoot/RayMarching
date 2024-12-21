@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <SDL_events.h>
 
+#include "Scene.h"
+
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : Renderer{ width, height }
     , Timer{}

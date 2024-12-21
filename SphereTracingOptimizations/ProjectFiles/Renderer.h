@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include "Camera.h"
 #include "ColorRGB.h"
+#include <vector>
 
 struct SDL_Window;
 struct SDL_Surface;

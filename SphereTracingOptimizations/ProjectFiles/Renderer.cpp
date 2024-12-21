@@ -85,8 +85,8 @@ void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, glm::vec3 c
 
 	float const rx{ px + 0.5f };
 	float const ry{ py + 0.5f };
-	float const cx{ (2 * (rx / static_cast<float>(m_Width)) - 1) * m_AspectRatio * fovValue };
-	float const cy{ (1 - (2 * (ry / static_cast<float>(m_Height)))) * fovValue };
+	float const cx{ (2 * (rx / m_Width) - 1) * m_AspectRatio * fovValue };
+	float const cy{ (1 - (2 * (ry / m_Height))) * fovValue };
 
 	glm::vec3 cameraDirection{ cameraToWorld * glm::vec3{ cx, cy, 1.f } };
 	cameraDirection = glm::normalize(cameraDirection);

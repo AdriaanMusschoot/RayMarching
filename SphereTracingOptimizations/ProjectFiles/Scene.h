@@ -15,7 +15,7 @@ namespace sdf
 	class Scene
 	{
 	public:
-		Scene();
+		Scene() = default;
 		virtual ~Scene() = default;
 
 		Scene(const Scene&) = delete;
@@ -38,7 +38,7 @@ namespace sdf
 		float m_DeltaTime{};
 		
 		std::vector<std::unique_ptr<sdf::Object>> m_SDObjectUPtrVec{};
-		Camera m_Camera;
+		static Camera m_Camera;
 
 	private:
 		float GetDistanceToScene(const glm::vec3& rayOrigin) const;

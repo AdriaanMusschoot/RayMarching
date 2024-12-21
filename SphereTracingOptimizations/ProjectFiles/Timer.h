@@ -4,7 +4,7 @@
 #include <chrono>
 #include <cstdint>
 #include <vector>
-#include "iostream"
+#include <iostream>
 
 
 namespace sdf
@@ -29,19 +29,17 @@ namespace sdf
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_PreviousTime;
 
-		uint32_t m_FPS{ 0 };
-		float m_CurrentFrameFPS{ 0.0f };
-		uint32_t m_OutputFPSCount{ 0 };
-		uint32_t m_TotalFPSCount{ 0 };
 		float m_OutputTimer{ 0.0f };
+		uint32_t m_OutputFPSCount{ 0 };
+		
+		float m_TotalTime{ 0.0f };
+		uint32_t m_TotalFPSCount{ 0 };
 
 		float m_ElapsedTime{ 0.0f };
-		float m_TotalTime{ 0.0f };
 
 		bool m_BenchmarkActive{ false };
 		int m_BenchmarkTargetFrames{ 0 };
 		std::vector<float> m_BenchmarkFrameTimeVec{};
-		float m_AccumulatedBenchmarkTime{ 0.0f };
 
 		void PrintFPS() const;
 		void EndBenchmark();

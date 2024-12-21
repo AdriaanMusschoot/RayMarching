@@ -39,8 +39,6 @@ void sdf::GameTimer::Update()
 	m_ElapsedTime = elapsed.count();
 	m_PreviousTime = currentTime;
 
-	m_CurrentFrameFPS = 1.0f / m_ElapsedTime;
-
 	m_OutputTimer += m_ElapsedTime;
 	++m_OutputFPSCount;
 
@@ -69,7 +67,7 @@ void sdf::GameTimer::Update()
 void sdf::GameTimer::PrintFPS() const
 {
 	std::cout << "FPS: " << m_OutputFPSCount << "\n";
-	std::cout << "AVG FPS: " << static_cast<float>(m_TotalFPSCount) / m_TotalTime << " = (" << m_TotalFPSCount << " : " << m_TotalTime << ")\n";
+	std::cout << "AVG FPS: " << m_TotalFPSCount / m_TotalTime << " <= (" << m_TotalFPSCount << " : " << m_TotalTime << ")\n";
 }
 
 void sdf::GameTimer::EndBenchmark()

@@ -4,10 +4,7 @@
 
 namespace sdf
 {
-	Scene::Scene()
-		: m_Camera{ glm::vec3{0.f,0,-4.f }, 45 }
-	{
-	}
+	Camera Scene::m_Camera{ glm::vec3{0.f,0,-4.f }, 45 };
 
 	std::pair<float,int> Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{

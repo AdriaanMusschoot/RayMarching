@@ -2,8 +2,6 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "Math.h"
-#include "Timer.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include <numbers>
@@ -23,8 +21,8 @@ namespace sdf
 		glm::vec3 origin{};
 		float fovAngle{ 45.f };
 		float fovValue{ tanf(fovAngle * TO_RADIANS / 2.0f) };
-		const float SPEED_ROTATION{ 0.2f };
-		const float SPEED_TRANSLATION{ 10.f };
+		const float SPEED_ROTATION{ 0.1f };
+		const float SPEED_TRANSLATION{ 5.f };
 
 		glm::vec3 forward{ 0.f, 0.f, 1.f };
 		glm::vec3 up{ 0.f, 1.f, 0.f };
@@ -33,15 +31,11 @@ namespace sdf
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
 
-		const float fovIncrement{ 20.f };
-		const float MAX_FOV{ 179.f };
-		const float MIN_FOV{ 10.f };
-
 		glm::mat3 cameraToWorld{};
 
 		int mouseX{}, mouseY{};
 
-		const glm::mat3& CalculateCameraToWorld()
+		void CalculateCameraToWorld()
 		{
 			right = glm::cross(glm::vec3{ 0.f, 1.f, 0.f }, forward);
 			right = glm::normalize(right);
@@ -49,7 +43,7 @@ namespace sdf
 			up = glm::cross(forward, right);
 			up = glm::normalize(up);
 
-			return 
+			cameraToWorld = 
 			{
 				{ right.x, right.y, right.z },
 				{ up.x, up.y, up.z },
@@ -114,7 +108,7 @@ namespace sdf
 				glm::mat4 final{ glm::rotate(glm::mat4{ 1.0f }, totalYaw, glm::vec3{ 1.0f, 0.f, 0.f }) * glm::rotate(glm::mat4{ 1.0f }, totalPitch, glm::vec3{ 0.f, 1.0f, 0.f }) };
 				forward = glm::mat3(final) * glm::vec3{ 0.f, 0.f, 1.f };
 				forward = glm::normalize(forward);
-				cameraToWorld = CalculateCameraToWorld();
+				CalculateCameraToWorld();
 			}
 		}
 	};
