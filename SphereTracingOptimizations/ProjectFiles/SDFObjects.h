@@ -1,5 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
+#include <vector>
 
 namespace sdf
 {
@@ -12,7 +13,7 @@ namespace sdf
 
         virtual float GetDistance(glm::vec3 const& point) = 0;
 		
-        static float SmoothMin(float dist1, float dist2, float smoothness);
+        float CalculateFurthestSurfaceDistanceFromOrigin(glm::vec3 const& furthestPoint, float initialRadius = FLT_MAX);
 
         glm::vec3 const& Origin() const;
     private:
@@ -112,4 +113,7 @@ namespace sdf
         float GetDistance(const glm::vec3& point) override;
     private:
     };
+
+    static float SmoothMin(float dist1, float dist2, float smoothness);
+    static std::vector<glm::vec3>GenerateSpherePoints(const glm::vec3& origin, float radius);
 }

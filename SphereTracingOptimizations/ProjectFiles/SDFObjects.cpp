@@ -1,6 +1,7 @@
 ﻿#include "SDFObjects.h"
 
 #include <algorithm>
+#include <iostream>
 
 
 sdf::Object::Object(glm::vec3 const& origin)
@@ -8,11 +9,28 @@ sdf::Object::Object(glm::vec3 const& origin)
 {
 }
 
-float sdf::Object::SmoothMin(float dist1, float dist2, float smoothness)
+float sdf::Object::CalculateFurthestSurfaceDistanceFromOrigin(glm::vec3 const& origin, float initialRadius)
 {
-    float h{ glm::max(smoothness - glm::abs(dist1 - dist2), 0.0f) / smoothness };
-    constexpr float smoothFraction{ 1.0f / 6.0f };
-    return glm::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
+    if (initialRadius < 0.001)
+    {
+        return GetDistance(origin);
+    }
+
+    glm::vec3 furthestPoint{ origin };
+    float maxDistance{ glm::length(furthestPoint) };
+
+    for (glm::vec3 const& point : GenerateSpherePoints(furthestPoint, 100))
+    {
+        float distance{ GetDistance(point) };
+
+        if (distance < maxDistance)
+        {
+            maxDistance = distance;
+            furthestPoint = point;
+        }
+    }
+
+    return CalculateFurthestSurfaceDistanceFromOrigin(furthestPoint, maxDistance);
 }
 
 glm::vec3 const& sdf::Object::Origin() const
@@ -36,6 +54,7 @@ sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
+    std::cout << CalculateFurthestSurfaceDistanceFromOrigin(Origin()) << "\n";
 }
 
 float sdf::BoxFrame::GetDistance(const glm::vec3& point)
@@ -284,4 +303,24 @@ float sdf::Pyramid::GetDistance(glm::vec3 const& point)
     float const d2{ glm::min(q.y, -q.x * m2 - q.y * 0.5f) > 0.0f ? 0.0f : glm::min(a, b) };
 
     return glm::sqrt((d2 + q.z * q.z) / m2) * glm::sign(glm::max(q.z, -movedPoint.y));
+}
+
+float sdf::SmoothMin(float dist1, float dist2, float smoothness)
+{
+    float h{ glm::max(smoothness - glm::abs(dist1 - dist2), 0.0f) / smoothness };
+    constexpr float smoothFraction{ 1.0f / 6.0f };
+    return glm::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
+}
+
+std::vector<glm::vec3> sdf::GenerateSpherePoints(const glm::vec3& origin, float radius)
+{
+    return 
+    {
+        origin + glm::vec3(radius,  0,  0),
+        origin + glm::vec3(-radius,  0,  0),
+        origin + glm::vec3(0,  radius,  0),
+        origin + glm::vec3(0, -radius,  0),
+        origin + glm::vec3(0,  0,  radius),
+        origin + glm::vec3(0,  0, -radius),
+    };
 }
