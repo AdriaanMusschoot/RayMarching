@@ -21,8 +21,8 @@ namespace sdf
 		glm::vec3 origin{};
 		float fovAngle{ 45.f };
 		float fovValue{ tanf(fovAngle * TO_RADIANS / 2.0f) };
-		const float SPEED_ROTATION{ 0.1f };
-		const float SPEED_TRANSLATION{ 5.f };
+		const float SPEED_ROTATION{ 0.3f };
+		const float SPEED_TRANSLATION{ 2.f };
 
 		glm::vec3 forward{ 0.f, 0.f, 1.f };
 		glm::vec3 up{ 0.f, 1.f, 0.f };

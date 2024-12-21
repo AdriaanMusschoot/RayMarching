@@ -44,40 +44,39 @@ namespace sdf
 		float GetDistanceToScene(const glm::vec3& rayOrigin) const;
 	};
 	
-	class PrismLinkScene final : public Scene
+	class SceneEasyComplexity final : public Scene
 	{
 	public:
-		PrismLinkScene();
-		~PrismLinkScene() override = default;
+		SceneEasyComplexity();
+		~SceneEasyComplexity() override = default;
 
-		PrismLinkScene(const PrismLinkScene&) = delete;
-		PrismLinkScene(PrismLinkScene&&) noexcept = delete;
-		PrismLinkScene& operator=(const PrismLinkScene&) = delete;
-		PrismLinkScene& operator=(PrismLinkScene&&) noexcept = delete;
+		SceneEasyComplexity(const SceneEasyComplexity&) = delete;
+		SceneEasyComplexity(SceneEasyComplexity&&) noexcept = delete;
+		SceneEasyComplexity& operator=(const SceneEasyComplexity&) = delete;
+		SceneEasyComplexity& operator=(SceneEasyComplexity&&) noexcept = delete;
 	};
 
-	class PyramidMandelBulbScene final : public Scene
+	class SceneMediumComplexity final : public Scene
 	{
 	public:
-		PyramidMandelBulbScene();
-		~PyramidMandelBulbScene() override = default;
+		SceneMediumComplexity();
+		~SceneMediumComplexity() override = default;
 
-		PyramidMandelBulbScene(const PyramidMandelBulbScene&) = delete;
-		PyramidMandelBulbScene(PyramidMandelBulbScene&&) noexcept = delete;
-		PyramidMandelBulbScene& operator=(const PyramidMandelBulbScene&) = delete;
-		PyramidMandelBulbScene& operator=(PyramidMandelBulbScene&&) noexcept = delete;
+		SceneMediumComplexity(const SceneMediumComplexity&) = delete;
+		SceneMediumComplexity(SceneMediumComplexity&&) noexcept = delete;
+		SceneMediumComplexity& operator=(const SceneMediumComplexity&) = delete;
+		SceneMediumComplexity& operator=(SceneMediumComplexity&&) noexcept = delete;
 	};
 
-	class OctahedronTorusScene final : public Scene
+	class SceneMaxComplexity final : public Scene
 	{
 	public:
-		OctahedronTorusScene();
-		~OctahedronTorusScene() override = default;
+		SceneMaxComplexity();
+		~SceneMaxComplexity() override = default;
 
-		OctahedronTorusScene(const OctahedronTorusScene&) = delete;
-		OctahedronTorusScene(OctahedronTorusScene&&) noexcept = delete;
-		OctahedronTorusScene& operator=(const OctahedronTorusScene&) = delete;
-		OctahedronTorusScene& operator=(OctahedronTorusScene&&) noexcept = delete;
+		SceneMaxComplexity(const SceneMaxComplexity&) = delete;
+		SceneMaxComplexity(SceneMaxComplexity&&) noexcept = delete;
+		SceneMaxComplexity& operator=(const SceneMaxComplexity&) = delete;
+		SceneMaxComplexity& operator=(SceneMaxComplexity&&) noexcept = delete;
 	};
-
 }

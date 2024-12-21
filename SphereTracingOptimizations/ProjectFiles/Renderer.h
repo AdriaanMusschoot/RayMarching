@@ -25,7 +25,7 @@ namespace sdf
 		bool SaveBufferToImage() const;
 
 
-		void Render(const Scene& pScene) const;
+		void Render(Scene const& pScene) const;
 
 	private:
 		SDL_Window* m_WindowPtr{};
@@ -41,6 +41,6 @@ namespace sdf
 
 		static ColorRGB Palette(float distance);
 
-		void RenderPixel(const Scene& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
+		void RenderPixel(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
 	};
 }

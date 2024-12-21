@@ -52,18 +52,22 @@ namespace sdf
 		return -1;
 	}
 
-	PrismLinkScene::PrismLinkScene()
+	SceneEasyComplexity::SceneEasyComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Box>(glm::vec3{ 0, 0, 0 } , glm::vec3{ 0.1f, 0.1f, 0.1f }));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>());
 	}
 
-	OctahedronTorusScene::OctahedronTorusScene()
+	SceneMediumComplexity::SceneMediumComplexity()
 	{
-		
-	}
-
-	PyramidMandelBulbScene::PyramidMandelBulbScene()
-	{
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>());
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::CappedTorus>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>());
+	}
+
+	SceneMaxComplexity::SceneMaxComplexity()
+	{
 	}	
 }

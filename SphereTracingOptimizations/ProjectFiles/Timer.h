@@ -24,7 +24,6 @@ namespace sdf
 		void Update();
 		
 		float GetElapsed() const { return m_ElapsedTime; }
-		float GetTotalTime() const { return m_TotalTime; }
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_PreviousTime;

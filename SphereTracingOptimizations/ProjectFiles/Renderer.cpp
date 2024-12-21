@@ -43,11 +43,11 @@ sdf::Renderer::~Renderer()
 	SDL_Quit();
 }
 
-void sdf::Renderer::Render(const Scene& pScene) const
+void sdf::Renderer::Render(Scene const& pScene) const
 {
 	Camera const& camera{ pScene.GetCamera() };
 
-	float const fovValue{ camera.fovValue };
+	float const& fovValue{ camera.fovValue };
 	glm::mat3 const& cameraToWorld{ camera.cameraToWorld };
 	glm::vec3 const& origin{ camera.origin };
 
@@ -78,7 +78,7 @@ sdf::ColorRGB sdf::Renderer::Palette(float distance)
 	return ColorRGB{ t.x, t.y, t.z };
 }
 
-void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const
+void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const
 {
 	uint32_t const px{ pixelIdx % m_Width };
 	uint32_t const py{ pixelIdx / m_Width };
@@ -88,11 +88,10 @@ void sdf::Renderer::RenderPixel(const Scene& pScene, float fovValue, glm::vec3 c
 	float const cx{ (2 * (rx / m_Width) - 1) * m_AspectRatio * fovValue };
 	float const cy{ (1 - (2 * (ry / m_Height))) * fovValue };
 
-	glm::vec3 cameraDirection{ cameraToWorld * glm::vec3{ cx, cy, 1.f } };
-	cameraDirection = glm::normalize(cameraDirection);
+	glm::vec3 const cameraDirection{ glm::normalize(cameraToWorld * glm::vec3{ cx, cy, 1.f }) };
 
-	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.01f, 100.f, 100);
-	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } *(distance * 0.06f + iteration * 0.01) };
+	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 50, 100);
+	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.05f + iteration * 0.03f) };
 	finalColor.MaxToOne();
 
 	m_SurfacePixels[static_cast<int>(px) + static_cast<int>(py) * m_Width] =

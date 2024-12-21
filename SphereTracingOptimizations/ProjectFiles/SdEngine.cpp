@@ -9,9 +9,9 @@ sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : Renderer{ width, height }
     , Timer{}
 {
-    m_SceneUPtrVec.emplace_back(std::make_unique<PrismLinkScene>());
-    m_SceneUPtrVec.emplace_back(std::make_unique<OctahedronTorusScene>());
-    m_SceneUPtrVec.emplace_back(std::make_unique<PyramidMandelBulbScene>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneEasyComplexity>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneMediumComplexity>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneMaxComplexity>());
 }
 
 void sdf::Engine::Run()
@@ -42,7 +42,7 @@ void sdf::Engine::HandleInput()
             break;
         case SDL_KEYDOWN:
             if (e.key.keysym.scancode == SDL_SCANCODE_F6)
-                Timer.StartBenchmark(100);
+                Timer.StartBenchmark(1000);
             else if (e.key.keysym.scancode == SDL_SCANCODE_F8)
                 m_CurrentSceneID = (m_CurrentSceneID + 1) % (m_SceneUPtrVec.size());
             break;
