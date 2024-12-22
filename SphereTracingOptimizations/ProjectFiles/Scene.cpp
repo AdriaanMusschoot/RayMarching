@@ -36,20 +36,23 @@ namespace sdf
 		return { currentDistance, i };
 	}
 
-	float Scene::GetDistanceToScene(const glm::vec3& rayOrigin) const
+	float Scene::GetDistanceToScene(const glm::vec3& point) const
 	{
-		auto minDistanceIt =
-			std::min_element(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-			[&rayOrigin](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
-			{
-				return a->GetDistance(rayOrigin) < b->GetDistance(rayOrigin);
-			});
+		float minDistance{ std::numeric_limits<float>::max() };
 
-		if (minDistanceIt != m_SDObjectUPtrVec.end())
-		{
-			return (*minDistanceIt)->GetDistance(rayOrigin);
-		}
-		return -1;
+		std::for_each(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
+			[&point, &minDistance](const std::unique_ptr<sdf::Object>& obj)
+			{
+				float const distance{ obj->GetDistance(point - obj->Origin()) };
+
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+				}
+			}
+		);
+
+		return minDistance;
 	}
 
 	SceneEasyComplexity::SceneEasyComplexity()

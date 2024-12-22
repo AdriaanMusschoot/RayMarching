@@ -1,36 +1,56 @@
 ﻿#include "SDFObjects.h"
 
 #include <algorithm>
+#include <execution>
 #include <iostream>
-
+#include <optional>
 
 sdf::Object::Object(glm::vec3 const& origin)
     : m_Origin{ origin }
 {
 }
 
-float sdf::Object::CalculateFurthestSurfaceDistanceFromOrigin(glm::vec3 const& origin, float initialRadius)
+float sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
 {
-    if (initialRadius < 0.001)
-    {
-        return GetDistance(origin);
-    }
 
-    glm::vec3 furthestPoint{ origin };
-    float maxDistance{ glm::length(furthestPoint) };
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime{ std::chrono::high_resolution_clock::now() };
 
-    for (glm::vec3 const& point : GenerateSpherePoints(furthestPoint, 100))
-    {
-        float distance{ GetDistance(point) };
+    float maxDistance{ -std::numeric_limits<float>::max() };
 
-        if (distance < maxDistance)
+    std::vector<glm::vec3> points{ GenerateSpherePoints(glm::vec3{ 0.f, 0.f, 0.f }, initialRadius) };
+
+    std::mutex closestPointMutex{};
+    std::optional<glm::vec3> closestPoint{};
+    std::vector<float> localMaxDistances(std::thread::hardware_concurrency(), -std::numeric_limits<float>::infinity());
+
+    std::for_each(std::execution::par_unseq, points.begin(), points.end(),
+        [&](const glm::vec3& point)
         {
-            maxDistance = distance;
-            furthestPoint = point;
-        }
+            float distance{ GetDistance(point) };
+
+            if (distance < 0.001)
+            {
+                std::lock_guard<std::mutex> lock{ closestPointMutex };
+                closestPoint = point;
+                return;
+            }
+            size_t threadId = std::hash<std::thread::id>{}(std::this_thread::get_id()) % localMaxDistances.size();
+            localMaxDistances[threadId] = std::max(localMaxDistances[threadId], distance);
+        });
+
+    if (closestPoint.has_value())
+    {
+        return glm::length(closestPoint.value());
     }
 
-    return CalculateFurthestSurfaceDistanceFromOrigin(furthestPoint, maxDistance);
+    maxDistance = *std::max_element(localMaxDistances.begin(), localMaxDistances.end());
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> endTime{ std::chrono::high_resolution_clock::now() };
+
+    std::chrono::duration<float> elapsed = endTime - startTime;
+    std::cout << elapsed.count() << "\n";
+
+    return FurthestSurfaceConcentricCircles(maxDistance);
 }
 
 glm::vec3 const& sdf::Object::Origin() const
@@ -54,22 +74,18 @@ sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
-    std::cout << CalculateFurthestSurfaceDistanceFromOrigin(Origin()) << "\n";
+    std::cout << FurthestSurfaceConcentricCircles() << "\n";
 }
 
 float sdf::BoxFrame::GetDistance(const glm::vec3& point)
 {
-    glm::vec3 movedPoint{ point - Origin() };
-
-
     //return glm::length(glm::max(glm::abs(movedPoint) - m_BoxExtent, glm::vec3{ 0, 0, 0 }));
-
-    movedPoint = abs(movedPoint) - m_BoxExtent;
-    glm::vec3 q = abs(movedPoint + m_RoundedValue) - m_RoundedValue;
+    glm::vec3 const p{ abs(point) - m_BoxExtent };
+    glm::vec3 const q{ abs(p + m_RoundedValue) - m_RoundedValue };
     return glm::min(glm::min(
-        glm::length(glm::max(glm::vec3(movedPoint.x, q.y, q.z), 0.0f)) + glm::min(glm::max(movedPoint.x, glm::max(q.y, q.z)), 0.0f),
-        glm::length(glm::max(glm::vec3(q.x, movedPoint.y, q.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(movedPoint.y, q.z)), 0.0f)),
-        glm::length(glm::max(glm::vec3(q.x, q.y, movedPoint.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, movedPoint.z)), 0.0f));
+        glm::length(glm::max(glm::vec3(p.x, q.y, q.z), 0.0f)) + glm::min(glm::max(p.x, glm::max(q.y, q.z)), 0.0f),
+        glm::length(glm::max(glm::vec3(q.x, p.y, q.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(p.y, q.z)), 0.0f)),
+        glm::length(glm::max(glm::vec3(q.x, q.y, p.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, p.z)), 0.0f));
 }
 
 sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& origin)
@@ -312,15 +328,37 @@ float sdf::SmoothMin(float dist1, float dist2, float smoothness)
     return glm::min(dist1, dist2) - h * h * h * smoothness * smoothFraction;
 }
 
-std::vector<glm::vec3> sdf::GenerateSpherePoints(const glm::vec3& origin, float radius)
+std::vector<glm::vec3> sdf::GenerateSpherePoints(glm::vec3 const& origin, float radius)
 {
-    return 
+    static std::array<uint32_t, sdf::PointCountHorizontal* sdf::PointCountVertical> idxPointArr
     {
-        origin + glm::vec3(radius,  0,  0),
-        origin + glm::vec3(-radius,  0,  0),
-        origin + glm::vec3(0,  radius,  0),
-        origin + glm::vec3(0, -radius,  0),
-        origin + glm::vec3(0,  0,  radius),
-        origin + glm::vec3(0,  0, -radius),
+        []()
+        {
+            for (uint32_t pixelIdx{}; pixelIdx < idxPointArr.size(); ++pixelIdx)
+            {
+                idxPointArr[pixelIdx] = pixelIdx;
+            }
+            return idxPointArr;
+        }()
     };
+
+    std::vector<glm::vec3> spherePointArr{ idxPointArr.size() };
+
+    std::for_each(std::execution::par_unseq, idxPointArr.begin(), idxPointArr.end(),
+        [&](uint32_t index)
+        {
+            int i = index % sdf::PointCountHorizontal;  // Vertical angle index (phi)
+            int j = index / sdf::PointCountHorizontal;    // Horizontal angle index (theta)
+            
+            float theta = glm::radians(static_cast<float>(i)); // Convert degrees to radians
+            float phi = glm::radians(static_cast<float>(j));   // Convert degrees to radians
+            
+            float x = radius * sin(phi) * cos(theta);
+            float y = radius * sin(phi) * sin(theta);
+            float z = radius * cos(phi);
+            
+            spherePointArr[index] = origin + glm::vec3(x, y, z);
+        });
+
+    return spherePointArr;
 }

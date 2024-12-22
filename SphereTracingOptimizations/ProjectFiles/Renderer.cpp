@@ -51,7 +51,7 @@ void sdf::Renderer::Render(Scene const& pScene) const
 	glm::mat3 const& cameraToWorld{ camera.cameraToWorld };
 	glm::vec3 const& origin{ camera.origin };
 
-	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](int pixelIdx)
+	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
 		{
 			RenderPixel(pScene, fovValue, origin, cameraToWorld, pixelIdx);
 		});
@@ -92,9 +92,9 @@ void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 c
 
 	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 50, 100);
 	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.05f + iteration * 0.03f) };
-	finalColor.MaxToOne();
+	finalColor.MaxToOne();	
 
-	m_SurfacePixels[static_cast<int>(px) + static_cast<int>(py) * m_Width] =
+	m_SurfacePixels[pixelIdx] =
 		SDL_MapRGB
 		(
 			m_SurfacePtr->format,

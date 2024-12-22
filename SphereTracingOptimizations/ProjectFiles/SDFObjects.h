@@ -1,5 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
+#include <array>
 #include <vector>
 
 namespace sdf
@@ -13,7 +14,7 @@ namespace sdf
 
         virtual float GetDistance(glm::vec3 const& point) = 0;
 		
-        float CalculateFurthestSurfaceDistanceFromOrigin(glm::vec3 const& furthestPoint, float initialRadius = FLT_MAX);
+        float FurthestSurfaceConcentricCircles(float initialRadius = 100);
 
         glm::vec3 const& Origin() const;
     private:
@@ -34,7 +35,7 @@ namespace sdf
     class BoxFrame final : public Object
     {
     public:
-        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
         virtual ~BoxFrame() = default;
 		
         float GetDistance(const glm::vec3& point) override;
@@ -115,5 +116,7 @@ namespace sdf
     };
 
     static float SmoothMin(float dist1, float dist2, float smoothness);
-    static std::vector<glm::vec3>GenerateSpherePoints(const glm::vec3& origin, float radius);
+    constexpr int PointCountHorizontal{ 360 };
+    constexpr int PointCountVertical{ 360 };
+    static std::vector<glm::vec3> GenerateSpherePoints(glm::vec3 const& origin, float radius);
 }

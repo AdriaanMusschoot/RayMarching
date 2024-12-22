@@ -41,7 +41,7 @@ namespace sdf
 		static Camera m_Camera;
 
 	private:
-		float GetDistanceToScene(const glm::vec3& rayOrigin) const;
+		float GetDistanceToScene(const glm::vec3& point) const;
 	};
 	
 	class SceneEasyComplexity final : public Scene
