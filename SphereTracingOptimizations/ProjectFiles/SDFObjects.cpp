@@ -4,6 +4,7 @@
 #include <execution>
 #include <iostream>
 #include <optional>
+#include <future>
 
 sdf::Object::Object(glm::vec3 const& origin)
     : m_Origin{ origin }
@@ -12,45 +13,68 @@ sdf::Object::Object(glm::vec3 const& origin)
 
 float sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
 {
-
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime{ std::chrono::high_resolution_clock::now() };
-
-    float maxDistance{ -std::numeric_limits<float>::max() };
 
     std::vector<glm::vec3> points{ GenerateSpherePoints(glm::vec3{ 0.f, 0.f, 0.f }, initialRadius) };
 
-    std::mutex closestPointMutex{};
-    std::optional<glm::vec3> closestPoint{};
-    std::vector<float> localMaxDistances(std::thread::hardware_concurrency(), -std::numeric_limits<float>::infinity());
+    std::vector<std::future<std::pair<float, float>>> futures{};
 
-    std::for_each(std::execution::par_unseq, points.begin(), points.end(),
-        [&](const glm::vec3& point)
-        {
-            float distance{ GetDistance(point) };
+    size_t const chunkSize{ 10000 };
 
-            if (distance < 0.001)
+	for (int idx{}; idx < points.size(); idx += chunkSize)
+	{
+		size_t chunkEnd{ std::min(points.size(), idx + chunkSize) };
+		std::promise<std::pair<float, float>> promise{};
+		futures.emplace_back(promise.get_future());
+
+		std::jthread thread
+        (
+            [&](std::promise<std::pair<float, float>> promise)
             {
-                std::lock_guard<std::mutex> lock{ closestPointMutex };
-                closestPoint = point;
-                return;
-            }
-            size_t threadId = std::hash<std::thread::id>{}(std::this_thread::get_id()) % localMaxDistances.size();
-            localMaxDistances[threadId] = std::max(localMaxDistances[threadId], distance);
-        });
+                float localFurthestDistance = -std::numeric_limits<float>::max();
+                float localMinimumDistance = std::numeric_limits<float>::max();
 
-    if (closestPoint.has_value())
-    {
-        return glm::length(closestPoint.value());
-    }
+				std::for_each(points.begin() + idx, points.begin() + chunkEnd,
+					[&](glm::vec3 const& point)
+					{
+                        float distance{ GetDistance(point) };
 
-    maxDistance = *std::max_element(localMaxDistances.begin(), localMaxDistances.end());
+                        if (distance < 0.001f)
+                        {
+							localMinimumDistance = glm::length(point);
+                        }
+                        if (localFurthestDistance < distance)
+						{
+							localFurthestDistance = distance;
+						}
+					});
+				promise.set_value(std::make_pair(localFurthestDistance, localMinimumDistance));
+			}, std::move(promise)
+        );
+	}
+
+	float furthestDistance = -std::numeric_limits<float>::max();
+
+	for (auto& future : futures)
+	{
+		auto [localFurthestDistance, minimumDistance] = future.get();
+		if (minimumDistance != std::numeric_limits<float>::max())
+		{
+			return minimumDistance;
+		}
+		if (furthestDistance < localFurthestDistance)
+		{
+			furthestDistance = localFurthestDistance;
+		}
+	}
 
     std::chrono::time_point<std::chrono::high_resolution_clock> endTime{ std::chrono::high_resolution_clock::now() };
 
     std::chrono::duration<float> elapsed = endTime - startTime;
     std::cout << elapsed.count() << "\n";
 
-    return FurthestSurfaceConcentricCircles(maxDistance);
+    return FurthestSurfaceConcentricCircles(furthestDistance);
+
 }
 
 glm::vec3 const& sdf::Object::Origin() const
