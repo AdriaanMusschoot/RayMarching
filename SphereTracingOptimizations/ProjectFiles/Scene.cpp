@@ -62,6 +62,7 @@ namespace sdf
 
 	SceneMediumComplexity::SceneMediumComplexity()
 	{
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Sphere>());
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>());
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>());

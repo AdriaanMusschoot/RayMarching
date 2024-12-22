@@ -11,41 +11,42 @@ sdf::Object::Object(glm::vec3 const& origin)
 {
 }
 
-float sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
+float sdf::Object::EarlyOutTest(glm::vec3 const& point)
 {
-    std::chrono::time_point<std::chrono::high_resolution_clock> startTime{ std::chrono::high_resolution_clock::now() };
+    return glm::length(point) - m_EarlyOutRadius;
+}
 
+void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
+{
     float maxDistance{ -std::numeric_limits<float>::max() };
     std::vector<glm::vec3> points{ GenerateSpherePoints(glm::vec3{ 0.f, 0.f, 0.f }, initialRadius) };
 
-    std::mutex closestPointMutex{};
     std::optional<glm::vec3> closestPoint{};
     std::vector<float> localMaxDistances(std::thread::hardware_concurrency(), -std::numeric_limits<float>::infinity());
     
     std::for_each(std::execution::par_unseq, points.begin(), points.end(),
         [&](const glm::vec3& point)
         {
-             float distance{ GetDistance(point) };
-             if (distance < 0.001)
+             float distance{ GetDistanceUnoptimized(point) };
+             if (distance < 0.001f)
              {
-                 std::lock_guard<std::mutex> lock{ closestPointMutex };
                  closestPoint = point;
                  return;
              }
-             size_t threadId = std::hash<std::thread::id>{}(std::this_thread::get_id()) % localMaxDistances.size();
-             localMaxDistances[threadId] = std::max(localMaxDistances[threadId], distance);
+             size_t threadId{ std::hash<std::thread::id>{}(std::this_thread::get_id()) % localMaxDistances.size() };
+             if (float& localMaxDistance{ localMaxDistances[threadId] }; distance > localMaxDistance)
+             {
+				 localMaxDistance = distance;
+             }
         });
 
     if (closestPoint.has_value())
     {
-        return glm::length(closestPoint.value());
+		m_EarlyOutRadius = glm::length(closestPoint.value());
+        return;
     }
 
     maxDistance = *std::max_element(localMaxDistances.begin(), localMaxDistances.end());
-
-    std::chrono::time_point<std::chrono::high_resolution_clock> endTime{ std::chrono::high_resolution_clock::now() };
-    std::chrono::duration<float> elapsed = endTime - startTime;
-    std::cout << elapsed.count() << "\n";
 
     return FurthestSurfaceConcentricCircles(maxDistance);
 }
@@ -63,7 +64,12 @@ sdf::Sphere::Sphere(float radius, glm::vec3 const& origin)
 
 float sdf::Sphere::GetDistance(const glm::vec3& point)
 {
-    return glm::length(Origin() + point) - m_Radius;
+    return GetDistanceUnoptimized(point);
+}
+
+float sdf::Sphere::GetDistanceUnoptimized(glm::vec3 const& point)
+{
+    return glm::length(Origin() - point) - m_Radius;
 }
 
 sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec3 const& origin)
@@ -71,18 +77,28 @@ sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
-    std::cout << FurthestSurfaceConcentricCircles() << "\n";
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::BoxFrame::GetDistance(const glm::vec3& point)
 {
     //return glm::length(glm::max(glm::abs(movedPoint) - m_BoxExtent, glm::vec3{ 0, 0, 0 }));
+    if (float const earlyOutDistance{ EarlyOutTest(point) }; earlyOutDistance >= 0.1f)
+    {
+        return earlyOutDistance;
+    }
+
+	return GetDistanceUnoptimized(point);
+}
+
+float sdf::BoxFrame::GetDistanceUnoptimized(glm::vec3 const& point)
+{
     glm::vec3 const p{ abs(point) - m_BoxExtent };
     glm::vec3 const q{ abs(p + m_RoundedValue) - m_RoundedValue };
     return glm::min(glm::min(
         glm::length(glm::max(glm::vec3(p.x, q.y, q.z), 0.0f)) + glm::min(glm::max(p.x, glm::max(q.y, q.z)), 0.0f),
         glm::length(glm::max(glm::vec3(q.x, p.y, q.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(p.y, q.z)), 0.0f)),
-        glm::length(glm::max(glm::vec3(q.x, q.y, p.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, p.z)), 0.0f));
+        glm::length(glm::max(glm::vec3(q.x, q.y, p.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, p.z)), 0.0f));;
 }
 
 sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& origin)
@@ -93,6 +109,11 @@ sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& 
 }
 
 float sdf::HexagonalPrism::GetDistance(const glm::vec3& point)
+{
+    return GetDistanceUnoptimized(point);
+}
+
+float sdf::HexagonalPrism::GetDistanceUnoptimized(glm::vec3 const& point)
 {
     static glm::vec3 const k{ -0.8660254f, 0.5f, 0.57735f };
     static glm::vec2 const kxy{ k };
@@ -126,6 +147,11 @@ sdf::Link::Link(float height, float innerRadius, float tubeRadius, glm::vec3 con
 
 float sdf::Link::GetDistance(const glm::vec3& point)
 {
+	return GetDistanceUnoptimized(point);
+}
+
+float sdf::Link::GetDistanceUnoptimized(glm::vec3 const& point)
+{
     glm::vec3 const movedPoint{ point - Origin() };
 
     glm::vec3 const q{ movedPoint.x, glm::max(glm::abs(movedPoint.y) - m_HeightEmptySpace, 0.0f), movedPoint.z };
@@ -141,26 +167,30 @@ sdf::Octahedron::Octahedron(float size, glm::vec3 const& origin)
 
 float sdf::Octahedron::GetDistance(glm::vec3 const& point)
 {
-    glm::vec3 movedPoint{ point - Origin() };
-    movedPoint = glm::abs(movedPoint);
-    float m{ movedPoint.x + movedPoint.y + movedPoint.z - m_Size };
+	return GetDistanceUnoptimized(point);
+}
+
+float sdf::Octahedron::GetDistanceUnoptimized(glm::vec3 const& point)
+{
+    glm::vec3 p{ glm::abs(point) };
+    float m{ p.x + p.y + p.z - m_Size };
 
     glm::vec3 q;
-    if (3.0f * movedPoint.x < m)
+    if (3.0f * p.x < m)
     {
-        q = movedPoint;
+        q = p;
     }
-    else if (3.0f * movedPoint.y < m)
+    else if (3.0f * p.y < m)
     {
-        q.x = movedPoint.y;
-        q.y = movedPoint.z;
-        q.z = movedPoint.x;
+        q.x = p.y;
+        q.y = p.z;
+        q.z = p.x;
     }
-    else if (3.0f * movedPoint.z < m)
+    else if (3.0f * p.z < m)
     {
-        q.x = movedPoint.z;
-        q.y = movedPoint.x;
-        q.z = movedPoint.y;
+        q.x = p.z;
+        q.y = p.x;
+        q.z = p.y;
     }
     else
     {
@@ -178,10 +208,15 @@ sdf::MandelBulb::MandelBulb(glm::vec3 const& origin)
 
 float sdf::MandelBulb::GetDistance(const glm::vec3& point)
 {
-    glm::vec3 const movedPoint{ point - Origin() };
+	return GetDistanceUnoptimized(point);
+}
+
+float sdf::MandelBulb::GetDistanceUnoptimized(glm::vec3 const& point)
+{
+    glm::vec3 const p{ point };
 
     int iterations = 4;
-    glm::vec3 w = movedPoint;
+    glm::vec3 w = p;
     float m = glm::dot(w, w);
     glm::vec4 trap{ abs(w), m };
     float dz = 1;
@@ -200,9 +235,9 @@ float sdf::MandelBulb::GetDistance(const glm::vec3& point)
         float k2 = glm::inversesqrt(k3 * k3 * k3 * k3 * k3 * k3 * k3);
         float k1 = x4 + y4 + z4 - 6.0 * y2 * z2 - 6.0 * x2 * y2 + 2.0 * z2 * x2;
         float k4 = x2 - y2 + z2;
-        w.x = movedPoint.x + 64.0 * x * y * z * (x2 - z2) * k4 * (x4 - 6.0 * x2 * z2 + z4) * k1 * k2;
-        w.y = movedPoint.y + -16.0 * y2 * k3 * k4 * k4 + k1 * k1;
-        w.z = movedPoint.z + -8.0 * y * k4 * (x4 * x4 - 28.0 * x4 * x2 * z2 + 70.0 * x4 * z4 - 28.0 * x2 * z2 * z4
+        w.x = p.x + 64.0 * x * y * z * (x2 - z2) * k4 * (x4 - 6.0 * x2 * z2 + z4) * k1 * k2;
+        w.y = p.y + -16.0 * y2 * k3 * k4 * k4 + k1 * k1;
+        w.z = p.z + -8.0 * y * k4 * (x4 * x4 - 28.0 * x4 * x2 * z2 + 70.0 * x4 * z4 - 28.0 * x2 * z2 * z4
             + z4 * z4) * k1 * k2;
 
         trap = glm::min(trap, glm::vec4{ abs(w), m });
@@ -212,52 +247,6 @@ float sdf::MandelBulb::GetDistance(const glm::vec3& point)
             break;
     }
     return 0.25f * glm::log(m) * sqrt(m) / dz;
-
-    //glm::vec3 z = movedPoint;
-    //float dr{ 1.0f };
-    //float r{ 0.0f };
-    //float power{ 10 };
-    //for (int i = 0; i < 10; i++)
-    //{
-    //    r = glm::length(z);
-    //    if (r > 2.f) break;
-    //    // convert to polar coordinates
-    //    float theta = asin(z.z / r);
-    //    float phi = atan2(z.y, z.x);
-    //    dr = 4.0f * std::pow(r, power - 1.0f) * dr + 1.0f;
-    //    // scale and rotate the point
-    //    float zr = std::pow(r, power);
-    //    theta = theta * power;
-    //    phi = phi * power;
-    //    // convert back to cartesian coordinates
-    //    z = zr * glm::vec3(std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta));
-    //    z += movedPoint;
-    //}
-    //return 0.5f * std::log(r) * r / dr;
-
-    //int Iterations = 10;
-    //float Power = 10;
-    //glm::vec3 z = movedPoint;
-    //float dr = 1.0;
-    //float r = 0.0;
-    //for (int i{ 0 }; i < Iterations; i++)
-    //{
-    //    // convert to polar coordinates
-    //    r = glm::length(z);
-    //    float theta = glm::acos(z.z / r);
-    //    float phi = glm::atan(z.y, z.x);
-    //    if (r > 2) break; // the point has escaped the threshold of 2
-    //    // evaluate spatial derivative
-    //    dr = glm::pow(r, Power - 1.0) * Power * dr + 1.0;
-    //    // scale and rotate the point
-    //    float zr = glm::pow(r, Power);
-    //    theta = theta * Power;
-    //    phi = phi * Power;
-    //    // convert back to cartesian coordinates
-    //    z = zr * glm::vec3(glm::sin(theta) * glm::cos(phi), glm::sin(phi) * glm::sin(theta), glm::cos(theta));
-    //    z = z + movedPoint;
-    //}
-    //return 0.5 * glm::log(r) * r / dr;
 }
 
 sdf::CappedTorus::CappedTorus(float innerRadius, float tubeRadius, float openingAngle, glm::vec3 const& origin)
@@ -270,16 +259,21 @@ sdf::CappedTorus::CappedTorus(float innerRadius, float tubeRadius, float opening
 
 float sdf::CappedTorus::GetDistance(glm::vec3 const& point)
 {
-    glm::vec3 movedPoint{ point - Origin() };
-    movedPoint.x = glm::abs(movedPoint.x);
+    return GetDistanceUnoptimized(point);
+}
 
-    glm::vec2 const pxy{ movedPoint };
+float sdf::CappedTorus::GetDistanceUnoptimized(glm::vec3 const& point)
+{
+    glm::vec3 p{ point };
+    p.x = glm::abs(p.x);
+
+    glm::vec2 const pxy{ p };
 
     glm::vec2 const sc{ glm::cos(m_OpeningAngle), glm::sin(m_OpeningAngle) };
 
-    float const k{ (sc.y * movedPoint.x > sc.x * movedPoint.y) ? glm::dot(pxy, sc) : glm::length(pxy) };
+    float const k{ (sc.y * p.x > sc.x * p.y) ? glm::dot(pxy, sc) : glm::length(pxy) };
 
-    return glm::sqrt(dot(movedPoint, movedPoint) + m_InnerRadius * m_InnerRadius - 2.0f * m_InnerRadius * k) - m_TubeRadius;
+    return glm::sqrt(dot(p, p) + m_InnerRadius * m_InnerRadius - 2.0f * m_InnerRadius * k) - m_TubeRadius;
 }
 
 sdf::Pyramid::Pyramid(glm::vec3 const& origin)
@@ -289,33 +283,38 @@ sdf::Pyramid::Pyramid(glm::vec3 const& origin)
 
 float sdf::Pyramid::GetDistance(glm::vec3 const& point)
 {
-    glm::vec3 movedPoint{ point - Origin() };
+	return GetDistanceUnoptimized(point);
+}
+
+float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)
+{
+    glm::vec3 p{ point };
 
     float const m2{ m_Height * m_Height + 0.25f };
 
-    movedPoint.x = glm::abs(movedPoint.x);
-    movedPoint.z = glm::abs(movedPoint.z);
+    p.x = glm::abs(p.x);
+    p.z = glm::abs(p.z);
 
-    if (movedPoint.z > movedPoint.x)
+    if (p.z > p.x)
     {
-        glm::vec3 const tempPoint{ movedPoint };
-        movedPoint.x = tempPoint.z;
-        movedPoint.z = tempPoint.x;
+        glm::vec3 const tempPoint{ p };
+        p.x = tempPoint.z;
+        p.z = tempPoint.x;
     }
-    movedPoint.x -= 0.5f * m_BaseWidth;
-    movedPoint.z -= 0.5f * m_BaseWidth;
+    p.x -= 0.5f * m_BaseWidth;
+    p.z -= 0.5f * m_BaseWidth;
 
-    glm::vec3 const q{ movedPoint.z, m_Height * movedPoint.y - 0.5f * movedPoint.x, m_Height * movedPoint.x + 0.5f * movedPoint.y };
+    glm::vec3 const q{ p.z, m_Height * p.y - 0.5f * p.x, m_Height * p.x + 0.5f * p.y };
 
     float const s{ glm::max(-q.x, 0.0f) };
-    float const t{ glm::clamp((q.y - 0.5f * movedPoint.z) / (m2 + 0.25f), 0.0f, 1.0f) };
+    float const t{ glm::clamp((q.y - 0.5f * p.z) / (m2 + 0.25f), 0.0f, 1.0f) };
 
     float const a{ m2 * (q.x + s) * (q.x + s) + q.y * q.y };
     float const b{ m2 * (q.x + 0.5f * t) * (q.x + 0.5f * t) + (q.y - m2 * t) * (q.y - m2 * t) };
 
     float const d2{ glm::min(q.y, -q.x * m2 - q.y * 0.5f) > 0.0f ? 0.0f : glm::min(a, b) };
 
-    return glm::sqrt((d2 + q.z * q.z) / m2) * glm::sign(glm::max(q.z, -movedPoint.y));
+    return glm::sqrt((d2 + q.z * q.z) / m2) * glm::sign(glm::max(q.z, -p.y));
 }
 
 float sdf::SmoothMin(float dist1, float dist2, float smoothness)

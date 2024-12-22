@@ -92,7 +92,7 @@ namespace sdf
 			}
 			else if (holdingRightMouseButton)
 			{
-				totalPitch += mouseX * SPEED_ROTATION * ElapsedTime;
+				totalPitch -= mouseX * SPEED_ROTATION * ElapsedTime;
 				totalYaw -= mouseY * SPEED_ROTATION * ElapsedTime;
 			}
 			else if (holdingLeftMouseButton)
