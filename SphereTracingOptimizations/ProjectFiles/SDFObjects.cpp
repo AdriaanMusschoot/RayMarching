@@ -31,16 +31,16 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
     float radius{ initialRadius };
     
     std::mutex closestPointMutex{};
-    std::optional<glm::vec3> closestPoint{};
+    std::optional<glm::vec3> surfacePoint{};
     //recursion bad cause stack overflow use while
     do
     {
-        float maxDistance{ -std::numeric_limits<float>::max() };
         std::vector<glm::vec3> points{ GenerateSpherePoints(glm::vec3{ 0.f, 0.f, 0.f }, radius) };
 
-        std::vector<float> localMaxDistances(std::thread::hardware_concurrency(), -std::numeric_limits<float>::infinity());
+        std::vector<float> closestDistanceVec(std::thread::hardware_concurrency(), std::numeric_limits<float>::max());
+        std::vector<glm::vec3> closestPointVec(std::thread::hardware_concurrency(), glm::vec3{ 0.f, 0.f, 0.f });
 
-        std::for_each(std::execution::seq, points.begin(), points.end(),
+        std::for_each(std::execution::par_unseq, points.begin(), points.end(),
             [&](const glm::vec3& point)
             {
                 float distance{ GetDistanceUnoptimized(point) };
@@ -48,26 +48,30 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
                 if (distance < 0.001f)
                 {
                     std::lock_guard<std::mutex> lock(closestPointMutex);
-                    if (not closestPoint.has_value())
+                    if (not surfacePoint.has_value())
                     {
-                        closestPoint = point;
+                        surfacePoint = point;
                     }
                     return;
                 }
 
-                size_t threadId{ std::hash<std::thread::id>{}(std::this_thread::get_id()) % localMaxDistances.size() };
-                if (float& localMaxDistance{ localMaxDistances[threadId] }; distance > localMaxDistance)
-                {
-                    localMaxDistance = distance;
+                size_t threadId{ std::hash<std::thread::id>{}(std::this_thread::get_id()) % closestDistanceVec.size() };
+                if (auto & closestDistance{ closestDistanceVec[threadId] }; 
+                    distance < closestDistance)
+				{
+					closestDistance = distance;
+					closestPointVec[threadId] = point;
                 }
             });
+        auto minElementIter = std::min_element(closestDistanceVec.begin(), closestDistanceVec.end());
+        size_t minElementIndex = std::distance(closestDistanceVec.begin(), minElementIter);
 
-        maxDistance = *std::max_element(localMaxDistances.begin(), localMaxDistances.end());
-        radius = maxDistance;
+		radius = glm::length(closestPointVec[minElementIndex]) - *minElementIter;
+		std::cout << "radius: " << radius << std::endl;
 
-    } while (not closestPoint.has_value());
+    } while (not surfacePoint.has_value());
 
-    m_EarlyOutRadius = glm::length(closestPoint.value());
+    m_EarlyOutRadius = glm::length(surfacePoint.value());
 }
 
 glm::vec3 const& sdf::Object::Origin() const
