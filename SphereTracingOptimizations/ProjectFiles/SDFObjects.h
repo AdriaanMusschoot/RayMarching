@@ -12,26 +12,25 @@ namespace sdf
         Object(glm::vec3 const& origin);
         virtual ~Object() = default;
 
-        virtual float GetDistance(glm::vec3 const& point) = 0;
+        float GetDistance(glm::vec3 const& point);
 		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
-
-        float EarlyOutTest(glm::vec3 const& point);
 		
-        void FurthestSurfaceConcentricCircles(float initialRadius = 100);
-
         glm::vec3 const& Origin() const;
+    protected:
+        void FurthestSurfaceConcentricCircles(float initialRadius = 10);
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
+
+        float EarlyOutTest(glm::vec3 const& point);
     };
 	
     class Sphere final : public Object
     {
     public:
-        Sphere(float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        Sphere(float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ 0.0f, 0.f, 0.f });
         virtual ~Sphere() = default;
 
-        float GetDistance(const glm::vec3& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Radius{};
@@ -40,10 +39,9 @@ namespace sdf
     class Link final : public Object
     {
     public:
-        Link(float height = 0.2f, float innerRadius = 0.2f, float tubeRadius = 0.07f, glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        Link(float height = 0.2f, float innerRadius = 0.2f, float tubeRadius = 0.07f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
         virtual ~Link() = default;
 
-        float GetDistance(const glm::vec3& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_HeightEmptySpace{ 0.2f };
@@ -54,10 +52,9 @@ namespace sdf
     class Octahedron final : public Object
     {
     public:
-        Octahedron(float size = 0.3f, glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        Octahedron(float size = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f });
         virtual ~Octahedron() = default;
 
-        float GetDistance(glm::vec3 const& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Size{ 0.3f };
@@ -66,10 +63,9 @@ namespace sdf
     class BoxFrame final : public Object
     {
     public:
-        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 0.2f, 0.f, 0.f });
+        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
         virtual ~BoxFrame() = default;
 		
-        float GetDistance(const glm::vec3& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         glm::vec3 m_BoxExtent{};
@@ -79,10 +75,9 @@ namespace sdf
     class HexagonalPrism final : public Object
     {
     public:
-        HexagonalPrism(float depth = 0.2f, float radius = 0.3f, glm::vec3 const& origin = glm::vec3{0.f, 0.f, 0.f});
+        HexagonalPrism(float depth = 0.2f, float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f });
         virtual ~HexagonalPrism() = default;
 
-        float GetDistance(const glm::vec3& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Depth{ 0.2f };
@@ -92,10 +87,9 @@ namespace sdf
     class Pyramid final : public Object
     {
     public:
-        Pyramid(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        Pyramid(float height = 1.f, float width = 1.f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f });
         virtual ~Pyramid() = default;
 
-        float GetDistance(glm::vec3 const& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Height{ 1.f };
@@ -105,29 +99,15 @@ namespace sdf
     class MandelBulb final : public Object
     {
     public:
-        MandelBulb(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        MandelBulb(glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
         virtual ~MandelBulb() = default;
 
-        float GetDistance(const glm::vec3& point) override;
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
-    };
-
-    class CappedTorus final : public Object
-    {
-    public:
-        CappedTorus(float innerRadius = 0.3f, float tubeRadius = 0.06f, float openingAngle = -1.2f, glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
-        virtual ~CappedTorus() = default;
-
-        float GetDistance(glm::vec3 const& point) override;
-        float GetDistanceUnoptimized(glm::vec3 const& point) override;
-    private:
-        float m_InnerRadius{ 0.3f };
-        float m_TubeRadius{ 0.05f };
-        float m_OpeningAngle{ -1.0f };
     };
 
     static float SmoothMin(float dist1, float dist2, float smoothness);
+
     constexpr int PointCountHorizontal{ 360 };
     constexpr int PointCountVertical{ 360 };
     static std::vector<glm::vec3> GenerateSpherePoints(glm::vec3 const& origin, float radius);

@@ -57,21 +57,19 @@ namespace sdf
 
 	SceneEasyComplexity::SceneEasyComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>());
 	}
 
 	SceneMediumComplexity::SceneMediumComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Sphere>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>());
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::CappedTorus>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>());
 	}
 
 	SceneMaxComplexity::SceneMaxComplexity()
 	{
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
 	}	
 }
