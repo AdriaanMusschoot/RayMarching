@@ -259,6 +259,7 @@ float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)
 sdf::MandelBulb::MandelBulb(glm::vec3 const& origin)
     : Object(origin)
 {
+	FurthestSurfaceConcentricCircles();
 }
 
 float sdf::MandelBulb::GetDistanceUnoptimized(glm::vec3 const& point)

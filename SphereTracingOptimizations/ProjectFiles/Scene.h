@@ -33,16 +33,16 @@ namespace sdf
 
 		Camera const& GetCamera() const { return m_Camera; }
 
-		void ToggleUseAABBs();
-		void ToggleVisibilityAABBs();
+		static void ToggleUseAABBs();
+		static void ToggleVisibilityAABBs();
 
 	protected:		
 		std::vector<std::unique_ptr<sdf::Object>> m_SDObjectUPtrVec{};
 		static Camera m_Camera;
 
 	private:
-		bool m_UseAABBs{ true };
-		bool m_ShowAABBs{ false };
+		static bool m_UseAABBs;
+		static bool m_ShowAABBs;
 		float GetDistanceToScene(const glm::vec3& point) const;
 	};
 	
