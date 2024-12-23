@@ -90,8 +90,8 @@ void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 c
 
 	glm::vec3 const cameraDirection{ glm::normalize(cameraToWorld * glm::vec3{ cx, cy, 1.f }) };
 
-	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 50, 100);
-	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.05f + iteration * 0.03f) };
+	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000);
+	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } * (distance * 0.05f + iteration * 0.018f) };
 	finalColor.MaxToOne();	
 
 	m_SurfacePixels[pixelIdx] =

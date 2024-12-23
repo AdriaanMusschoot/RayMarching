@@ -18,7 +18,7 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, bool s
     if (useEarlyOuts)
     {
         float const earlyOutDistance{ EarlyOutTest(point) };
-        if (earlyOutDistance >= 0.1f)
+        if (earlyOutDistance >= 0.01f)
         {
             return earlyOutDistance;
         }
@@ -216,10 +216,9 @@ float sdf::HexagonalPrism::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::min(glm::max(d.x, d.y), 0.f) + glm::length(glm::max(d, 0.0f));
 }
 
-sdf::Pyramid::Pyramid(float height, float width, glm::vec3 const& origin)
+sdf::Pyramid::Pyramid(float height, glm::vec3 const& origin)
     : Object(origin)
 	, m_Height{ height }
-	, m_BaseWidth{ width }
 {
     //std::cout << "Pyramid" << std::endl;
     FurthestSurfaceConcentricCircles();
@@ -240,8 +239,8 @@ float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)
         p.x = tempPoint.z;
         p.z = tempPoint.x;
     }
-    p.x -= 0.5f * m_BaseWidth;
-    p.z -= 0.5f * m_BaseWidth;
+    p.x -= 0.5f;
+    p.z -= 0.5f;
 
     glm::vec3 const q{ p.z, m_Height * p.y - 0.5f * p.x, m_Height * p.x + 0.5f * p.y };
 
@@ -266,7 +265,7 @@ float sdf::MandelBulb::GetDistanceUnoptimized(glm::vec3 const& point)
 {
     glm::vec3 const p{ point };
 
-    int iterations = 4;
+    int iterations = 10;
     glm::vec3 w = p;
     float m = glm::dot(w, w);
     glm::vec4 trap{ abs(w), m };
@@ -297,7 +296,7 @@ float sdf::MandelBulb::GetDistanceUnoptimized(glm::vec3 const& point)
         if (m > 256)
             break;
     }
-    return 0.25f * glm::log(m) * sqrt(m) / dz;
+    return 0.25f * glm::log(m) * sqrt(m) / dz * m_Radius;
 }
 
 float sdf::SmoothMin(float dist1, float dist2, float smoothness)

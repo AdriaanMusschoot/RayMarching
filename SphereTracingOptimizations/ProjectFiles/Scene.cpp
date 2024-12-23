@@ -8,7 +8,7 @@ namespace sdf
 	bool Scene::m_UseAABBs{ true };
 	bool Scene::m_ShowAABBs{ false };
 
-	Camera Scene::m_Camera{ glm::vec3{0.f,0,-4.f }, 45 };
+	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
 	std::pair<float,int> Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
@@ -73,15 +73,15 @@ namespace sdf
 
 	SceneEasyComplexity::SceneEasyComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.1f, glm::vec3{ 1.f, 0.f, 0.f }));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ -1.f, 0.f, 0.f }));
 	}
 
 	SceneMediumComplexity::SceneMediumComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>());
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>(glm::vec3{ 0.7f, 0.7f, 0.7f }, 0.05f, glm::vec3{ 2.f, 1.f, 0.f }));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.7f, 0.7f, glm::vec3{ -2.f, 1.f, 0.f }));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.f, glm::vec3{ 0.f, -1.8f, 0.f }));
 	}
 
 	SceneMaxComplexity::SceneMaxComplexity()

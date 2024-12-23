@@ -87,23 +87,23 @@ namespace sdf
     class Pyramid final : public Object
     {
     public:
-        Pyramid(float height = 1.f, float width = 1.f, glm::vec3 const& origin = glm::vec3{ -0.f, 0.f, 0.f });
+        Pyramid(float height = 1.f, glm::vec3 const& origin = glm::vec3{ -0.f, 0.f, 0.f });
         virtual ~Pyramid() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Height{ 1.f };
-        float m_BaseWidth{ 1.f };
     };
     
     class MandelBulb final : public Object
     {
     public:
-        MandelBulb(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, 0.f });
+        MandelBulb(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, -0.f });
         virtual ~MandelBulb() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
+		float m_Radius{ 1.0f };
     };
 
     static float SmoothMin(float dist1, float dist2, float smoothness);
