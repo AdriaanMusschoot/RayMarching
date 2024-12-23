@@ -31,16 +31,18 @@ namespace sdf
 			m_Camera.Update(ElapsedSec);
 		}
 
-		const Camera& GetCamera() const { return m_Camera; }
+		Camera const& GetCamera() const { return m_Camera; }
 
-	protected:
-		float m_TotalTime{};
-		float m_DeltaTime{};
-		
+		void ToggleUseAABBs();
+		void ToggleVisibilityAABBs();
+
+	protected:		
 		std::vector<std::unique_ptr<sdf::Object>> m_SDObjectUPtrVec{};
 		static Camera m_Camera;
 
 	private:
+		bool m_UseAABBs{ true };
+		bool m_ShowAABBs{ false };
 		float GetDistanceToScene(const glm::vec3& point) const;
 	};
 	

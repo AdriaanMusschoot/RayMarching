@@ -36,14 +36,24 @@ namespace sdf
 		return { currentDistance, i };
 	}
 
+	void Scene::ToggleUseAABBs()
+	{
+		m_UseAABBs = not m_UseAABBs;
+	}
+
+	void Scene::ToggleVisibilityAABBs()
+	{
+		m_ShowAABBs = not m_ShowAABBs;
+	}
+
 	float Scene::GetDistanceToScene(const glm::vec3& point) const
 	{
 		float minDistance{ std::numeric_limits<float>::max() };
 
 		std::for_each(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-			[&point, &minDistance](const std::unique_ptr<sdf::Object>& obj)
+			[&](const std::unique_ptr<sdf::Object>& obj)
 			{
-				float const distance{ obj->GetDistance(point - obj->Origin()) };
+				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs, m_ShowAABBs) };
 
 				if (distance < minDistance)
 				{

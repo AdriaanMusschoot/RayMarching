@@ -5,20 +5,40 @@
 #include <iostream>
 #include <optional>
 #include <future>
+#include "SdEngine.h"
+
 
 sdf::Object::Object(glm::vec3 const& origin)
     : m_Origin{ origin }
 {
 }
 
-float sdf::Object::GetDistance(glm::vec3 const& point)
+float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, bool showEarlyOuts)
 {
-    //if (float const earlyOutDistance{ EarlyOutTest(point) }; earlyOutDistance >= 0.1f)
-    //{
-    //    return earlyOutDistance;
-    //}
-
-    return GetDistanceUnoptimized(point);
+    if (useEarlyOuts)
+    {
+        float const earlyOutDistance{ EarlyOutTest(point) };
+        if (earlyOutDistance >= 0.1f)
+        {
+            return earlyOutDistance;
+        }
+        else
+        {
+            float const exactDistance{ GetDistanceUnoptimized(point) };
+            if (showEarlyOuts)
+            {
+                return earlyOutDistance;
+            }
+            else
+            {
+                return exactDistance;
+            }
+        }
+    }
+    else
+    {
+        return GetDistanceUnoptimized(point);
+    }
 }
 
 float sdf::Object::EarlyOutTest(glm::vec3 const& point)
@@ -202,7 +222,7 @@ sdf::Pyramid::Pyramid(float height, float width, glm::vec3 const& origin)
 	, m_BaseWidth{ width }
 {
     //std::cout << "Pyramid" << std::endl;
-    //FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)

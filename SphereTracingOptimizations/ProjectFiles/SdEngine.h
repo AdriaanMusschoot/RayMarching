@@ -21,8 +21,8 @@ namespace sdf
     
         void Run();
     private:
-        Renderer Renderer;
-        GameTimer Timer;
+        Renderer m_Renderer;
+        GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
         int m_CurrentSceneID{ 0 };
 

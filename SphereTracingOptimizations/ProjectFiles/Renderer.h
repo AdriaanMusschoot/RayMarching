@@ -26,7 +26,6 @@ namespace sdf
 
 
 		void Render(Scene const& pScene) const;
-
 	private:
 		SDL_Window* m_WindowPtr{};
 
