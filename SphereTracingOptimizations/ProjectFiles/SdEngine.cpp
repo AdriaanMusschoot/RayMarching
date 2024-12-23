@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_events.h>
 
+#include "GUI.h"
 #include "Scene.h"
 
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
@@ -19,6 +20,8 @@ void sdf::Engine::Run()
     while (not ShouldQuit)
     {
         m_Timer.Update();
+
+        GUI::BeginFrame();
         
         HandleInput();
 
@@ -33,8 +36,8 @@ void sdf::Engine::HandleInput()
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
-        const Uint8* pStates = SDL_GetKeyboardState(nullptr);
-			
+        GUI::ProcessEvent(&e);
+
         switch (e.type)
         {
         case SDL_QUIT:

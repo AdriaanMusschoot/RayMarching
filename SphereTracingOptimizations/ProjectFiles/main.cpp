@@ -8,4 +8,6 @@ int main(int argc, char* args[])
 	sdf::Engine Engine{ width, height };
 
 	Engine.Run();
+
+	return -1;
 }

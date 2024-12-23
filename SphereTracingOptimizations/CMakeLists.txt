@@ -27,6 +27,9 @@ set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
 
     ${PROJECT_DIR}/ColorRGB.h
     ${PROJECT_DIR}/Camera.h
+
+    ${PROJECT_DIR}/GUI.h
+    ${PROJECT_DIR}/GUI.cpp
 )
 
 include(FetchContent)
@@ -44,7 +47,6 @@ if(NOT glm_POPULATED)
   FetchContent_Populate(glm)
 endif()
 
-
 FetchContent_Declare(
     SDL2
     URL https://www.libsdl.org/release/SDL2-devel-2.28.5-VC.zip 
@@ -61,10 +63,22 @@ if(NOT SDL2_POPULATED)
     set(SDL2_LIBRARY_DLL "${sdl2_SOURCE_DIR}/lib/x64/SDL2.dll")
 endif()
 
-add_executable(${TARGET_NAME} ${PROJECT_SOURCE_FILES})
+Set(IMGUI_SOURCE_FILES
+  3rdParty/imgui/imgui.cpp
+  3rdParty/imgui/imgui_draw.cpp
+  3rdParty/imgui/imgui_widgets.cpp
+  3rdParty/imgui/imgui_tables.cpp
+  3rdParty/imgui/imgui_impl_sdl2.cpp
+  3rdParty/imgui/imgui_impl_sdlrenderer2.cpp
+  3rdParty/imgui/imgui_plot.cpp
+)
+
+
+add_executable(${TARGET_NAME} ${PROJECT_SOURCE_FILES} ${IMGUI_SOURCE_FILES})
 
 target_include_directories(${TARGET_NAME} PRIVATE
     ${SDL2_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/imgui
 )
 
 target_link_libraries(${TARGET_NAME} PRIVATE
