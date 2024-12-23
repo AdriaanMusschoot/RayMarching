@@ -12,11 +12,12 @@ namespace sdf
         Object(glm::vec3 const& origin);
         virtual ~Object() = default;
 
-        float GetDistance(glm::vec3 const& point, bool useEarlyOuts, bool showEarlyOuts);
-		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
+        float GetDistance(glm::vec3 const& point, bool useEarlyOuts);
 		
         glm::vec3 const& Origin() const;
     protected:
+		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
+
         void FurthestSurfaceConcentricCircles(float initialRadius = 10);
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };

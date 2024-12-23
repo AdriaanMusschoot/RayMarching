@@ -59,7 +59,7 @@ namespace sdf
 		std::for_each(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
 			[&](const std::unique_ptr<sdf::Object>& obj)
 			{
-				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs, m_ShowAABBs) };
+				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs) };
 
 				if (distance < minDistance)
 				{

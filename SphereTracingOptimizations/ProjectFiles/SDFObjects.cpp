@@ -13,7 +13,7 @@ sdf::Object::Object(glm::vec3 const& origin)
 {
 }
 
-float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, bool showEarlyOuts)
+float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts)
 {
     if (useEarlyOuts)
     {
@@ -22,23 +22,8 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, bool s
         {
             return earlyOutDistance;
         }
-        else
-        {
-            float const exactDistance{ GetDistanceUnoptimized(point) };
-            if (showEarlyOuts)
-            {
-                return earlyOutDistance;
-            }
-            else
-            {
-                return exactDistance;
-            }
-        }
     }
-    else
-    {
-        return GetDistanceUnoptimized(point);
-    }
+    return GetDistanceUnoptimized(point);
 }
 
 float sdf::Object::EarlyOutTest(glm::vec3 const& point)
