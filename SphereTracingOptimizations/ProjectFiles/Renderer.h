@@ -26,5 +26,6 @@ namespace sdf
         SDL_Texture* m_TexturePtr;
         std::vector<uint32_t> m_PixelIndices;
         mutable std::vector<uint32_t> m_Pixels{};
+		SDL_PixelFormat* m_PixelFormatPtr;
     };
 }

@@ -52,6 +52,8 @@ sdf::Renderer::Renderer(uint32_t const& width, uint32_t const& height)
 
 	m_Pixels.resize(nrOfPixels);
 
+	m_PixelFormatPtr = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
+
 	GUI::Initialize(m_WindowPtr, m_RendererPtr);
 }
 
@@ -128,7 +130,7 @@ void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 c
 	m_Pixels[pixelIdx] =
 		SDL_MapRGB
 		(
-			SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888),
+			m_PixelFormatPtr,
 			static_cast<uint8_t>(finalColor.r * 255),
 			static_cast<uint8_t>(finalColor.g * 255),
 			static_cast<uint8_t>(finalColor.b * 255)
