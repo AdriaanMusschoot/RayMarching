@@ -24,7 +24,7 @@ namespace sdf
 		Scene& operator=(Scene&&) noexcept = delete;
 
 		//returns the distance and the number of steps
-		void GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps, HitRecord& outHitResult) const;
+		HitRecord GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const;
 
 		void Update(float ElapsedSec)
 		{
@@ -39,7 +39,7 @@ namespace sdf
 		static Camera m_Camera;
 
 	private:
-		float GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const;
+		std::pair<float, const sdf::Object*> GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const;
 	};
 	
 	class SceneEasyComplexity final : public Scene

@@ -19,6 +19,7 @@ namespace sdf
         float GetDistance(glm::vec3 const& point, bool useEarlyOuts, HitRecord& outHitRecord);
 		
         glm::vec3 const& Origin() const;
+		ColorRGB const& Shade() const;
     protected:
 		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
 
@@ -26,6 +27,7 @@ namespace sdf
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
+		ColorRGB m_Color{};
 
         float EarlyOutTest(glm::vec3 const& point);
     };

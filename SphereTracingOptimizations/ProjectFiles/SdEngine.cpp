@@ -11,6 +11,7 @@ std::vector<const char*> sdf::Engine::m_SceneComplexity{ "Low", "Medium", "High"
 
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : m_Renderer{ width, height }
+	, m_Timer{}
 {
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneEasyComplexity>());
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneMediumComplexity>());
@@ -21,14 +22,13 @@ void sdf::Engine::Run()
 {
     while (not ShouldQuit)
     {
-		GameTimer& timer = GameTimer::GetInstance();
-        timer.Update();
+        m_Timer.Update();
 
-        GUI::BeginFrame();
+        GUI::BeginFrame(*this);
         
         HandleInput();
 
-        m_SceneUPtrVec[m_CurrentSceneID]->Update(timer.GetElapsed());
+        m_SceneUPtrVec[m_CurrentSceneID]->Update(m_Timer.GetElapsed());
         
         m_Renderer.Render(*m_SceneUPtrVec[m_CurrentSceneID]);
     }

@@ -11,9 +11,10 @@
 
 namespace sdf
 {
-	class GameTimer final : public Singleton<GameTimer>
+	class GameTimer final
 	{
 	public:
+		GameTimer();
 		virtual ~GameTimer() = default;
 
 		GameTimer(const GameTimer&) = delete;
@@ -28,9 +29,6 @@ namespace sdf
 
 		int& SetBenchmarkTargetFrames() { return m_BenchmarkTargetFrames; }
 	private:
-		friend Singleton<GameTimer>;
-		GameTimer();
-
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_PreviousTime;
 

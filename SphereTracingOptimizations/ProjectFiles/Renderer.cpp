@@ -51,7 +51,8 @@ sdf::Renderer::Renderer(uint32_t const& width, uint32_t const& height)
 		m_PixelIndices.emplace_back(pixelIdx);
 	}
 
-	m_Pixels.resize(nrOfPixels);
+	m_PixelVec.resize(nrOfPixels);
+	m_HitRecordVec.resize(nrOfPixels);
 
 	m_PixelFormatPtr = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
 
@@ -75,12 +76,23 @@ void sdf::Renderer::Render(Scene const& pScene) const
 	glm::mat3 const& cameraToWorld{ camera.cameraToWorld };
 	glm::vec3 const& origin{ camera.origin };
 
+	std::fill(std::execution::par_unseq, m_PixelVec.begin(), m_PixelVec.end(), SDL_MapRGB(m_PixelFormatPtr, 255, 255, 255));
+
 	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
 		{
-			RenderPixel(pScene, fovValue, origin, cameraToWorld, pixelIdx);
+			CalculateHitRecords(pScene, fovValue, origin, cameraToWorld, pixelIdx);
 		});
 
-	SDL_UpdateTexture(m_TexturePtr, nullptr, m_Pixels.data(), m_Width * sizeof(uint32_t));
+	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
+		{
+			if (HitRecord const& hitRecord{ m_HitRecordVec[pixelIdx] }; 
+				hitRecord.DidHit)
+			{
+				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r, hitRecord.Shade.g, hitRecord.Shade.b);
+			}
+		});
+
+	SDL_UpdateTexture(m_TexturePtr, nullptr, m_PixelVec.data(), m_Width * sizeof(uint32_t));
 	SDL_RenderClear(m_RendererPtr);
 	SDL_RenderCopy(m_RendererPtr, m_TexturePtr, nullptr, nullptr);
 
@@ -98,6 +110,19 @@ bool sdf::Renderer::SaveBufferToImage() const
 	return result;
 }
 
+int sdf::Renderer::GetNrCollisions() const
+{
+	return std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), [](HitRecord const& hitRecord)
+		{ 
+			return hitRecord.DidHit; 
+		});
+}
+
+int sdf::Renderer::GetNrMisses() const
+{
+	return m_HitRecordVec.size() - GetNrCollisions();
+}
+
 sdf::ColorRGB sdf::Renderer::Palette(float distance)
 {
 	glm::vec3 const a{ 0.5, 0.5, 0.5 };
@@ -112,7 +137,7 @@ sdf::ColorRGB sdf::Renderer::Palette(float distance)
 	return ColorRGB{ t.x, t.y, t.z };
 }
 
-void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const
+void sdf::Renderer::CalculateHitRecords(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const
 {
 	uint32_t const px{ pixelIdx % m_Width };
 	uint32_t const py{ pixelIdx / m_Width };
@@ -124,17 +149,5 @@ void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 c
 
 	glm::vec3 const cameraDirection{ glm::normalize(cameraToWorld * glm::vec3{ cx, cy, 1.f }) };
 
-	sdf::HitRecord hitRecord{};
-	pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000, hitRecord);
-	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } *(hitRecord.Distance * 0.05f + hitRecord.TotalSteps * 0.018f) };
-	finalColor.MaxToOne();
-
-	m_Pixels[pixelIdx] =
-		SDL_MapRGB
-		(
-			m_PixelFormatPtr,
-			static_cast<uint8_t>(finalColor.r * 255),
-			static_cast<uint8_t>(finalColor.g * 255),
-			static_cast<uint8_t>(finalColor.b * 255)
-		);
+	m_HitRecordVec[pixelIdx] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000);
 }

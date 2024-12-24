@@ -8,7 +8,6 @@
 
 #include "Scene.h"
 #include "SdEngine.h"
-#include "Timer.h"
 
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
@@ -22,13 +21,13 @@ void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
     ImGui_ImplSDLRenderer2_Init(rendererPtr);
 }
 
-void GUI::BeginFrame()
+void GUI::BeginFrame(sdf::Engine& engine)
 {
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-	LoadSettingsWindow("Settings", ImVec2(0, 0), ImVec2(150, 200));
+	LoadSettingsWindow(engine, "Settings", ImVec2(0, 0), ImVec2(150, 300));
 }
 
 void GUI::EndFrame()
@@ -49,7 +48,7 @@ bool GUI::ProcessEvent(SDL_Event* eventPtr)
     return ImGui_ImplSDL2_ProcessEvent(eventPtr);;
 }
 
-void GUI::LoadSettingsWindow(std::string const& name, ImVec2 const& pos, ImVec2 const& size)
+void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec2 const& pos, ImVec2 const& size)
 {
     ImGui::Begin(name.c_str());
 
@@ -63,7 +62,8 @@ void GUI::LoadSettingsWindow(std::string const& name, ImVec2 const& pos, ImVec2 
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &sdf::Engine::m_CurrentSceneID, sdf::Engine::m_SceneComplexity.data(), sdf::Engine::m_SceneComplexity.size());
 
-	sdf::GameTimer& timer = sdf::GameTimer::GetInstance();
+    sdf::GameTimer& timer{ engine.GetTimer() };
+
 	ImGui::Text("Nr Frames Benchmark: ");
 	ImGui::InputInt("", &timer.SetBenchmarkTargetFrames());
 
@@ -71,6 +71,9 @@ void GUI::LoadSettingsWindow(std::string const& name, ImVec2 const& pos, ImVec2 
 	{
 		timer.StartBenchmark();
     }
+
+	ImGui::Text("Rays hit: %d", engine.GetRenderer().GetNrCollisions());
+	ImGui::Text("Rays missed: %d", engine.GetRenderer().GetNrMisses());
 
     ImGui::End();
 }

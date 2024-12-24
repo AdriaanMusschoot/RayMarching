@@ -23,8 +23,12 @@ namespace sdf
 
         static int m_CurrentSceneID;
         static std::vector<const char*> m_SceneComplexity;
+
+		Renderer const& GetRenderer() const { return m_Renderer; }
+		GameTimer& GetTimer() { return m_Timer; }
     private:
         Renderer m_Renderer;
+        GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
 
         bool ShouldQuit{ false };

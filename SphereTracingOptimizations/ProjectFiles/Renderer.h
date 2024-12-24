@@ -2,10 +2,11 @@
 #include <vector>
 #include "Scene.h"
 #include "ColorRGB.h"
+#include "Singleton.h"
 
 namespace sdf
 {
-    class Renderer
+	class Renderer final
     {
     public:
         Renderer(uint32_t const& width, uint32_t const& height);
@@ -14,8 +15,10 @@ namespace sdf
         void Render(Scene const& pScene) const;
         bool SaveBufferToImage() const;
 
+		int GetNrCollisions() const;
+		int GetNrMisses() const;
     private:
-        void RenderPixel(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
+        void CalculateHitRecords(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
         static ColorRGB Palette(float distance);
 
         uint32_t m_Width;
@@ -25,7 +28,8 @@ namespace sdf
         SDL_Renderer* m_RendererPtr;
         SDL_Texture* m_TexturePtr;
         std::vector<uint32_t> m_PixelIndices;
-        mutable std::vector<uint32_t> m_Pixels{};
+        mutable std::vector<uint32_t> m_PixelVec{};
 		SDL_PixelFormat* m_PixelFormatPtr;
+        mutable std::vector<HitRecord> m_HitRecordVec;
     };
 }

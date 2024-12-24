@@ -11,8 +11,9 @@ namespace sdf
 
 	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
-	void Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps, HitRecord& outHitResult) const
+	HitRecord Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
+		HitRecord hitRecord{};
 		float currentDistance{ 0.f };
 
 		glm::vec3 const origin1{ origin.x, origin.y, origin.z };
@@ -26,11 +27,13 @@ namespace sdf
 			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
 			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
 			// newPoint += Vector3{ 0.f, sinDist * sinTime * 10, 0.f } * 0.3f;
-			float const distanceAbleToTravel{ GetDistanceToScene(newPoint, outHitResult) };
+			const auto[distanceAbleToTravel, object]{ GetDistanceToScene(newPoint, hitRecord) };
 			currentDistance += distanceAbleToTravel;
 
 			if (distanceAbleToTravel < minDistance)
 			{
+				hitRecord.DidHit = true;
+				hitRecord.Shade = object->Shade();
 				break;
 			}
 			if (currentDistance > maxDistance)
@@ -38,13 +41,17 @@ namespace sdf
 				break;
 			}
 		}
-		outHitResult.Distance = currentDistance;
-		outHitResult.TotalSteps = currentStep;
+
+		hitRecord.Distance = currentDistance;
+		hitRecord.TotalSteps = currentStep;
+
+		return hitRecord;
 	}
 
-	float Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
+	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
 		float minDistance{ std::numeric_limits<float>::max() };
+		const sdf::Object* closestObject{ nullptr };
 
 		std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
 			[&](const std::unique_ptr<sdf::Object>& obj)
@@ -54,11 +61,12 @@ namespace sdf
 				if (distance < minDistance)
 				{
 					minDistance = distance;
+					closestObject = obj.get();
 				}
 			}
 		);
 
-		return minDistance;
+		return { minDistance, closestObject };
 	}
 
 	SceneEasyComplexity::SceneEasyComplexity()

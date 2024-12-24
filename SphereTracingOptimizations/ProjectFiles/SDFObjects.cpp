@@ -18,7 +18,7 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::H
     if (useEarlyOuts)
     {
         float const earlyOutDistance{ EarlyOutTest(point) };
-        if (earlyOutDistance >= 0.01f)
+        if (earlyOutDistance >= 0.1f)
         {
             ++outHitRecord.StepsUsingAABB;
             return earlyOutDistance;
@@ -83,6 +83,11 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
 glm::vec3 const& sdf::Object::Origin() const
 {
     return m_Origin;
+}
+
+sdf::ColorRGB const& sdf::Object::Shade() const
+{
+    return m_Color;
 }
 
 sdf::Sphere::Sphere(float radius, glm::vec3 const& origin)

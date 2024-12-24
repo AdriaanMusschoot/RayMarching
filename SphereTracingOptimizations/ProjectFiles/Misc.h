@@ -1,4 +1,5 @@
 #pragma once
+#include "ColorRGB.h"
 
 namespace sdf
 {
@@ -8,6 +9,9 @@ namespace sdf
 		float Distance{};
 		int TotalSteps{};
 		int StepsUsingAABB{};
+
+		ColorRGB Shade{};
+		bool DidHit{ false };
 	};
 
 }
