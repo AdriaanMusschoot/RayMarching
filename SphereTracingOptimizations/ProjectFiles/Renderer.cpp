@@ -21,14 +21,25 @@ sdf::Renderer::Renderer(uint32_t const& width, uint32_t const& height)
 		width, height, SDL_WINDOW_SHOWN
 	);
 
-	assert(m_WindowPtr, "Window creation failed");
+	if (m_WindowPtr == nullptr)
+	{
+		throw(std::runtime_error("Window creation failed"));
+	}
 
 	m_RendererPtr = SDL_CreateRenderer(m_WindowPtr, -1, SDL_RENDERER_ACCELERATED);
-	assert(m_RendererPtr, "Renderer creation failed");
+
+	if (m_RendererPtr == nullptr)
+	{
+		throw(std::runtime_error("Renderer creation failed"));
+	}
 
 	m_TexturePtr = SDL_CreateTexture(m_RendererPtr, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-	assert(m_TexturePtr, "Texture creation failed");
 
+	if (m_TexturePtr == nullptr)
+	{
+		throw(std::runtime_error("Texture creation failed"));
+	}
+	
 	m_AspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
 	const uint32_t nrOfPixels{ m_Width * m_Height };

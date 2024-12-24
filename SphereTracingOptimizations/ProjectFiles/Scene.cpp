@@ -6,7 +6,6 @@
 namespace sdf
 {
 	bool Scene::m_UseAABBs{ true };
-	bool Scene::m_ShowAABBs{ false };
 
 	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
@@ -38,18 +37,6 @@ namespace sdf
 			}
 		}
 		return { currentDistance, i };
-	}
-
-	void Scene::ToggleUseAABBs()
-	{
-		m_UseAABBs = not m_UseAABBs;
-		std::cout << "Use AABBs: " << std::boolalpha << m_UseAABBs << "\n";
-	}
-
-	void Scene::ToggleVisibilityAABBs()
-	{
-		m_ShowAABBs = not m_ShowAABBs;
-		std::cout << "Show AABBs: " << std::boolalpha << m_ShowAABBs << "\n";
 	}
 
 	float Scene::GetDistanceToScene(const glm::vec3& point) const

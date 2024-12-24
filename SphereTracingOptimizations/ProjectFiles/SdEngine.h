@@ -20,11 +20,13 @@ namespace sdf
         Engine& operator=(Engine&&) noexcept = delete;
     
         void Run();
+
+        static int m_CurrentSceneID;
+        static std::vector<const char*> m_SceneComplexity;
     private:
         Renderer m_Renderer;
         GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
-        int m_CurrentSceneID{ 0 };
 
         bool ShouldQuit{ false };
         void HandleInput();

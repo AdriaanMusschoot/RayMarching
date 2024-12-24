@@ -6,6 +6,9 @@
 #include "GUI.h"
 #include "Scene.h"
 
+int sdf::Engine::m_CurrentSceneID{ 0 };
+std::vector<const char*> sdf::Engine::m_SceneComplexity{ "Low", "Medium", "High" };
+
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : m_Renderer{ width, height }
     , m_Timer{}
@@ -36,7 +39,8 @@ void sdf::Engine::HandleInput()
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
-        GUI::ProcessEvent(&e);
+        if (GUI::ProcessEvent(&e))
+            continue;
 
         switch (e.type)
         {
@@ -48,10 +52,6 @@ void sdf::Engine::HandleInput()
                 m_Timer.StartBenchmark(1000);
             else if (e.key.keysym.scancode == SDL_SCANCODE_F7)
                 m_CurrentSceneID = (m_CurrentSceneID + 1) % (m_SceneUPtrVec.size());
-            else if (e.key.keysym.scancode == SDL_SCANCODE_F8)
-				m_SceneUPtrVec[m_CurrentSceneID]->ToggleUseAABBs();
-            else if (e.key.keysym.scancode == SDL_SCANCODE_F9)
-				m_SceneUPtrVec[m_CurrentSceneID]->ToggleVisibilityAABBs();
         default: ;
         }
     }
