@@ -13,13 +13,14 @@ sdf::Object::Object(glm::vec3 const& origin)
 {
 }
 
-float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts)
+float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::HitRecord& outHitRecord)
 {
     if (useEarlyOuts)
     {
         float const earlyOutDistance{ EarlyOutTest(point) };
         if (earlyOutDistance >= 0.01f)
         {
+            ++outHitRecord.StepsUsingAABB;
             return earlyOutDistance;
         }
     }

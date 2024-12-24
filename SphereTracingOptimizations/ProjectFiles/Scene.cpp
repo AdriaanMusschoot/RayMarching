@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <iostream>
+#include <execution>
+#include "Misc.h"
 
 namespace sdf
 {
@@ -9,22 +11,22 @@ namespace sdf
 
 	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
-	std::pair<float,int> Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
+	void Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps, HitRecord& outHitResult) const
 	{
 		float currentDistance{ 0.f };
 
 		glm::vec3 const origin1{ origin.x, origin.y, origin.z };
 		glm::vec3 const direction1{ direction.x, direction.y, direction.z };
 
-		int i{ 0 };
-		for (i; i < maxSteps; ++i)
+		int currentStep{ 0 };
+		for (currentStep; currentStep < maxSteps; ++currentStep)
 		{
 			glm::vec3 const newPoint{ origin1 + direction1 * currentDistance };
 			// const float sinDist{ std::sin(currentDistance * 0.3f) };
 			// const float sinTime{ std::sin(m_TotalTime * 0.4f) };
 			// newPoint = Matrix::CreateRotationZ(currentDistance * sinTime * 0.14).TransformPoint(newPoint);
 			// newPoint += Vector3{ 0.f, sinDist * sinTime * 10, 0.f } * 0.3f;
-			float const distanceAbleToTravel{ GetDistanceToScene(newPoint) };
+			float const distanceAbleToTravel{ GetDistanceToScene(newPoint, outHitResult) };
 			currentDistance += distanceAbleToTravel;
 
 			if (distanceAbleToTravel < minDistance)
@@ -36,17 +38,18 @@ namespace sdf
 				break;
 			}
 		}
-		return { currentDistance, i };
+		outHitResult.Distance = currentDistance;
+		outHitResult.TotalSteps = currentStep;
 	}
 
-	float Scene::GetDistanceToScene(const glm::vec3& point) const
+	float Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
 		float minDistance{ std::numeric_limits<float>::max() };
 
-		std::for_each(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
+		std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
 			[&](const std::unique_ptr<sdf::Object>& obj)
 			{
-				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs) };
+				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs, outHitRecord) };
 
 				if (distance < minDistance)
 				{
@@ -71,8 +74,9 @@ namespace sdf
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.f, glm::vec3{ 0.f, -1.8f, 0.f }));
 	}
 
-	SceneMaxComplexity::SceneMaxComplexity()
+	SceneHighComplexity::SceneHighComplexity()
 	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>());
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 2.f, 0.f, 0.f }));
+		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -2.f, 0.f, 0.f }));
 	}	
 }

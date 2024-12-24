@@ -24,7 +24,7 @@ namespace sdf
 		Scene& operator=(Scene&&) noexcept = delete;
 
 		//returns the distance and the number of steps
-		std::pair<float,int> GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const;
+		void GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps, HitRecord& outHitResult) const;
 
 		void Update(float ElapsedSec)
 		{
@@ -39,7 +39,7 @@ namespace sdf
 		static Camera m_Camera;
 
 	private:
-		float GetDistanceToScene(const glm::vec3& point) const;
+		float GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const;
 	};
 	
 	class SceneEasyComplexity final : public Scene
@@ -66,15 +66,15 @@ namespace sdf
 		SceneMediumComplexity& operator=(SceneMediumComplexity&&) noexcept = delete;
 	};
 
-	class SceneMaxComplexity final : public Scene
+	class SceneHighComplexity final : public Scene
 	{
 	public:
-		SceneMaxComplexity();
-		~SceneMaxComplexity() override = default;
+		SceneHighComplexity();
+		~SceneHighComplexity() override = default;
 
-		SceneMaxComplexity(const SceneMaxComplexity&) = delete;
-		SceneMaxComplexity(SceneMaxComplexity&&) noexcept = delete;
-		SceneMaxComplexity& operator=(const SceneMaxComplexity&) = delete;
-		SceneMaxComplexity& operator=(SceneMaxComplexity&&) noexcept = delete;
+		SceneHighComplexity(const SceneHighComplexity&) = delete;
+		SceneHighComplexity(SceneHighComplexity&&) noexcept = delete;
+		SceneHighComplexity& operator=(const SceneHighComplexity&) = delete;
+		SceneHighComplexity& operator=(SceneHighComplexity&&) noexcept = delete;
 	};
 }

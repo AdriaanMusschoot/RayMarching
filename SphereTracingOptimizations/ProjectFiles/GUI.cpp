@@ -8,6 +8,7 @@
 
 #include "Scene.h"
 #include "SdEngine.h"
+#include "Timer.h"
 
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
@@ -27,7 +28,7 @@ void GUI::BeginFrame()
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-	LoadSettingsWindow("Settings", ImVec2(0, 0), ImVec2(200, 200));
+	LoadSettingsWindow("Settings", ImVec2(0, 0), ImVec2(150, 200));
 }
 
 void GUI::EndFrame()
@@ -55,10 +56,21 @@ void GUI::LoadSettingsWindow(std::string const& name, ImVec2 const& pos, ImVec2 
     ImGui::SetWindowPos(pos, ImGuiCond_Once);
     ImGui::SetWindowSize(size, ImGuiCond_Once);
 
+	ImGui::Value("FPS", ImGui::GetIO().Framerate);
+
     ImGui::Checkbox("Use AABBs", &sdf::Scene::m_UseAABBs);
 
-    ImGui::Combo("Quality", &sdf::Engine::m_CurrentSceneID, sdf::Engine::m_SceneComplexity.data(), sdf::Engine::m_SceneComplexity.size());
+	ImGui::Text("Scene complexity: ");
+    ImGui::Combo("|", &sdf::Engine::m_CurrentSceneID, sdf::Engine::m_SceneComplexity.data(), sdf::Engine::m_SceneComplexity.size());
 
+	sdf::GameTimer& timer = sdf::GameTimer::GetInstance();
+	ImGui::Text("Nr Frames Benchmark: ");
+	ImGui::InputInt("", &timer.SetBenchmarkTargetFrames());
+
+    if (ImGui::Button("Start BenchMark"))
+	{
+		timer.StartBenchmark();
+    }
 
     ImGui::End();
 }

@@ -30,7 +30,7 @@ set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
 
     ${PROJECT_DIR}/GUI.h
     ${PROJECT_DIR}/GUI.cpp
-)
+ "ProjectFiles/Singleton.h"  "ProjectFiles/Misc.h")
 
 include(FetchContent)
 # add glm

@@ -8,6 +8,7 @@
 #include "Execution"
 #include <cassert>
 #include "GUI.h"
+#include "Misc.h"
 
 sdf::Renderer::Renderer(uint32_t const& width, uint32_t const& height)
 	: m_Width{ width }
@@ -123,8 +124,9 @@ void sdf::Renderer::RenderPixel(Scene const& pScene, float fovValue, glm::vec3 c
 
 	glm::vec3 const cameraDirection{ glm::normalize(cameraToWorld * glm::vec3{ cx, cy, 1.f }) };
 
-	auto const [distance, iteration] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000);
-	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } *(distance * 0.05f + iteration * 0.018f) };
+	sdf::HitRecord hitRecord{};
+	pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000, hitRecord);
+	ColorRGB finalColor{ ColorRGB{ 1.f, 1.f, 1.f } *(hitRecord.Distance * 0.05f + hitRecord.TotalSteps * 0.018f) };
 	finalColor.MaxToOne();
 
 	m_Pixels[pixelIdx] =

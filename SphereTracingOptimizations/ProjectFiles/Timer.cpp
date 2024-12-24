@@ -14,7 +14,7 @@ sdf::GameTimer::GameTimer()
 	m_PreviousTime = m_StartTime;
 }
 
-void sdf::GameTimer::StartBenchmark(int numFrames)
+void sdf::GameTimer::StartBenchmark()
 {
 	if (m_BenchmarkActive)
 	{
@@ -23,9 +23,8 @@ void sdf::GameTimer::StartBenchmark(int numFrames)
 	}
 
 	m_BenchmarkActive = true;
-	m_BenchmarkTargetFrames = numFrames;
 	m_BenchmarkFrameTimeVec.clear();
-	m_BenchmarkFrameTimeVec.reserve(numFrames);
+	m_BenchmarkFrameTimeVec.reserve(m_BenchmarkTargetFrames);
 
 	std::cout << "**BENCHMARK STARTED**\n";
 }
@@ -37,20 +36,20 @@ void sdf::GameTimer::Update()
 	m_ElapsedTime = elapsed.count();
 	m_PreviousTime = currentTime;
 
-	m_OutputTimer += m_ElapsedTime;
-	++m_OutputFPSCount;
+	m_TotalTime += m_ElapsedTime;
+	++m_TotalFPSCount;
 
 	//reset after 1 second -> so fpS
-	if (m_OutputTimer >= 1.0f)
-	{
-		m_TotalTime += m_OutputTimer;
-		m_TotalFPSCount += m_OutputFPSCount;
-		
-		PrintFPS();
+	//if (m_OutputTimer >= 1.0f)
+	//{
+	//	m_TotalTime += m_OutputTimer;
+	//	m_TotalFPSCount += m_OutputFPSCount;
+	//	
+	//	//PrintFPS();
 
-		m_OutputFPSCount = 0;
-		m_OutputTimer = 0.0f;
-	}
+	//	m_OutputFPSCount = 0;
+	//	m_OutputTimer = 0.0f;
+	//}
 
 	if (m_BenchmarkActive)
 	{

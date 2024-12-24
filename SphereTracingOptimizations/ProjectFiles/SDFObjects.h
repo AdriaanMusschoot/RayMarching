@@ -3,8 +3,12 @@
 #include <array>
 #include <vector>
 
+#include "Misc.h"
+
+
 namespace sdf
 {
+    class Scene;
     
     class Object
     {
@@ -12,7 +16,7 @@ namespace sdf
         Object(glm::vec3 const& origin);
         virtual ~Object() = default;
 
-        float GetDistance(glm::vec3 const& point, bool useEarlyOuts);
+        float GetDistance(glm::vec3 const& point, bool useEarlyOuts, HitRecord& outHitRecord);
 		
         glm::vec3 const& Origin() const;
     protected:
