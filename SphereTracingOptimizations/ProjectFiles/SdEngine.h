@@ -20,9 +20,9 @@ namespace sdf
         Engine& operator=(Engine&&) noexcept = delete;
     
         void Run();
-
-        static int m_CurrentSceneID;
-        static std::vector<const char*> m_SceneComplexity;
+        int& SetCurrentSceneID();
+        char const* const* GetSceneComplexities() const;
+        int GetSceneComplexityCount() const;
 
 		Renderer const& GetRenderer() const { return m_Renderer; }
 		GameTimer& GetTimer() { return m_Timer; }
@@ -31,6 +31,9 @@ namespace sdf
         GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
 
+        int m_CurrentSceneID{ 0 };
+        std::vector<const char*> m_SceneComplexity{ "Low", "Medium", "High" };
+        
         bool ShouldQuit{ false };
         void HandleInput();
     };

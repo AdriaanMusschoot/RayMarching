@@ -6,9 +6,6 @@
 #include "GUI.h"
 #include "Scene.h"
 
-int sdf::Engine::m_CurrentSceneID{ 0 };
-std::vector<const char*> sdf::Engine::m_SceneComplexity{ "Low", "Medium", "High" };
-
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : m_Renderer{ width, height }
 	, m_Timer{}
@@ -32,6 +29,21 @@ void sdf::Engine::Run()
         
         m_Renderer.Render(*m_SceneUPtrVec[m_CurrentSceneID]);
     }
+}
+
+int& sdf::Engine::SetCurrentSceneID()
+{
+    return m_CurrentSceneID;
+}
+
+char const* const* sdf::Engine::GetSceneComplexities() const
+{
+    return m_SceneComplexity.data();
+}
+
+int sdf::Engine::GetSceneComplexityCount() const
+{
+    return m_SceneComplexity.size();
 }
 
 void sdf::Engine::HandleInput()

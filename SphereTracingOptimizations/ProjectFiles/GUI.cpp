@@ -60,7 +60,7 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     ImGui::Checkbox("Use AABBs", &sdf::Scene::m_UseAABBs);
 
 	ImGui::Text("Scene complexity: ");
-    ImGui::Combo("|", &sdf::Engine::m_CurrentSceneID, sdf::Engine::m_SceneComplexity.data(), sdf::Engine::m_SceneComplexity.size());
+    ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());
 
     sdf::GameTimer& timer{ engine.GetTimer() };
 
@@ -72,8 +72,10 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 		timer.StartBenchmark();
     }
 
-	ImGui::Text("Rays hit: %d", engine.GetRenderer().GetNrCollisions());
-	ImGui::Text("Rays missed: %d", engine.GetRenderer().GetNrMisses());
+    sdf::Renderer const& renderer{ engine.GetRenderer() };
+
+	ImGui::Text("Rays hit: %d", renderer.GetNrCollisions());
+	ImGui::Text("Rays missed: %d", renderer.GetNrMisses());
 
     ImGui::End();
 }
