@@ -9,6 +9,8 @@
 #include "Scene.h"
 #include "SdEngine.h"
 
+#define IMGUI_DISABLE_DEBUG_TOOLS
+
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
     IMGUI_CHECKVERSION();
@@ -65,7 +67,7 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     sdf::GameTimer& timer{ engine.GetTimer() };
 
 	ImGui::Text("Nr Frames Benchmark: ");
-	ImGui::InputInt("", &timer.SetBenchmarkTargetFrames());
+	ImGui::InputInt("##", &timer.SetBenchmarkTargetFrames());
 
     if (ImGui::Button("Start BenchMark"))
 	{

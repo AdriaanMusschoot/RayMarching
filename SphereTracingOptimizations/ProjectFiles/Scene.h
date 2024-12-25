@@ -12,6 +12,11 @@ namespace sdf
 	struct SDSphere;
 	struct Light;
 
+	struct BVHNode
+	{
+
+	};
+
 	class Scene
 	{
 	public:
@@ -33,12 +38,16 @@ namespace sdf
 
 		Camera const& GetCamera() const { return m_Camera; }
 
+		void CreateBVH();
+
 		static bool m_UseAABBs;
 	protected:		
 		std::vector<std::unique_ptr<sdf::Object>> m_SDObjectUPtrVec{};
 		static Camera m_Camera;
 
 	private:
+		std::vector<BVHNode> BVHNodeVec{};
+
 		std::pair<float, const sdf::Object*> GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const;
 	};
 	

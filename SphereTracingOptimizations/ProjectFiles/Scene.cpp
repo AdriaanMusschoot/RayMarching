@@ -48,11 +48,17 @@ namespace sdf
 		return hitRecord;
 	}
 
+	void Scene::CreateBVH()
+	{
+		std::cout << "Traverse the bvh\n";
+	}
+
 	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
 		float minDistance{ std::numeric_limits<float>::max() };
 		const sdf::Object* closestObject{ nullptr };
 
+		//traverse all objects in the scene
 		std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
 			[&](const std::unique_ptr<sdf::Object>& obj)
 			{
@@ -65,6 +71,8 @@ namespace sdf
 				}
 			}
 		);
+		//traverse the bvh instead 
+
 
 		return { minDistance, closestObject };
 	}
@@ -73,6 +81,7 @@ namespace sdf
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.1f, glm::vec3{ 1.f, 0.f, 0.f }));
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ -1.f, 0.f, 0.f }));
+		CreateBVH();
 	}
 
 	SceneMediumComplexity::SceneMediumComplexity()
@@ -80,11 +89,13 @@ namespace sdf
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>(glm::vec3{ 0.7f, 0.7f, 0.7f }, 0.05f, glm::vec3{ 2.f, 1.f, 0.f }));
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.7f, 0.7f, glm::vec3{ -2.f, 1.f, 0.f }));
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.f, glm::vec3{ 0.f, -1.8f, 0.f }));
+		CreateBVH();
 	}
 
 	SceneHighComplexity::SceneHighComplexity()
 	{
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 2.f, 0.f, 0.f }));
 		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -2.f, 0.f, 0.f }));
+		CreateBVH();
 	}	
 }
