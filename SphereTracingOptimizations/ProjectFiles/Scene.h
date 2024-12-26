@@ -12,9 +12,20 @@ namespace sdf
 	struct SDSphere;
 	struct Light;
 
+	using ObjectUPtrVec = std::vector<std::unique_ptr<sdf::Object>>;
+
 	struct BVHNode
 	{
+		Sphere sphere{};
+		std::unique_ptr<BVHNode> leftUPtr{ nullptr };
+		std::unique_ptr<BVHNode> rightUPtr{ nullptr };
 
+		std::unique_ptr<sdf::Object> objectUPtr{ nullptr };
+
+		BVHNode(glm::vec3 origin, float radius)
+			: sphere{ radius, origin }
+		{
+		}
 	};
 
 	class Scene
@@ -38,17 +49,23 @@ namespace sdf
 
 		Camera const& GetCamera() const { return m_Camera; }
 
-		void CreateBVH();
+		void CreateBVHStructure();
 
 		static bool m_UseAABBs;
 	protected:		
-		std::vector<std::unique_ptr<sdf::Object>> m_SDObjectUPtrVec{};
+		ObjectUPtrVec m_SDObjectUPtrVec{};
 		static Camera m_Camera;
 
 	private:
-		std::vector<BVHNode> BVHNodeVec{};
+		std::unique_ptr<BVHNode> m_BVHRoot{ nullptr };
 
 		std::pair<float, const sdf::Object*> GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const;
+
+		std::unique_ptr<BVHNode> CreateBVHNode(ObjectUPtrVec objects) const;
+		std::pair<ObjectUPtrVec, ObjectUPtrVec> SplitObjects(ObjectUPtrVec objects) const;
+
+		static glm::vec3 CalculateBVHOrigin(ObjectUPtrVec const& objects);
+		static float CalculateBVHRadius(ObjectUPtrVec const& objects, glm::vec3 const& origin);
 	};
 	
 	class SceneEasyComplexity final : public Scene

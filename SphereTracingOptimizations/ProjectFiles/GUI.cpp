@@ -15,7 +15,6 @@ void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
 

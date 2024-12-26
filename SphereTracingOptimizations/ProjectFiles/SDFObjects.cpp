@@ -90,10 +90,16 @@ sdf::ColorRGB const& sdf::Object::Shade() const
     return m_Color;
 }
 
+float sdf::Object::GetEarlyOutRadius() const
+{
+    return m_EarlyOutRadius;
+}
+
 sdf::Sphere::Sphere(float radius, glm::vec3 const& origin)
     : Object(origin)
     , m_Radius{ radius }
 {
+	FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Sphere::GetDistanceUnoptimized(glm::vec3 const& point)

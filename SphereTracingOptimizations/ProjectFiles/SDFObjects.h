@@ -20,6 +20,8 @@ namespace sdf
 		
         glm::vec3 const& Origin() const;
 		ColorRGB const& Shade() const;
+
+		float GetEarlyOutRadius() const;
     protected:
 		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
 
