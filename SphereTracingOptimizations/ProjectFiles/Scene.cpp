@@ -12,15 +12,15 @@
 
 namespace sdf
 {
-	bool Scene::m_UseAABBs{ true };
+	bool Scene::m_UseEarlyOut{ true };
 
-	Scene::Scene()
-	{
-	}
+	bool Scene::m_UseBVH{ true };
 
-	Scene::~Scene()
-	{
-	}
+	int Scene::m_BVHSteps{ 1 };
+
+	//needs to be defaulted here, because it needs the full definition of the unique_ptr
+	Scene::Scene() = default;
+	Scene::~Scene() = default;
 
 	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
@@ -46,7 +46,10 @@ namespace sdf
 			if (distanceAbleToTravel < minDistance)
 			{
 				hitRecord.DidHit = true;
-				hitRecord.Shade = object->Shade();
+				if (object)
+				{
+					hitRecord.Shade = object->Shade();
+				}
 				break;
 			}
 			if (currentDistance > maxDistance)
@@ -68,29 +71,39 @@ namespace sdf
 
 	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
+		if (m_UseBVH)
+		{
+			return m_BVHRoot->GetDistance(point, m_UseEarlyOut, 0, m_BVHSteps, outHitRecord);
+		}
+
 		float minDistance{ std::numeric_limits<float>::max() };
 		sdf::Object const* closestObject{ nullptr };
 
-		//traverse all objects in the scene
-		//std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
-		//	[&](const std::unique_ptr<sdf::Object>& obj)
-		//	{
-		//		float const distance{ obj->GetDistance(point - obj->Origin(), m_UseAABBs, outHitRecord) };
-		//
-		//		if (distance < minDistance)
-		//		{
-		//			minDistance = distance;
-		//			closestObject = obj.get();
-		//		}
-		//	}
-		//);
-		//traverse the bvh instead 
-
-		return m_BVHRoot->GetDistance(point, m_UseAABBs, outHitRecord);
+		std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
+			[&](const std::unique_ptr<sdf::Object>& obj)
+			{
+				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseEarlyOut, outHitRecord) };
+		
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+					closestObject = obj.get();
+				}
+			}
+		);
+		return { minDistance, closestObject };
 	}
 
 	void Scene::CreateBVHStructure()
 	{
-		m_BVHRoot = std::move(sdf::BVHNode::CreateBVHNode(std::move(m_SDObjectUPtrVec)));		
+		std::vector<sdf::Object*> objectVec{ m_SDObjectUPtrVec.size() };
+
+		std::transform(m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(), objectVec.begin(),
+			[](const std::unique_ptr<sdf::Object>& obj)
+			{
+				return obj.get();
+			});
+
+		m_BVHRoot = std::move(sdf::BVHNode::CreateBVHNode(objectVec));		
 	}	
 }

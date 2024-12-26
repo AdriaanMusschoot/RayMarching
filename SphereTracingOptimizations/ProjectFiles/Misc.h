@@ -10,9 +10,9 @@ namespace sdf
 
 		float Distance{};
 		int TotalSteps{};
-		int StepsUsingAABB{};
+		int StepsUsingEarlyOut{};
 
-		ColorRGB Shade{};
+		ColorRGB Shade{ 1.f, 1.f, 1.f };
 	};
 
 }

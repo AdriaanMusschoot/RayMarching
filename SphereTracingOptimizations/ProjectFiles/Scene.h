@@ -34,9 +34,12 @@ namespace sdf
 
 		void CreateBVHStructure();
 
-		static bool m_UseAABBs;
+		static bool m_UseEarlyOut;
+		static bool m_UseBVH;
+
+		static int m_BVHSteps;
 	protected:		
-		//vector needs full definition upon construction
+		//vector needs full definition upon construction, so it can call the destructor of the unique_ptrs
 		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec{};
 		static Camera m_Camera;
 

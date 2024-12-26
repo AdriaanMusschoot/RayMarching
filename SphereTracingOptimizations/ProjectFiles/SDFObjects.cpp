@@ -19,7 +19,7 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::H
         float const earlyOutDistance{ EarlyOutTest(point) };
         if (earlyOutDistance >= 0.1f)
         {
-            ++outHitRecord.StepsUsingAABB;
+            ++outHitRecord.StepsUsingEarlyOut;
             return earlyOutDistance;
         }
     }

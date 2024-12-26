@@ -58,7 +58,9 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 
 	ImGui::Value("FPS", ImGui::GetIO().Framerate);
 
-    ImGui::Checkbox("Use AABBs", &sdf::Scene::m_UseAABBs);
+    ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
+    ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
+	ImGui::InputInt("BVH Steps", &sdf::Scene::m_BVHSteps);
 
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());
