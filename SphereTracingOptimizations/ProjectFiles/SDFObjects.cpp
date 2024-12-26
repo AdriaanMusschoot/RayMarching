@@ -2,11 +2,10 @@
 
 #include <algorithm>
 #include <execution>
-#include <iostream>
 #include <optional>
-#include <future>
-#include "SdEngine.h"
+#include <array>
 
+#include "Misc.h"
 
 sdf::Object::Object(glm::vec3 const& origin)
     : m_Origin{ origin }
@@ -73,7 +72,6 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
         size_t minElementIndex = std::distance(closestDistanceVec.begin(), minElementIter);
 
 		radius = glm::length(closestPointVec[minElementIndex]) - *minElementIter;
-		std::cout << "radius: " << radius << std::endl;
 
     } while (not surfacePoint.has_value());
 

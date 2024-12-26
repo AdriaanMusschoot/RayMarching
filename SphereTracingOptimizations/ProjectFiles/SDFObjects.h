@@ -1,15 +1,14 @@
 #pragma once
 #include "glm/glm.hpp"
-#include <array>
+
 #include <vector>
 
-#include "Misc.h"
-
+#include "ColorRGB.h"
 
 namespace sdf
 {
-    class Scene;
-    
+    struct HitRecord;
+
     class Object
     {
     public:

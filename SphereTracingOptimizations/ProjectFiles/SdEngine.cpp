@@ -4,7 +4,7 @@
 #include <SDL_events.h>
 
 #include "GUI.h"
-#include "Scene.h"
+#include "Scenes.h"
 
 sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     : m_Renderer{ width, height }

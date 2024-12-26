@@ -6,9 +6,6 @@
 #include <vector>
 #include <iostream>
 
-#include "Singleton.h"
-
-
 namespace sdf
 {
 	class GameTimer final

@@ -9,18 +9,13 @@
 #include <cassert>
 #include "GUI.h"
 #include "Misc.h"
+#include "Camera.h"
 
 sdf::Renderer::Renderer(uint32_t const& width, uint32_t const& height)
 	: m_Width{ width }
 	, m_Height{ height }
 {
-	m_WindowPtr = SDL_CreateWindow
-	(
-		"SphereTracer, Adriaan Musschoot",
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		width, height, SDL_WINDOW_SHOWN
-	);
+	m_WindowPtr = SDL_CreateWindow("SphereTracer, Adriaan Musschoot", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,	width, height, SDL_WINDOW_SHOWN);
 
 	if (m_WindowPtr == nullptr)
 	{

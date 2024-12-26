@@ -2,7 +2,6 @@
 #include <vector>
 #include "Scene.h"
 #include "ColorRGB.h"
-#include "Singleton.h"
 
 namespace sdf
 {

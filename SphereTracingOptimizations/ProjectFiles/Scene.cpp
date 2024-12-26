@@ -1,13 +1,26 @@
 #include "Scene.h"
 
 #include <algorithm>
-#include <iostream>
 #include <execution>
+
 #include "Misc.h"
+#include "Camera.h"
+
+#include "SDFObjects.h"
+#include "BVHNode.h"
+
 
 namespace sdf
 {
 	bool Scene::m_UseAABBs{ true };
+
+	Scene::Scene()
+	{
+	}
+
+	Scene::~Scene()
+	{
+	}
 
 	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
 
@@ -48,10 +61,15 @@ namespace sdf
 		return hitRecord;
 	}
 
+	void Scene::Update(float ElapsedSec)
+	{
+		m_Camera.Update(ElapsedSec);
+	}
+
 	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
 		float minDistance{ std::numeric_limits<float>::max() };
-		const sdf::Object* closestObject{ nullptr };
+		sdf::Object const* closestObject{ nullptr };
 
 		//traverse all objects in the scene
 		//std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
@@ -67,115 +85,12 @@ namespace sdf
 		//	}
 		//);
 		//traverse the bvh instead 
-		return { m_BVHRoot->sphere.GetDistance(point - m_BVHRoot->sphere.Origin(), m_UseAABBs, outHitRecord), &m_BVHRoot->sphere };
+
+		return m_BVHRoot->GetDistance(point, m_UseAABBs, outHitRecord);
 	}
 
 	void Scene::CreateBVHStructure()
 	{
-		m_BVHRoot = std::move(CreateBVHNode(std::move(m_SDObjectUPtrVec)));		
-	}
-
-	std::unique_ptr<BVHNode> Scene::CreateBVHNode(ObjectUPtrVec objects) const
-	{
-		if (objects.empty())
-		{
-			return nullptr;
-		}
-
-		glm::vec3 const origin{ CalculateBVHOrigin(objects) };
-		float const radius{ CalculateBVHRadius(objects, origin) };
-
-		std::unique_ptr nodeUPtr{ std::make_unique<BVHNode>(origin, radius) };
-
-		if (objects.size() == 1)
-		{
-			nodeUPtr->objectUPtr = std::move(objects[0]);
-		}
-		else
-		{
-			auto [leftObjects, rightObjects]{ std::move(SplitObjects(std::move(objects))) };
-			nodeUPtr->leftUPtr = std::move(CreateBVHNode(std::move(leftObjects)));
-			nodeUPtr->rightUPtr = std::move(CreateBVHNode(std::move(rightObjects)));
-		}
-
-		return std::move(nodeUPtr);
-	}
-	
-	std::pair<ObjectUPtrVec, ObjectUPtrVec> Scene::SplitObjects(ObjectUPtrVec objects) const
-	{
-		std::sort(objects.begin(), objects.end(),
-			[](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
-			{
-				return a->Origin().x < b->Origin().x;
-			});
-	
-		size_t const halfSize{ objects.size() / 2 };
-		ObjectUPtrVec leftObjectVec{ halfSize };
-		ObjectUPtrVec rightObjectVec{ halfSize };
-	
-		for (size_t i{ 0 }; i < halfSize; ++i)
-		{
-			leftObjectVec[i] = std::move(objects[i]);
-			rightObjectVec[i] = std::move(objects[i + halfSize]);
-		}
-	
-		return { std::move(leftObjectVec), std::move(rightObjectVec) };
-	}
-
-	glm::vec3 Scene::CalculateBVHOrigin(ObjectUPtrVec const& objects)
-	{
-		glm::vec3 const origin
-		{
-			std::accumulate(objects.begin(), objects.end(), glm::vec3{ 0.f, 0.f, 0.f },
-			[](glm::vec3 const& sum, std::unique_ptr<sdf::Object> const& obj)
-			{
-				return sum + obj->Origin();
-			})
-		};
-
-		return origin / static_cast<float>(objects.size());
-	}
-
-	float Scene::CalculateBVHRadius(ObjectUPtrVec const& objects, glm::vec3 const& origin)
-	{
-		auto maxDistanceIt
-		{
-			std::max_element(objects.begin(), objects.end(),
-			[&origin](const std::unique_ptr<sdf::Object>& a, const std::unique_ptr<sdf::Object>& b)
-			{
-				float distanceA = glm::length(a->Origin() - origin) + a->GetEarlyOutRadius();
-				float distanceB = glm::length(b->Origin() - origin) + b->GetEarlyOutRadius();
-				return distanceA < distanceB;
-			})
-		};
-
-		if (maxDistanceIt != objects.end())
-		{
-			return glm::length((*maxDistanceIt)->Origin() - origin) + (*maxDistanceIt)->GetEarlyOutRadius();
-		}
-
-		return 0.0f;
-	}
-
-	SceneEasyComplexity::SceneEasyComplexity()
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.1f, glm::vec3{ 1.f, 0.f, 0.f }));
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ -1.f, 0.f, 0.f }));
-		CreateBVHStructure();
-	}
-
-	SceneMediumComplexity::SceneMediumComplexity()
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>(glm::vec3{ 0.7f, 0.7f, 0.7f }, 0.05f, glm::vec3{ 2.f, 1.f, 0.f }));
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.7f, 0.7f, glm::vec3{ -2.f, 1.f, 0.f }));
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.f, glm::vec3{ 0.f, -1.8f, 0.f }));
-		CreateBVHStructure();
-	}
-
-	SceneHighComplexity::SceneHighComplexity()
-	{
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 2.f, 0.f, 0.f }));
-		m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -2.f, 0.f, 0.f }));
-		CreateBVHStructure();
+		m_BVHRoot = std::move(sdf::BVHNode::CreateBVHNode(std::move(m_SDObjectUPtrVec)));		
 	}	
 }
