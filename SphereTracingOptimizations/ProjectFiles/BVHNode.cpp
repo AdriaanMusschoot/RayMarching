@@ -113,23 +113,100 @@ float sdf::BVHNode::CalculateBVHRadius(std::vector<sdf::Object*> const& objects,
 
 std::pair<std::vector<sdf::Object*>, std::vector<sdf::Object*>> sdf::BVHNode::SplitObjects(std::vector<sdf::Object*> const& objects)
 {
-	std::vector<Object*> objectPtrVec{ objects.size() };
+	if (objects.size() <= 1)
+	{
+		return { objects, {} };
+	}
 
-	std::transform(objects.begin(), objects.end(), objectPtrVec.begin(),
+	// Calculate the bounding box of all objects
+	glm::vec3 minBounds{ std::numeric_limits<float>::max() };
+	glm::vec3 maxBounds{ std::numeric_limits<float>::lowest() };
+
+	for (const auto& obj : objects)
+	{
+		glm::vec3 origin = obj->Origin();
+		minBounds = glm::min(minBounds, origin);
+		maxBounds = glm::max(maxBounds, origin);
+	}
+
+	// Determine the best split axis and position using SAH
+	int bestAxis = 0;
+	float bestCost = std::numeric_limits<float>::max();
+	size_t bestSplitIndex = 0;
+
+	for (int axis = 0; axis < 3; ++axis)
+	{
+		std::vector<sdf::Object*> tempObjects{ objects.size() };
+
+		std::transform(objects.begin(), objects.end(), tempObjects.begin(),
+			[](sdf::Object* obj)
+			{
+				return obj;
+			});
+
+		std::sort(tempObjects.begin(), tempObjects.end(),
+			[axis](const sdf::Object* a, const sdf::Object* b)
+			{
+				return a->Origin()[axis] < b->Origin()[axis];
+			});
+
+		for (size_t i = 1; i < tempObjects.size(); ++i)
+		{
+			std::vector<sdf::Object*> leftObjects(tempObjects.begin(), tempObjects.begin() + i);
+			std::vector<sdf::Object*> rightObjects(tempObjects.begin() + i, tempObjects.end());
+
+			float leftArea = CalculateBoundingBoxArea(leftObjects);
+			float rightArea = CalculateBoundingBoxArea(rightObjects);
+
+			float cost = leftArea * leftObjects.size() + rightArea * rightObjects.size();
+
+			if (cost < bestCost)
+			{
+				bestCost = cost;
+				bestAxis = axis;
+				bestSplitIndex = i;
+			}
+		}
+	}
+
+	std::vector<sdf::Object*> tempObjects{ objects.size() };
+
+	std::transform(objects.begin(), objects.end(), tempObjects.begin(),
 		[](sdf::Object* obj)
 		{
 			return obj;
 		});
-	
-	std::sort(objectPtrVec.begin(), objectPtrVec.end(),
-		[](const sdf::Object* a, const sdf::Object* b)
+
+	// Sort objects along the best axis and split at the best split index
+	std::sort(tempObjects.begin(), tempObjects.end(),
+		[bestAxis](const sdf::Object* a, const sdf::Object* b)
 		{
-			return a->Origin().x < b->Origin().x;
+			return a->Origin()[bestAxis] < b->Origin()[bestAxis];
 		});
 
-	size_t const halfSize{ objects.size() / 2 };
-	std::vector<Object*> leftObjectVec{ objectPtrVec.begin(), objectPtrVec.begin() + halfSize };
-	std::vector<Object*> rightObjectVec{ objectPtrVec.begin() + halfSize, objectPtrVec.end() };
+	std::vector<sdf::Object*> leftObjects(tempObjects.begin(), tempObjects.begin() + bestSplitIndex);
+	std::vector<sdf::Object*> rightObjects(tempObjects.begin() + bestSplitIndex, tempObjects.end());
 
-	return { std::move(leftObjectVec), std::move(rightObjectVec) };
+	return { std::move(leftObjects), std::move(rightObjects) };
+}
+
+float sdf::BVHNode::CalculateBoundingBoxArea(std::vector<sdf::Object*> const& objects)
+{
+	if (objects.empty())
+	{
+		return 0.0f;
+	}
+
+	glm::vec3 minBounds{ std::numeric_limits<float>::max() };
+	glm::vec3 maxBounds{ std::numeric_limits<float>::lowest() };
+
+	for (const auto& obj : objects)
+	{
+		glm::vec3 origin = obj->Origin();
+		minBounds = glm::min(minBounds, origin);
+		maxBounds = glm::max(maxBounds, origin);
+	}
+
+	glm::vec3 extents = maxBounds - minBounds;
+	return 2.0f * (extents.x * extents.y + extents.y * extents.z + extents.z * extents.x);
 }

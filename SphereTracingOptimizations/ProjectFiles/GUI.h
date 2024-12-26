@@ -23,4 +23,5 @@ namespace GUI
 	bool ProcessEvent(SDL_Event* eventPtr);
 
 	void LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec2 const& pos, ImVec2 const& size);
+	void LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 const& pos, ImVec2 const& size);
 }

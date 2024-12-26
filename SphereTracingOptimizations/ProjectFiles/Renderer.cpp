@@ -118,6 +118,11 @@ int sdf::Renderer::GetNrMisses() const
 	return m_HitRecordVec.size() - GetNrCollisions();
 }
 
+glm::ivec2 sdf::Renderer::GetWindowDimensions() const
+{
+	return glm::ivec2(m_Width, m_Height);
+}
+
 sdf::ColorRGB sdf::Renderer::Palette(float distance)
 {
 	glm::vec3 const a{ 0.5, 0.5, 0.5 };

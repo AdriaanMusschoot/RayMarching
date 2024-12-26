@@ -16,6 +16,8 @@ namespace sdf
 
 		int GetNrCollisions() const;
 		int GetNrMisses() const;
+
+		glm::ivec2 GetWindowDimensions() const;
     private:
         void CalculateHitRecords(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
         static ColorRGB Palette(float distance);

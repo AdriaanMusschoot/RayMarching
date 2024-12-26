@@ -16,7 +16,7 @@ namespace sdf
 
 	bool Scene::m_UseBVH{ true };
 
-	int Scene::m_BVHSteps{ 1 };
+	int Scene::m_BVHSteps{ 3 };
 
 	//needs to be defaulted here, because it needs the full definition of the unique_ptr
 	Scene::Scene() = default;

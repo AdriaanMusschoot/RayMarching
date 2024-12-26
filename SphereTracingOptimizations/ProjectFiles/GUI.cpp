@@ -28,7 +28,13 @@ void GUI::BeginFrame(sdf::Engine& engine)
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-	LoadSettingsWindow(engine, "Settings", ImVec2(0, 0), ImVec2(150, 300));
+	static ImVec2 const settingsDimensions{ 150, 300 };
+	static ImVec2 const settingsPosition{ 0, 0 };
+	static ImVec2 const statsDimensions{ 150, 300 };
+	static ImVec2 const statsPosition{ engine.GetRenderer().GetWindowDimensions().x - statsDimensions.x, 0 };
+
+	LoadSettingsWindow(engine, "Settings", settingsPosition, settingsDimensions);
+	LoadStatsWindow(engine, "Statistics", statsPosition, statsDimensions);
 }
 
 void GUI::EndFrame()
@@ -52,11 +58,8 @@ bool GUI::ProcessEvent(SDL_Event* eventPtr)
 void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec2 const& pos, ImVec2 const& size)
 {
     ImGui::Begin(name.c_str());
-
     ImGui::SetWindowPos(pos, ImGuiCond_Once);
     ImGui::SetWindowSize(size, ImGuiCond_Once);
-
-	ImGui::Value("FPS", ImGui::GetIO().Framerate);
 
     ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
     ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
@@ -75,10 +78,21 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 		timer.StartBenchmark();
     }
 
+    ImGui::End();
+}
+
+void GUI::LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 const& pos, ImVec2 const& size)
+{
+	ImGui::Begin(name.c_str());
+    ImGui::SetWindowPos(pos, ImGuiCond_Once);
+    ImGui::SetWindowSize(size, ImGuiCond_Once);
+
+    ImGui::Value("FPS", ImGui::GetIO().Framerate);
+    
     sdf::Renderer const& renderer{ engine.GetRenderer() };
 
-	ImGui::Text("Rays hit: %d", renderer.GetNrCollisions());
-	ImGui::Text("Rays missed: %d", renderer.GetNrMisses());
+    ImGui::Text("Rays hit: %d", renderer.GetNrCollisions());
+    ImGui::Text("Rays missed: %d", renderer.GetNrMisses());
 
     ImGui::End();
 }

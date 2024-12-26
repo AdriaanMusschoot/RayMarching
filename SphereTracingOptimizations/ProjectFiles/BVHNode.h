@@ -31,6 +31,7 @@ namespace sdf
 		static glm::vec3 CalculateBVHOrigin(std::vector<sdf::Object*> const& objects);
 		static float CalculateBVHRadius(std::vector<sdf::Object*> const& objects, glm::vec3 const& origin);
 		static std::pair<std::vector<sdf::Object*>, std::vector<sdf::Object*>> SplitObjects(std::vector<sdf::Object*> const& objects);
+		static float CalculateBoundingBoxArea(std::vector<sdf::Object*> const& objects);
 	};
 
 }
