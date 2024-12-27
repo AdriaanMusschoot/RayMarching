@@ -28,7 +28,7 @@ namespace sdf
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
-		ColorRGB m_Color{};
+		ColorRGB m_Color{ 1.f, 0.f, 0.f };
 
         float EarlyOutTest(glm::vec3 const& point);
     };

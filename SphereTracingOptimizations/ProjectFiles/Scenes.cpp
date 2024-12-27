@@ -7,7 +7,7 @@
 
 sdf::SceneEasyComplexity::SceneEasyComplexity()
 {
-    int constexpr numObjects{ 4 };
+    int constexpr numObjects{ 10 };
     glm::vec3 constexpr boxMinLink{ -3.f, -3.f, -3.f };
     glm::vec3 constexpr boxMaxLink{ 3.f, 3.f, 3.f };
     glm::vec3 constexpr boxMinOctahedron{ -3.f, -3.f, -3.f };

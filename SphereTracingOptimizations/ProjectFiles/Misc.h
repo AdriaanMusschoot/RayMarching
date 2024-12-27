@@ -12,7 +12,7 @@ namespace sdf
 		int TotalSteps{};
 		int StepsUsingEarlyOut{};
 
-		ColorRGB Shade{ 1.f, 1.f, 1.f };
+		ColorRGB Shade{ 0.f, 0.f, 0.f };
 	};
 
 }
