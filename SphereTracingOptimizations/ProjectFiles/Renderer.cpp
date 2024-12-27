@@ -86,24 +86,24 @@ void sdf::Renderer::Render(Scene const& pScene) const
 				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r * 255, hitRecord.Shade.g * 255, hitRecord.Shade.b * 255);
 			}
 		});
-	int old{ Scene::m_BVHSteps };
-	Scene::m_BVHSteps = 100; 
-
-	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
-		{
-			CalculateHitRecords(pScene, fovValue, origin, cameraToWorld, pixelIdx);
-		});
-
-	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
-		{
-			if (HitRecord const& hitRecord{ m_HitRecordVec[pixelIdx] };
-				hitRecord.DidHit)
-			{
-				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r * 255, hitRecord.Shade.g * 255, hitRecord.Shade.b * 255);
-			}
-		});
-
-	Scene::m_BVHSteps = old;
+	//int old{ Scene::m_BVHSteps };
+	//Scene::m_BVHSteps = 100; 
+	//
+	//std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
+	//	{
+	//		CalculateHitRecords(pScene, fovValue, origin, cameraToWorld, pixelIdx);
+	//	});
+	//
+	//std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
+	//	{
+	//		if (HitRecord const& hitRecord{ m_HitRecordVec[pixelIdx] };
+	//			hitRecord.DidHit)
+	//		{
+	//			m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r * 255, hitRecord.Shade.g * 255, hitRecord.Shade.b * 255);
+	//		}
+	//	});
+	//
+	//Scene::m_BVHSteps = old;
 
 	SDL_UpdateTexture(m_TexturePtr, nullptr, m_PixelVec.data(), m_Width * sizeof(uint32_t));
 	SDL_RenderClear(m_RendererPtr);

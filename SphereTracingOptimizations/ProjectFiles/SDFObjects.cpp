@@ -7,8 +7,8 @@
 
 #include "Misc.h"
 
-sdf::Object::Object(glm::vec3 const& origin)
-    : m_Origin{ origin }
+sdf::Object::Object(glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : m_Origin{ origin }, m_Color{ color }
 {
 }
 
@@ -34,7 +34,7 @@ float sdf::Object::EarlyOutTest(glm::vec3 const& point)
 void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
 {
     float radius{ initialRadius };
-    
+
     std::mutex closestPointMutex{};
     std::optional<glm::vec3> surfacePoint{};
     //recursion bad cause stack overflow use while
@@ -61,17 +61,17 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
                 }
 
                 size_t threadId{ std::hash<std::thread::id>{}(std::this_thread::get_id()) % closestDistanceVec.size() };
-                if (auto & closestDistance{ closestDistanceVec[threadId] }; 
+                if (auto& closestDistance{ closestDistanceVec[threadId] };
                     distance < closestDistance)
-				{
-					closestDistance = distance;
-					closestPointVec[threadId] = point;
+                {
+                    closestDistance = distance;
+                    closestPointVec[threadId] = point;
                 }
             });
         auto minElementIter = std::min_element(closestDistanceVec.begin(), closestDistanceVec.end());
         size_t minElementIndex = std::distance(closestDistanceVec.begin(), minElementIter);
 
-		radius = glm::length(closestPointVec[minElementIndex]) - *minElementIter;
+        radius = glm::length(closestPointVec[minElementIndex]) - *minElementIter;
 
     } while (not surfacePoint.has_value());
 
@@ -93,11 +93,11 @@ float sdf::Object::GetEarlyOutRadius() const
     return m_EarlyOutRadius;
 }
 
-sdf::Sphere::Sphere(float radius, glm::vec3 const& origin)
-    : Object(origin)
+sdf::Sphere::Sphere(float radius, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
     , m_Radius{ radius }
 {
-	FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Sphere::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -105,13 +105,13 @@ float sdf::Sphere::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::length(point) - m_Radius;
 }
 
-sdf::Link::Link(float height, float innerRadius, float tubeRadius, glm::vec3 const& origin)
-    : Object(origin)
+sdf::Link::Link(float height, float innerRadius, float tubeRadius, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
     , m_HeightEmptySpace{ height }
     , m_InnerRadius{ innerRadius }
     , m_RadiusTube{ tubeRadius }
 {
-	FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Link::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -123,11 +123,11 @@ float sdf::Link::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::length(glm::vec2{ glm::length(qxy) - m_InnerRadius, q.z }) - m_RadiusTube;
 }
 
-sdf::Octahedron::Octahedron(float size, glm::vec3 const& origin)
-    : Object(origin)
+sdf::Octahedron::Octahedron(float size, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
     , m_Size{ size }
 {
-	FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Octahedron::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -161,8 +161,8 @@ float sdf::Octahedron::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::length(glm::vec3{ q.x, q.y - m_Size + k, q.z - k });
 }
 
-sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec3 const& origin)
-    : Object(origin)
+sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
@@ -179,12 +179,12 @@ float sdf::BoxFrame::GetDistanceUnoptimized(glm::vec3 const& point)
         glm::length(glm::max(glm::vec3(q.x, q.y, p.z), 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, p.z)), 0.0f));;
 }
 
-sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& origin)
-    : Object(origin)
+sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
     , m_Depth{ depth }
     , m_Radius{ radius }
 {
-	FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::HexagonalPrism::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -211,9 +211,9 @@ float sdf::HexagonalPrism::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::min(glm::max(d.x, d.y), 0.f) + glm::length(glm::max(d, 0.0f));
 }
 
-sdf::Pyramid::Pyramid(float height, glm::vec3 const& origin)
-    : Object(origin)
-	, m_Height{ height }
+sdf::Pyramid::Pyramid(float height, glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
+    , m_Height{ height }
 {
     //std::cout << "Pyramid" << std::endl;
     FurthestSurfaceConcentricCircles();
@@ -250,10 +250,10 @@ float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)
     return glm::sqrt((d2 + q.z * q.z) / m2) * glm::sign(glm::max(q.z, -p.y));
 }
 
-sdf::MandelBulb::MandelBulb(glm::vec3 const& origin)
-    : Object(origin)
+sdf::MandelBulb::MandelBulb(glm::vec3 const& origin, sdf::ColorRGB const& color)
+    : Object(origin, color)
 {
-	FurthestSurfaceConcentricCircles();
+    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::MandelBulb::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -322,14 +322,14 @@ std::vector<glm::vec3> sdf::GenerateSpherePoints(glm::vec3 const& origin, float 
         {
             int i = index % sdf::PointCountHorizontal;  // Vertical angle index (phi)
             int j = index / sdf::PointCountHorizontal;    // Horizontal angle index (theta)
-            
+
             float theta = glm::radians(static_cast<float>(i)); // Convert degrees to radians
             float phi = glm::radians(static_cast<float>(j));   // Convert degrees to radians
-            
+
             float x = radius * sin(phi) * cos(theta);
             float y = radius * sin(phi) * sin(theta);
             float z = radius * cos(phi);
-            
+
             spherePointArr[index] = origin + glm::vec3(x, y, z);
         });
 

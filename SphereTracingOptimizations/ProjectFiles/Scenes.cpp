@@ -7,35 +7,19 @@
 
 sdf::SceneEasyComplexity::SceneEasyComplexity()
 {
-    int constexpr numObjects{ 10 };
-    glm::vec3 constexpr boxMinLink{ -3.f, -3.f, -3.f };
-    glm::vec3 constexpr boxMaxLink{ 3.f, 3.f, 3.f };
-    glm::vec3 constexpr boxMinOctahedron{ -3.f, -3.f, -3.f };
-    glm::vec3 constexpr boxMaxOctahedron{ 3.f, 3.f, 3.f };
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> disLinkX(boxMinLink.x, boxMaxLink.x);
-    std::uniform_real_distribution<float> disLinkY(boxMinLink.y, boxMaxLink.y);
-    std::uniform_real_distribution<float> disLinkZ(boxMinLink.z, boxMaxLink.z);
-    std::uniform_real_distribution<float> disOctahedronX(boxMinOctahedron.x, boxMaxOctahedron.x);
-    std::uniform_real_distribution<float> disOctahedronY(boxMinOctahedron.y, boxMaxOctahedron.y);
-    std::uniform_real_distribution<float> disOctahedronZ(boxMinOctahedron.z, boxMaxOctahedron.z);
-
-    for (int i = 0; i < numObjects; ++i)
-    {
-        float xLink = disLinkX(gen);
-        float yLink = disLinkY(gen);
-        float zLink = disLinkZ(gen);
-
-        float xOctahedron = disOctahedronX(gen);
-        float yOctahedron = disOctahedronY(gen);
-        float zOctahedron = disOctahedronZ(gen);
-
-        m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.1f, glm::vec3{ xLink, yLink, zLink }));
-        m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ xOctahedron, yOctahedron, zOctahedron }));
-    }
-
+    constexpr float spacing{ 1.5f };
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.8f, 0.8f, 0.2f, glm::vec3{ 0.f, 0.f, spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.4f, 0.4f, 0.1f, glm::vec3{ spacing, spacing, 0.f }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.2f, 0.2f, 0.05f, glm::vec3{ -spacing, -spacing, -spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.3f, 0.3f, 0.08f, glm::vec3{ spacing, -spacing, spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.13f, glm::vec3{ -spacing, spacing, 0.f }));
+    
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.8f, glm::vec3{ 0.f, 0.f, -spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ spacing, spacing, spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.6f, glm::vec3{ -spacing, -spacing, 0.f}));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.7f, glm::vec3{ spacing, -spacing, -spacing }));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.1f, glm::vec3{ -spacing, spacing, spacing }));
+    
 	CreateBVHStructure();
 }
 

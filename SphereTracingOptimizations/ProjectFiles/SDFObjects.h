@@ -12,31 +12,31 @@ namespace sdf
     class Object
     {
     public:
-        Object(glm::vec3 const& origin);
+        Object(glm::vec3 const& origin, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Object() = default;
 
         float GetDistance(glm::vec3 const& point, bool useEarlyOuts, HitRecord& outHitRecord);
-		
-        glm::vec3 const& Origin() const;
-		ColorRGB const& Shade() const;
 
-		float GetEarlyOutRadius() const;
+        glm::vec3 const& Origin() const;
+        ColorRGB const& Shade() const;
+
+        float GetEarlyOutRadius() const;
     protected:
-		virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
+        virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
 
         void FurthestSurfaceConcentricCircles(float initialRadius = 10);
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
-		ColorRGB m_Color{ 1.f, 0.f, 0.f };
+        ColorRGB m_Color{ 1.f, 0.f, 0.f };
 
         float EarlyOutTest(glm::vec3 const& point);
     };
-	
+
     class Sphere final : public Object
     {
     public:
-        Sphere(float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ 0.0f, 0.f, 0.f });
+        Sphere(float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ 0.0f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Sphere() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
@@ -47,7 +47,7 @@ namespace sdf
     class Link final : public Object
     {
     public:
-        Link(float height = 0.2f, float innerRadius = 0.2f, float tubeRadius = 0.07f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
+        Link(float height = 0.2f, float innerRadius = 0.2f, float tubeRadius = 0.07f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Link() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
@@ -60,7 +60,7 @@ namespace sdf
     class Octahedron final : public Object
     {
     public:
-        Octahedron(float size = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f });
+        Octahedron(float size = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Octahedron() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
@@ -71,9 +71,9 @@ namespace sdf
     class BoxFrame final : public Object
     {
     public:
-        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f });
+        BoxFrame(glm::vec3 const& boxExtent = glm::vec3{ 0.3f, 0.3f, 0.3f }, float roundedValue = 0.02f, glm::vec3 const& origin = glm::vec3{ 1.f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~BoxFrame() = default;
-		
+
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         glm::vec3 m_BoxExtent{};
@@ -83,7 +83,7 @@ namespace sdf
     class HexagonalPrism final : public Object
     {
     public:
-        HexagonalPrism(float depth = 0.2f, float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f });
+        HexagonalPrism(float depth = 0.2f, float radius = 0.3f, glm::vec3 const& origin = glm::vec3{ -1.f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~HexagonalPrism() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
@@ -95,23 +95,23 @@ namespace sdf
     class Pyramid final : public Object
     {
     public:
-        Pyramid(float height = 1.f, glm::vec3 const& origin = glm::vec3{ -0.f, 0.f, 0.f });
+        Pyramid(float height = 1.f, glm::vec3 const& origin = glm::vec3{ -0.f, 0.f, 0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Pyramid() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
         float m_Height{ 1.f };
     };
-    
+
     class MandelBulb final : public Object
     {
     public:
-        MandelBulb(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, -0.f });
+        MandelBulb(glm::vec3 const& origin = glm::vec3{ 0.f, 0.f, -0.f }, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~MandelBulb() = default;
 
         float GetDistanceUnoptimized(glm::vec3 const& point) override;
     private:
-		float m_Radius{ 1.0f };
+        float m_Radius{ 1.0f };
     };
 
     static float SmoothMin(float dist1, float dist2, float smoothness);
