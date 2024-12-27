@@ -80,9 +80,12 @@ void sdf::Renderer::Render(Scene const& pScene) const
 	
 	std::for_each(std::execution::par_unseq, m_PixelIndices.begin(), m_PixelIndices.end(), [&](uint32_t pixelIdx)
 		{
-			if (HitRecord const& hitRecord{ m_HitRecordVec[pixelIdx] }; 
+			if (HitRecord& hitRecord{ m_HitRecordVec[pixelIdx] }; 
 				hitRecord.DidHit)
 			{
+				//no static white in this case because multithreaded?
+				hitRecord.Shade += (ColorRGB{ 1.f, 1.f, 1.f } * hitRecord.TotalSteps * 0.04f);
+				hitRecord.Shade.MaxToOne();
 				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r * 255, hitRecord.Shade.g * 255, hitRecord.Shade.b * 255);
 			}
 		});
