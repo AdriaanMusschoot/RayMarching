@@ -33,14 +33,12 @@ set(PROJECT_SOURCE_FILES ${PROJECT_DIR}/main.cpp
   
     ${PROJECT_DIR}/Misc.h 
    
-    ${PROJECT_DIR}/BVHNode.h
+    ${PROJECT_DIR}/BVHNode.h 
     ${PROJECT_DIR}/BVHNode.cpp
 
     ${PROJECT_DIR}/Scenes.h
     ${PROJECT_DIR}/Scenes.cpp
-
-    ${PROJECT_DIR}/StatTracker.h 
-    ${PROJECT_DIR}/StatTracker.cpp)
+)
 
 include(FetchContent)
 # add glm

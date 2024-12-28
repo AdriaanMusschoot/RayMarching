@@ -25,11 +25,9 @@ void sdf::Engine::Run()
         
         HandleInput();
 
-		auto& scene = *m_SceneUPtrVec[m_CurrentSceneID];
-
-        scene.Update(m_Timer.GetElapsed());
+        m_SceneUPtrVec[m_CurrentSceneID]->Update(m_Timer.GetElapsed());
         
-		m_StatTracker.Update(std::move(m_Renderer.RenderFrame(scene)) , *this);
+        m_Renderer.Render(*m_SceneUPtrVec[m_CurrentSceneID]);
     }
 }
 
