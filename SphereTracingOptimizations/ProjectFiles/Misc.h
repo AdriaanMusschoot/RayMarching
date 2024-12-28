@@ -11,7 +11,7 @@ namespace sdf
 		float Distance{};
 
 		int TotalSteps{};
-		int EarlyOutSteps{};
+		int EarlyOutUsage{};
 
 		int BVHDepth{};
 

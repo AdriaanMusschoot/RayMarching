@@ -75,11 +75,11 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     sdf::GameTimer& timer{ engine.GetTimer() };
 
 	ImGui::Text("Nr Frames Benchmark: ");
-	ImGui::InputInt("##", &timer.SetBenchmarkTargetFrames());
+	ImGui::InputFloat("##", &timer.SetBenchmarkTargetFrames());
 
     if (ImGui::Button("Start BenchMark"))
 	{
-		timer.StartBenchmark();
+		timer.StartBenchmark(engine.GetSceneComplexities()[engine.SetCurrentSceneID()]);
     }
 
     ImGui::End();

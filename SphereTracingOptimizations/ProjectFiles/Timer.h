@@ -19,12 +19,12 @@ namespace sdf
 		GameTimer& operator=(const GameTimer&) = delete;
 		GameTimer& operator=(GameTimer&&) noexcept = delete;
 
-		void StartBenchmark();
+		void StartBenchmark(std::string const& sceneName);
 		void Update();
 		
 		float GetElapsed() const { return m_ElapsedTime; }
 
-		int& SetBenchmarkTargetFrames() { return m_BenchmarkTargetFrames; }
+		float& SetBenchmarkTargetFrames() { return m_BenchmarkTargetTime; }
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_PreviousTime;
@@ -38,11 +38,14 @@ namespace sdf
 		float m_ElapsedTime{ 0.0f };
 
 		bool m_BenchmarkActive{ false };
-		int m_BenchmarkTargetFrames{ 1000 };
+		float m_BenchmarkTime{ 0.0f };
+		float m_BenchmarkTargetTime{ 2.f };
 		std::vector<float> m_BenchmarkFrameTimeVec{};
+
+		std::string m_CurrentSceneName{};
 
 		void PrintFPS() const;
 		void EndBenchmark();
-		static void OutputBenchmarkResults(std::vector<float> const& frameTimeVec, std::ostream& outputStream);
+		void OutputBenchmarkResults(std::vector<float> const& frameTimeVec, std::ostream& outputStream);
 	};
 }

@@ -181,7 +181,7 @@ sdf::ResultStats sdf::Renderer::GetCollisionStats(bool miss) const
 			{
 				if (hitRecord.DidHit)
 				{
-					return total + hitRecord.EarlyOutSteps;
+					return total + hitRecord.EarlyOutUsage;
 				}
 				return total;
 			}) / stats.Count;

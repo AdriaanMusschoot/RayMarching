@@ -15,7 +15,7 @@ namespace sdf
         Object(glm::vec3 const& origin, ColorRGB const& color = ColorRGB{ 1.f, 0.f, 0.f });
         virtual ~Object() = default;
 
-        std::pair<float, bool> GetDistance(glm::vec3 const& point, bool useEarlyOuts, HitRecord& outHitRecord);
+        float GetDistance(glm::vec3 const& point, bool useEarlyOuts, HitRecord& outHitRecord);
 
         glm::vec3 const& Origin() const;
         ColorRGB const& Shade() const;

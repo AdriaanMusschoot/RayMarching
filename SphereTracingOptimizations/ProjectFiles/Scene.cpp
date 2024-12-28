@@ -63,6 +63,7 @@ namespace sdf
 		if (currentStep != 0)
 		{
 			hitRecord.BVHDepth /= currentStep;
+			hitRecord.EarlyOutUsage;
 		}
 
 		return hitRecord;
@@ -87,21 +88,15 @@ namespace sdf
 		std::for_each(std::execution::unseq, m_SDObjectUPtrVec.begin(), m_SDObjectUPtrVec.end(),
 			[&](const std::unique_ptr<sdf::Object>& obj)
 			{
-				auto const [distance, earlyOutUsed]{ obj->GetDistance(point - obj->Origin(), m_UseEarlyOut, outHitRecord) };
+				float const distance{ obj->GetDistance(point - obj->Origin(), m_UseEarlyOut, outHitRecord) };
 		
 				if (distance < minDistance)
 				{
 					minDistance = distance;
 					closestObject = obj.get();
-					earlyOut = earlyOutUsed;
 				}
 			}
 		);
-
-		if (earlyOut)
-		{
-			outHitRecord.EarlyOutSteps++;
-		}
 		
 		return { minDistance, closestObject };
 	}

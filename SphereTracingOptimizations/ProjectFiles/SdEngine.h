@@ -31,7 +31,7 @@ namespace sdf
         GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
 
-        int m_CurrentSceneID{ 2 };
+        int m_CurrentSceneID{ 0 };
         std::vector<const char*> m_SceneComplexity{ "Low", "Medium", "High" };
         
         bool ShouldQuit{ false };

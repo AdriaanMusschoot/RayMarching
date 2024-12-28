@@ -14,7 +14,7 @@ sdf::GameTimer::GameTimer()
 	m_PreviousTime = m_StartTime;
 }
 
-void sdf::GameTimer::StartBenchmark()
+void sdf::GameTimer::StartBenchmark(std::string const& sceneName)
 {
 	if (m_BenchmarkActive)
 	{
@@ -23,8 +23,10 @@ void sdf::GameTimer::StartBenchmark()
 	}
 
 	m_BenchmarkActive = true;
+	m_BenchmarkTime = 0.0f;
 	m_BenchmarkFrameTimeVec.clear();
-	m_BenchmarkFrameTimeVec.reserve(m_BenchmarkTargetFrames);
+	m_BenchmarkFrameTimeVec.reserve(60 * m_BenchmarkTargetTime);
+	m_CurrentSceneName = sceneName;
 
 	std::cout << "**BENCHMARK STARTED**\n";
 }
@@ -45,16 +47,16 @@ void sdf::GameTimer::Update()
 	//	m_TotalTime += m_OutputTimer;
 	//	m_TotalFPSCount += m_OutputFPSCount;
 	//	
-	//	//PrintFPS();
-
 	//	m_OutputFPSCount = 0;
 	//	m_OutputTimer = 0.0f;
 	//}
 
 	if (m_BenchmarkActive)
 	{
-		m_BenchmarkFrameTimeVec.emplace_back(m_ElapsedTime); // Record the instantaneous FPS for the frame
-		if (m_BenchmarkFrameTimeVec.size() >= m_BenchmarkTargetFrames)
+		m_BenchmarkTime += m_ElapsedTime;
+		m_BenchmarkFrameTimeVec.emplace_back(m_ElapsedTime); 
+
+		if (m_BenchmarkTime >= m_BenchmarkTargetTime)
 		{
 			EndBenchmark();
 		}
@@ -73,7 +75,7 @@ void sdf::GameTimer::EndBenchmark()
 
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, std::cout);
 	
-	std::ofstream fileStream("benchmark.txt");
+	std::ofstream fileStream("benchmark.csv", std::ios::app);
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, fileStream);
 	fileStream.close();
 }
@@ -82,18 +84,37 @@ void sdf::GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeV
 {
 	if (frameTimeVec.empty()) return;
 
-	float benchMarkTotalTime{ std::accumulate(frameTimeVec.begin(), frameTimeVec.end(), 0.0f) };
-	float avgFrameTime{ benchMarkTotalTime / frameTimeVec.size() }; 
-	float maxFrameTime{ *std::ranges::max_element(frameTimeVec) };
-	float minFrameTime{ *std::ranges::min_element(frameTimeVec) };
+	std::vector<float> sortedFrameTimes{ frameTimeVec };
+	std::sort(sortedFrameTimes.begin(), sortedFrameTimes.end());
 
-	outputStream << "**BENCHMARK FINISHED**\n";
-	outputStream << ">> TOTAL TIME = " << benchMarkTotalTime << " seconds\n";
-	outputStream << ">> TOTAL FRAMES = " << frameTimeVec.size() << "\n\n";
-	outputStream << ">> LONGEST TIME = " << maxFrameTime << "\n";
-	outputStream << ">> LOWEST FPS = " << 1 / maxFrameTime << "\n\n";
-	outputStream << ">> SHORTEST TIME = " << minFrameTime << "\n";
-	outputStream << ">> HIGHEST FPS = " << 1 / minFrameTime << "\n\n";
-	outputStream << ">> AVG TIME = " << avgFrameTime << "\n";
-	outputStream << ">> AVG FPS = " << 1 / avgFrameTime << "\n\n";
+	size_t const numElementsToRemove = static_cast<size_t>(sortedFrameTimes.size() * 0.05);
+
+	sortedFrameTimes.erase(sortedFrameTimes.begin(), sortedFrameTimes.begin() + numElementsToRemove);
+	sortedFrameTimes.erase(sortedFrameTimes.end() - numElementsToRemove, sortedFrameTimes.end());
+
+	double const benchMarkTotalTime{ std::accumulate(sortedFrameTimes.begin(), sortedFrameTimes.end(), 0.0f) };
+	double const avgFrameTime{ benchMarkTotalTime / sortedFrameTimes.size() };
+	double const maxFrameTime{ *std::ranges::max_element(sortedFrameTimes) };
+	double const minFrameTime{ *std::ranges::min_element(sortedFrameTimes) };
+
+	std::ifstream fileCheck("benchmark.csv");
+	bool isEmpty{ fileCheck.peek() == std::ifstream::traits_type::eof() };
+	fileCheck.close();
+
+	if (isEmpty)
+	{
+		outputStream << "\n";
+		outputStream << ";SCENE COMPLEXITY;TOTAL TIME (s);TOTAL FRAMES;LONGEST TIME;LOWEST FPS;SHORTEST TIME;HIGHEST FPS;AVG TIME;AVG FPS\n";
+	}
+
+	outputStream << ";"
+		<< m_CurrentSceneName << ";"
+		<< std::to_string(benchMarkTotalTime) << ";"
+		<< sortedFrameTimes.size() << ";"
+		<< std::to_string(maxFrameTime) << ";"
+		<< 1 / maxFrameTime << ";"
+		<< std::to_string(minFrameTime) << ";"
+		<< 1 / minFrameTime << ";"
+		<< std::to_string(avgFrameTime) << ";"
+		<< 1 / avgFrameTime << "\n";
 }
