@@ -15,7 +15,7 @@ sdf::BVHNode::BVHNode(glm::vec3 const& origin, float radius, glm::vec3 const& ex
 {
 }
 
-std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point, bool useEarlyOuts, int maxSteps, HitRecord& outHitRecord) const
+std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point, bool useEarlyOuts, HitRecord& outHitRecord) const
 {
 	//if (outHitRecord.BVHDepth >= maxSteps)
 	//{
@@ -66,8 +66,8 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 	}
 
 	//we are in the bounding volume check the children
-	auto const leftResult{ m_LeftNodeUPtr->GetDistance(point, useEarlyOuts, maxSteps, outHitRecord) };
-	auto const rightResult{ m_RightNodeUPtr->GetDistance(point, useEarlyOuts, maxSteps, outHitRecord) };
+	auto const leftResult{ m_LeftNodeUPtr->GetDistance(point, useEarlyOuts, outHitRecord) };
+	auto const rightResult{ m_RightNodeUPtr->GetDistance(point, useEarlyOuts, outHitRecord) };
 
 	if (leftResult.first < rightResult.first)
 	{

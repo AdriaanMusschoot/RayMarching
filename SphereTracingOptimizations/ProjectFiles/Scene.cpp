@@ -16,13 +16,13 @@ namespace sdf
 
 	bool Scene::m_UseBVH{ true };
 
-	int Scene::m_BVHSteps{ 5 };
+	//int Scene::m_BVHSteps{ 5 };
 
 	//needs to be defaulted here, because it needs the full definition of the unique_ptr
 	Scene::Scene() = default;
 	Scene::~Scene() = default;
 
-	Camera Scene::m_Camera{ glm::vec3{ 0.f,0,-4.f }, 90 };
+	Camera Scene::m_Camera{ glm::vec3{ 3, 2, 8 }, 90, glm::vec3{ -0.3, -0.3, -1 } };
 
 	HitRecord Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
@@ -71,14 +71,14 @@ namespace sdf
 
 	void Scene::Update(float ElapsedSec)
 	{
-		m_Camera.Update(ElapsedSec);
+		//m_Camera.Update(ElapsedSec);
 	}
 
 	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
 	{
 		if (m_UseBVH)
 		{
-			return m_BVHRoot->GetDistance(point, m_UseEarlyOut, m_BVHSteps, outHitRecord);
+			return m_BVHRoot->GetDistance(point, m_UseEarlyOut, outHitRecord);
 		}
 
 		float minDistance{ std::numeric_limits<float>::max() };
@@ -112,5 +112,5 @@ namespace sdf
 			});
 
 		m_BVHRoot = std::move(sdf::BVHNode::CreateBVHNode(objectVec));		
-	}	
+	}
 }

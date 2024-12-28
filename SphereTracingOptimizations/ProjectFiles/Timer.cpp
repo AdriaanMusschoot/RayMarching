@@ -7,6 +7,7 @@
 
 #include "Renderer.h"
 #include "SDL.h"
+#include "BVHNode.h"
 
 sdf::GameTimer::GameTimer()
 {
@@ -14,7 +15,7 @@ sdf::GameTimer::GameTimer()
 	m_PreviousTime = m_StartTime;
 }
 
-void sdf::GameTimer::StartBenchmark(std::string const& sceneName)
+void sdf::GameTimer::StartBenchmark(std::string const& sceneName, sdf::ResultStats const& hitStats, sdf::ResultStats const& missStats)
 {
 	if (m_BenchmarkActive)
 	{
@@ -26,7 +27,10 @@ void sdf::GameTimer::StartBenchmark(std::string const& sceneName)
 	m_BenchmarkTime = 0.0f;
 	m_BenchmarkFrameTimeVec.clear();
 	m_BenchmarkFrameTimeVec.reserve(60 * m_BenchmarkTargetTime);
+
 	m_CurrentSceneName = sceneName;
+	m_HitStats = hitStats;
+	m_MissStats = missStats;
 
 	std::cout << "**BENCHMARK STARTED**\n";
 }
@@ -75,7 +79,7 @@ void sdf::GameTimer::EndBenchmark()
 
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, std::cout);
 	
-	std::ofstream fileStream("benchmark.csv", std::ios::app);
+	std::ofstream fileStream("benchmark.csv");
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, fileStream);
 	fileStream.close();
 }
@@ -94,27 +98,57 @@ void sdf::GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeV
 
 	double const benchMarkTotalTime{ std::accumulate(sortedFrameTimes.begin(), sortedFrameTimes.end(), 0.0f) };
 	double const avgFrameTime{ benchMarkTotalTime / sortedFrameTimes.size() };
-	double const maxFrameTime{ *std::ranges::max_element(sortedFrameTimes) };
-	double const minFrameTime{ *std::ranges::min_element(sortedFrameTimes) };
 
 	std::ifstream fileCheck("benchmark.csv");
 	bool isEmpty{ fileCheck.peek() == std::ifstream::traits_type::eof() };
 	fileCheck.close();
 
+	char constexpr delimiter{ ',' };
+
 	if (isEmpty)
 	{
 		outputStream << "\n";
-		outputStream << ";SCENE COMPLEXITY;TOTAL TIME (s);TOTAL FRAMES;LONGEST TIME;LOWEST FPS;SHORTEST TIME;HIGHEST FPS;AVG TIME;AVG FPS\n";
+		outputStream
+			<< delimiter << "SCENE COMPLEXITY"
+			<< delimiter << "EARLY OUT"
+			<< delimiter << "BVH"
+			<< delimiter << "BOX BVH"
+			<< delimiter << "TOTAL TIME"
+			<< delimiter << "TOTAL FRAMES"
+			<< delimiter << "AVG TIME"
+			<< delimiter << "AVG FPS"
+			<< delimiter << "HIT RAYS"
+			<< delimiter << "AVG STEPS"
+			<< delimiter << "AVG EARLY OUT"
+			<< delimiter << "AVG BVH DEPTH"
+			<< delimiter << "MISSED RAYS"
+			<< delimiter << "AVG STEPS"
+			<< delimiter << "AVG EARLY OUT"
+			<< delimiter << "AVG BVH DEPTH"
+			<< delimiter << "FRAME TIMES\n";
 	}
 
-	outputStream << ";"
-		<< m_CurrentSceneName << ";"
-		<< std::to_string(benchMarkTotalTime) << ";"
-		<< sortedFrameTimes.size() << ";"
-		<< std::to_string(maxFrameTime) << ";"
-		<< 1 / maxFrameTime << ";"
-		<< std::to_string(minFrameTime) << ";"
-		<< 1 / minFrameTime << ";"
-		<< std::to_string(avgFrameTime) << ";"
-		<< 1 / avgFrameTime << "\n";
+	outputStream << delimiter
+		<< m_CurrentSceneName << delimiter
+		<< std::boolalpha << Scene::m_UseEarlyOut << delimiter
+		<< std::boolalpha << Scene::m_UseBVH << delimiter
+		<< std::boolalpha << BVHNode::m_BoxBVH << delimiter
+		<< std::to_string(benchMarkTotalTime) << delimiter
+		<< std::to_string(sortedFrameTimes.size()) << delimiter
+		<< std::to_string(avgFrameTime) << delimiter
+		<< std::to_string(1 / avgFrameTime) << delimiter
+		<< std::to_string(m_HitStats.Count) << delimiter
+		<< std::to_string(m_HitStats.AverageStepsThroughScene) << delimiter
+		<< std::to_string(m_HitStats.AverageEarlyOutSteps) << delimiter
+		<< std::to_string(m_HitStats.AverageBVHDepth) << delimiter
+		<< std::to_string(m_MissStats.Count) << delimiter
+		<< std::to_string(m_MissStats.AverageStepsThroughScene) << delimiter
+		<< std::to_string(m_MissStats.AverageEarlyOutSteps) << delimiter
+		<< std::to_string(m_MissStats.AverageBVHDepth) << delimiter;
+
+	for (const auto& time : sortedFrameTimes)
+	{
+		outputStream << time << delimiter;
+	}
+	outputStream << "\n";
 }

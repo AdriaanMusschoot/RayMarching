@@ -11,9 +11,10 @@ namespace sdf
 	static float TO_RADIANS{ std::numbers::pi_v<float> / 180.f };
 	struct Camera
 	{
-		explicit Camera(const glm::vec3& _origin, float _fovAngle) :
+		explicit Camera(const glm::vec3& _origin, float _fovAngle, glm::vec3 const& forwards) :
 			origin{ _origin },
-			fovAngle{ _fovAngle }
+			fovAngle{ _fovAngle },
+			forward{ forwards }
 		{
 			CalculateCameraToWorld();
 		}

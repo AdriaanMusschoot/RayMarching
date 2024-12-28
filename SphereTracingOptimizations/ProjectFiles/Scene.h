@@ -37,7 +37,7 @@ namespace sdf
 		static bool m_UseEarlyOut;
 		static bool m_UseBVH;
 
-		static int m_BVHSteps;
+		//static int m_BVHSteps;
 	protected:		
 		//vector needs full definition upon construction, so it can call the destructor of the unique_ptrs
 		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec{};

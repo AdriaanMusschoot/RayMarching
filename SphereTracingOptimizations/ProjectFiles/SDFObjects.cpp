@@ -7,7 +7,7 @@
 
 #include "Misc.h"
 
-bool sdf::Object::m_BoxEarlyOut{ true };
+bool sdf::Object::m_BoxEarlyOut{ false };
 
 sdf::Object::Object(glm::vec3 const& origin, sdf::ColorRGB const& color)
     : m_Origin{ origin }, m_Color{ color }

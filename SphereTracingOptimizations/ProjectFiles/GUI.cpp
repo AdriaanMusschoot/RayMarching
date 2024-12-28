@@ -62,24 +62,28 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     ImGui::SetWindowSize(size, ImGuiCond_Once);
 
     ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
-	ImGui::Checkbox("Use Box early out", &sdf::Object::m_BoxEarlyOut);
 
     ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
-	ImGui::Checkbox("Use Box BVH", &sdf::BVHNode::m_BoxBVH);
+    ImGui::Checkbox("Box BVH", &sdf::BVHNode::m_BoxBVH);
 
-	ImGui::InputInt("BVH Stepss", &sdf::Scene::m_BVHSteps);
+	//ImGui::InputInt("BVH Stepss", &sdf::Scene::m_BVHSteps);
 
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());
 
     sdf::GameTimer& timer{ engine.GetTimer() };
 
-	ImGui::Text("Nr Frames Benchmark: ");
+	ImGui::Text("Time Benchmark: ");
 	ImGui::InputFloat("##", &timer.SetBenchmarkTargetFrames());
 
     if (ImGui::Button("Start BenchMark"))
 	{
-		timer.StartBenchmark(engine.GetSceneComplexities()[engine.SetCurrentSceneID()]);
+        sdf::Renderer const& renderer{ engine.GetRenderer() };
+
+        sdf::ResultStats const hitStats{ renderer.GetCollisionStats(false) };
+        sdf::ResultStats const missStats{ renderer.GetCollisionStats(true) };
+
+		timer.StartBenchmark(engine.GetSceneComplexities()[engine.SetCurrentSceneID()], hitStats, missStats);
     }
 
     ImGui::End();

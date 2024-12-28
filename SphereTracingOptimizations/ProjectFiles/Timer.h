@@ -6,6 +6,8 @@
 #include <vector>
 #include <iostream>
 
+#include "Misc.h"
+
 namespace sdf
 {
 	class GameTimer final
@@ -19,7 +21,7 @@ namespace sdf
 		GameTimer& operator=(const GameTimer&) = delete;
 		GameTimer& operator=(GameTimer&&) noexcept = delete;
 
-		void StartBenchmark(std::string const& sceneName);
+		void StartBenchmark(std::string const& sceneName, sdf::ResultStats const& hitStats, sdf::ResultStats const& missStats);
 		void Update();
 		
 		float GetElapsed() const { return m_ElapsedTime; }
@@ -39,10 +41,12 @@ namespace sdf
 
 		bool m_BenchmarkActive{ false };
 		float m_BenchmarkTime{ 0.0f };
-		float m_BenchmarkTargetTime{ 2.f };
+		float m_BenchmarkTargetTime{ 11.f };
 		std::vector<float> m_BenchmarkFrameTimeVec{};
 
 		std::string m_CurrentSceneName{};
+		ResultStats m_HitStats{};
+		ResultStats m_MissStats{};
 
 		void PrintFPS() const;
 		void EndBenchmark();
