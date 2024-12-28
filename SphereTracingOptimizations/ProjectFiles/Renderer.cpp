@@ -1,10 +1,10 @@
-#include "Renderer.h"
-
 #include "SDL.h"
 #include "SDL_surface.h"
-#include <execution>
 
+//Project includes
+#include "Renderer.h"
 #include "Scene.h"
+#include "Execution"
 #include "GUI.h"
 #include "Misc.h"
 #include "Camera.h"
@@ -61,7 +61,7 @@ sdf::Renderer::~Renderer()
 	SDL_Quit();
 }
 
-void sdf::Renderer::RenderFrame(Scene const& pScene, GameTimer& gameTimer) const
+std::vector<sdf::HitRecord>&& sdf::Renderer::RenderFrame(Scene const& pScene) const
 {
 	m_HitRecordVec.resize(m_Width * m_Height);
 
@@ -86,20 +86,9 @@ void sdf::Renderer::RenderFrame(Scene const& pScene, GameTimer& gameTimer) const
 				//no static white in this case because multithreaded?
 				hitRecord.Shade += (ColorRGB{ 1.f, 1.f, 1.f } * (0.04f * hitRecord.TotalSteps));
 				hitRecord.Shade.MaxToOne();
-
-				m_PixelVec[pixelIdx] = 
-					SDL_MapRGB
-					(
-						m_PixelFormatPtr, 
-						static_cast<Uint8>(hitRecord.Shade.r * 255), 
-						static_cast<Uint8>(hitRecord.Shade.g * 255), 
-						static_cast<Uint8>( hitRecord.Shade.b * 255)
-					);
+				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, static_cast<Uint8>(hitRecord.Shade.r * 255), static_cast<Uint8>(hitRecord.Shade.g * 255), static_cast<Uint8>( hitRecord.Shade.b * 255));
 			}
 		});
-
-	m_StatTracker.Update(m_HitRecordVec, gameTimer);
-
 	//int old{ Scene::m_BVHSteps };
 	//Scene::m_BVHSteps = 100; 
 	//
@@ -126,6 +115,8 @@ void sdf::Renderer::RenderFrame(Scene const& pScene, GameTimer& gameTimer) const
 	GUI::EndFrame();
 
 	SDL_RenderPresent(m_RendererPtr);
+
+	return std::move(m_HitRecordVec);
 }
 
 bool sdf::Renderer::SaveBufferToImage() const

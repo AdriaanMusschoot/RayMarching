@@ -6,7 +6,7 @@ namespace sdf
 
 	struct HitRecord;
 
-	class GameTimer;
+	class Engine;
 
 	class StatTracker final
 	{
@@ -20,7 +20,7 @@ namespace sdf
 		StatTracker& operator=(const StatTracker&) = delete;
 		StatTracker& operator=(StatTracker&&) noexcept = delete;
 
-		void Update(std::vector<HitRecord>const& hitRecord, GameTimer& timer);
+		void Update(std::vector<HitRecord>&& hitRecord, Engine& engine);
 
 		void StartTracking();
 		int GetNrCollisions() const;
@@ -31,8 +31,7 @@ namespace sdf
 		float m_TotalTrackTime{ 1.f };
 		float m_CurrentTrackTime{ 0.f };
 
-		std::vector<HitRecord> m_CurrentFrameHitRecordVec;
-		std::vector<std::vector<HitRecord>> m_TrackedHitRecordVecVec;
+		std::vector<HitRecord> m_CurrentFrameHitRecords;
 	};
 
 }

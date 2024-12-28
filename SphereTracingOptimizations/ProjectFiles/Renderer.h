@@ -3,15 +3,12 @@
 
 #include <glm/glm.hpp>
 
-#include "StatTracker.h"
-
 namespace sdf
 {
     struct HitRecord;
     struct ColorRGB;
 
     class Scene;
-	class GameTimer;
 
 	class Renderer final
     {
@@ -19,12 +16,10 @@ namespace sdf
         Renderer(uint32_t const& width, uint32_t const& height);
         ~Renderer();
 
-        void RenderFrame(Scene const& pScene, GameTimer& gameTimer) const;
+        std::vector<HitRecord>&& RenderFrame(Scene const& pScene) const;
         bool SaveBufferToImage() const;
 
 		glm::ivec2 GetWindowDimensions() const;
-
-		StatTracker& GetStatTracker() const { return m_StatTracker; }
     private:
         void CalculateHitRecords(Scene const& pScene, float fovValue, glm::vec3 const& cameraOrigin, glm::mat3 const& cameraToWorld, uint32_t pixelIdx) const;
         static ColorRGB Palette(float distance);
@@ -39,7 +34,5 @@ namespace sdf
         mutable std::vector<uint32_t> m_PixelVec{};
         SDL_PixelFormat* m_PixelFormatPtr{ nullptr };
         mutable std::vector<HitRecord> m_HitRecordVec;
-
-		mutable StatTracker m_StatTracker;
     };
 }
