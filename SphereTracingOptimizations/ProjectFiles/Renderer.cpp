@@ -175,6 +175,16 @@ sdf::ResultStats sdf::Renderer::GetCollisionStats(bool miss) const
 				}
 				return total;
 			}) / stats.Count;
+
+		stats.AverageEarlyOutSteps = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
+			[&](int const& total, HitRecord const& hitRecord)
+			{
+				if (hitRecord.DidHit)
+				{
+					return total + hitRecord.EarlyOutSteps;
+				}
+				return total;
+			}) / stats.Count;
 	}
 
 	return stats;

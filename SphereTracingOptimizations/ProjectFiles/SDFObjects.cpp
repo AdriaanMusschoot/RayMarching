@@ -14,18 +14,17 @@ sdf::Object::Object(glm::vec3 const& origin, sdf::ColorRGB const& color)
 {
 }
 
-float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::HitRecord& outHitRecord)
+std::pair<float, bool> sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::HitRecord& outHitRecord)
 {
     if (useEarlyOuts)
     {
         float const earlyOutDistance{ EarlyOutTest(point) };
         if (earlyOutDistance >= 0.1f)
         {
-            ++outHitRecord.StepsUsingEarlyOut;
-            return earlyOutDistance;
+            return { earlyOutDistance, true };
         }
     }
-    return GetDistanceUnoptimized(point);
+    return { GetDistanceUnoptimized(point), false };
 }
 
 float sdf::Object::EarlyOutTest(glm::vec3 const& point)

@@ -102,11 +102,13 @@ void GUI::LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 c
     ImGui::Text("Hit Statistics");
     ImGui::Text("Rays hit: %d", hitStats.Count);
 	ImGui::Text("Avg steps: %d", hitStats.AverageStepsThroughScene);
+	ImGui::Text("Avg early out: %d", hitStats.AverageEarlyOutSteps);
 	ImGui::Text("Avg BVH depth: %d", hitStats.AverageBVHDepth);
     ImGui::Separator();
     ImGui::Text("Miss Statistics");
     ImGui::Text("Rays missed: %d", missStats.Count);
 	ImGui::Text("Avg steps: %d", missStats.AverageStepsThroughScene);
+	ImGui::Text("Avg early out: %d", missStats.AverageEarlyOutSteps);
 	ImGui::Text("Avg BVH depth: %d", missStats.AverageBVHDepth);
 
     ImGui::End();

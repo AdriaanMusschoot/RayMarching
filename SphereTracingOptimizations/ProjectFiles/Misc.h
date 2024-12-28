@@ -11,7 +11,7 @@ namespace sdf
 		float Distance{};
 
 		int TotalSteps{};
-		int StepsUsingEarlyOut{};
+		int EarlyOutSteps{};
 
 		int BVHDepth{};
 
@@ -20,9 +20,12 @@ namespace sdf
 
 	struct ResultStats
 	{
-		int Count;
-		int AverageStepsThroughScene;
-		int AverageBVHDepth;
+		int Count{};
+
+		int AverageStepsThroughScene{};
+		int AverageEarlyOutSteps{};
+
+		int AverageBVHDepth{};
 	};
 
 }

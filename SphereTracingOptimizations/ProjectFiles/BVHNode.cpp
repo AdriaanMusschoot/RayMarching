@@ -42,7 +42,7 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 	//if leaf node just return the distance to the object
 	if (m_ObjectUPtr)
 	{
-		return { m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord), m_ObjectUPtr };
+		return { m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord).first, m_ObjectUPtr };
 	}
 	++outHitRecord.BVHDepth;
 
