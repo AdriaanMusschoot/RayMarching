@@ -18,4 +18,11 @@ namespace sdf
 		ColorRGB Shade{ 0.f, 0.f, 0.f };
 	};
 
+	struct ResultStats
+	{
+		int Count;
+		int AverageStepsThroughBVH;
+		int AverageStepsThroughEarlyOut;
+	};
+
 }

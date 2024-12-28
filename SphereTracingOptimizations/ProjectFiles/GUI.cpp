@@ -9,6 +9,7 @@
 #include "Scene.h"
 #include "SdEngine.h"
 #include "BVHNode.h"
+#include "Misc.h"
 
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
@@ -93,9 +94,16 @@ void GUI::LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 c
     ImGui::Value("FPS", ImGui::GetIO().Framerate);
     
     sdf::Renderer const& renderer{ engine.GetRenderer() };
+    
+	sdf::ResultStats const hitStats{ renderer.GetCollisionStats() };
+	sdf::ResultStats const missStats{ renderer.GetMissesStats() };
 
-    ImGui::Text("Rays hit: %d", renderer.GetNrCollisions());
-    ImGui::Text("Rays missed: %d", renderer.GetNrMisses());
+    ImGui::Text("Hit Statistics");
+    ImGui::Text("Rays hit: %d", hitStats.Count);
+	ImGui::Text("Avg steps BVH: %d", hitStats.AverageStepsThroughBVH);
+    ImGui::Text("Miss Statistics");
+    ImGui::Text("Rays missed: %d", missStats.Count);
+	ImGui::Text("Avg steps BVH: %d", missStats.AverageStepsThroughBVH);
 
     ImGui::End();
 }

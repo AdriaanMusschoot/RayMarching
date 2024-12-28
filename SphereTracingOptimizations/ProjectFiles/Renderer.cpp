@@ -1,8 +1,10 @@
+#include "Renderer.h"
+
 #include "SDL.h"
 #include "SDL_surface.h"
 
-//Project includes
-#include "Renderer.h"
+#include <numeric>
+
 #include "glm/glm.hpp"
 #include "Scene.h"
 #include "Execution"
@@ -133,17 +135,56 @@ bool sdf::Renderer::SaveBufferToImage() const
 	return result;
 }
 
-int sdf::Renderer::GetNrCollisions() const
+sdf::ResultStats sdf::Renderer::GetCollisionStats() const
 {
-	return std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), [](HitRecord const& hitRecord)
+	ResultStats stats{};
+		
+	stats.Count = std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), 
+		[](HitRecord const& hitRecord)
 		{ 
 			return hitRecord.DidHit; 
 		});
+
+	if (stats.Count != 0)
+	{
+		stats.AverageStepsThroughBVH = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
+			[](int const& total, HitRecord const& hitRecord)
+			{
+				if (hitRecord.DidHit)
+				{
+					return total + hitRecord.StepsUsingBVH;
+				}
+				return total;
+			}) / stats.Count;
+	}
+
+	return stats;
 }
 
-int sdf::Renderer::GetNrMisses() const
+sdf::ResultStats sdf::Renderer::GetMissesStats() const
 {
-	return m_HitRecordVec.size() - GetNrCollisions();
+	ResultStats stats{};
+
+	stats.Count = std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), 
+		[](HitRecord const& hitRecord)
+		{
+			return not hitRecord.DidHit;
+		});
+
+	if (stats.Count != 0)
+	{
+		stats.AverageStepsThroughBVH = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
+			[](int const& total, HitRecord const& hitRecord)
+			{
+				if (not hitRecord.DidHit)
+				{
+					return total + hitRecord.StepsUsingBVH;
+				}
+				return total;
+			}) / stats.Count;
+	}
+
+	return stats;
 }
 
 glm::ivec2 sdf::Renderer::GetWindowDimensions() const

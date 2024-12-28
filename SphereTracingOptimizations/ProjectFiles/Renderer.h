@@ -5,6 +5,9 @@
 
 namespace sdf
 {
+
+    struct ResultStats;
+
 	class Renderer final
     {
     public:
@@ -14,8 +17,8 @@ namespace sdf
         void Render(Scene const& pScene) const;
         bool SaveBufferToImage() const;
 
-		int GetNrCollisions() const;
-		int GetNrMisses() const;
+		ResultStats GetCollisionStats() const;
+		ResultStats GetMissesStats() const;
 
 		glm::ivec2 GetWindowDimensions() const;
     private:
