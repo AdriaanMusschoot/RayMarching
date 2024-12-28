@@ -68,14 +68,9 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());
 
-    sdf::GameTimer& timer{ engine.GetTimer() };
-
-	ImGui::Text("Nr Frames Benchmark: ");
-	ImGui::InputInt("##", &timer.SetBenchmarkTargetFrames());
-
-    if (ImGui::Button("Start BenchMark"))
+    if (ImGui::Button("Start Tracking Statistics"))
 	{
-		timer.StartBenchmark();
+		engine.GetStatTracker().StartTracking();
     }
 
     ImGui::End();
@@ -89,10 +84,10 @@ void GUI::LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 c
 
     ImGui::Value("FPS", ImGui::GetIO().Framerate);
     
-    sdf::Renderer const& renderer{ engine.GetRenderer() };
+    sdf::StatTracker& statTracker{ engine.GetStatTracker() };
 
-    ImGui::Text("Rays hit: %d", renderer.GetNrCollisions());
-    ImGui::Text("Rays missed: %d", renderer.GetNrMisses());
+    ImGui::Text("Rays hit: %d", statTracker.GetNrCollisions());
+    ImGui::Text("Rays missed: %d", statTracker.GetNrMisses());
 
     ImGui::End();
 }

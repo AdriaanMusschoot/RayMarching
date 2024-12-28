@@ -34,6 +34,7 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 	if (float boundingVolumeDistance{ glm::length(point - m_Origin) - m_Radius };
 		boundingVolumeDistance > 0.1f)
 	{
+		++outHitRecord.StepsUsingBVH;
 		return { boundingVolumeDistance, nullptr };
 	}
 

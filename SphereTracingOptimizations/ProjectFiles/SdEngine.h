@@ -1,9 +1,9 @@
 #pragma once
-#include <cstdint>
 
 #include "Renderer.h"
 #include "Scene.h"
 #include "Timer.h"
+#include "StatTracker.h"
 
 namespace sdf
 {
@@ -26,12 +26,14 @@ namespace sdf
 
 		Renderer const& GetRenderer() const { return m_Renderer; }
 		GameTimer& GetTimer() { return m_Timer; }
+		StatTracker& GetStatTracker() { return m_StatTracker; }
     private:
         Renderer m_Renderer;
         GameTimer m_Timer;
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
+		StatTracker m_StatTracker;
 
-        int m_CurrentSceneID{ 2 };
+        int m_CurrentSceneID{ 0 };
         std::vector<const char*> m_SceneComplexity{ "Low", "Medium", "High" };
         
         bool ShouldQuit{ false };

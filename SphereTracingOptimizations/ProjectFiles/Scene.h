@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "SDFObjects.h"
 
 namespace sdf
 {
@@ -13,6 +12,7 @@ namespace sdf
 	struct Camera;
 
 	class BVHNode;
+	class Object;
 
 	class Scene
 	{
@@ -39,8 +39,8 @@ namespace sdf
 
 		static int m_BVHSteps;
 	protected:		
-		//vector needs full definition upon construction, so it can call the destructor of the unique_ptrs
-		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec{};
+		//dont init no full definition needed yet
+		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec;
 		static Camera m_Camera;
 
 	private:
