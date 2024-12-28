@@ -135,50 +135,43 @@ bool sdf::Renderer::SaveBufferToImage() const
 	return result;
 }
 
-sdf::ResultStats sdf::Renderer::GetCollisionStats() const
+sdf::ResultStats sdf::Renderer::GetCollisionStats(bool miss) const
 {
 	ResultStats stats{};
-		
+
+	if (miss)
+	{
+		std::for_each(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), 
+			[&](HitRecord& hitRecord)
+			{
+				hitRecord.DidHit = not hitRecord.DidHit;
+			});
+	}
+
 	stats.Count = std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), 
-		[](HitRecord const& hitRecord)
+		[&](HitRecord const& hitRecord)
 		{ 
-			return hitRecord.DidHit; 
+			return hitRecord.DidHit;
 		});
 
 	if (stats.Count != 0)
 	{
-		stats.AverageStepsThroughBVH = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
-			[](int const& total, HitRecord const& hitRecord)
+		stats.AverageStepsThroughScene = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
+			[&](int const& total, HitRecord const& hitRecord)
 			{
 				if (hitRecord.DidHit)
 				{
-					return total + hitRecord.StepsUsingBVH;
+					return total + hitRecord.TotalSteps;
 				}
 				return total;
 			}) / stats.Count;
-	}
 
-	return stats;
-}
-
-sdf::ResultStats sdf::Renderer::GetMissesStats() const
-{
-	ResultStats stats{};
-
-	stats.Count = std::count_if(std::execution::par_unseq, m_HitRecordVec.begin(), m_HitRecordVec.end(), 
-		[](HitRecord const& hitRecord)
-		{
-			return not hitRecord.DidHit;
-		});
-
-	if (stats.Count != 0)
-	{
-		stats.AverageStepsThroughBVH = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
-			[](int const& total, HitRecord const& hitRecord)
+		stats.AverageBVHDepth = std::accumulate(m_HitRecordVec.begin(), m_HitRecordVec.end(), 0,
+			[&](int const& total, HitRecord const& hitRecord)
 			{
-				if (not hitRecord.DidHit)
+				if (hitRecord.DidHit)
 				{
-					return total + hitRecord.StepsUsingBVH;
+					return total + hitRecord.BVHDepth;
 				}
 				return total;
 			}) / stats.Count;

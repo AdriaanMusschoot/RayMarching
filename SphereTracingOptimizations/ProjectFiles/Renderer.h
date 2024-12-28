@@ -17,8 +17,7 @@ namespace sdf
         void Render(Scene const& pScene) const;
         bool SaveBufferToImage() const;
 
-		ResultStats GetCollisionStats() const;
-		ResultStats GetMissesStats() const;
+		ResultStats GetCollisionStats(bool miss) const;
 
 		glm::ivec2 GetWindowDimensions() const;
     private:

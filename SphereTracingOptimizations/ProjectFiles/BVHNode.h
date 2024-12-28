@@ -17,7 +17,7 @@ namespace sdf
 	public:
 		BVHNode(glm::vec3 const& origin, float radius, glm::vec3 const& extent);
 
-		std::pair<float, sdf::Object*> GetDistance(const glm::vec3& point, bool useEarlyOuts, int currentStep, int maxSteps, HitRecord& outHitRecord) const;
+		std::pair<float, sdf::Object*> GetDistance(const glm::vec3& point, bool useEarlyOuts, int maxSteps, HitRecord& outHitRecord) const;
 
 		static std::unique_ptr<BVHNode> CreateBVHNode(std::vector<sdf::Object*> const& objects);
 

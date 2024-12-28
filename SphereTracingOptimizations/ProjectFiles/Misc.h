@@ -13,7 +13,7 @@ namespace sdf
 		int TotalSteps{};
 		int StepsUsingEarlyOut{};
 
-		int StepsUsingBVH{};
+		int BVHDepth{};
 
 		ColorRGB Shade{ 0.f, 0.f, 0.f };
 	};
@@ -21,8 +21,8 @@ namespace sdf
 	struct ResultStats
 	{
 		int Count;
-		int AverageStepsThroughBVH;
-		int AverageStepsThroughEarlyOut;
+		int AverageStepsThroughScene;
+		int AverageBVHDepth;
 	};
 
 }

@@ -15,38 +15,37 @@ sdf::BVHNode::BVHNode(glm::vec3 const& origin, float radius, glm::vec3 const& ex
 {
 }
 
-std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point, bool useEarlyOuts, int currentStep, int maxSteps, HitRecord& outHitRecord) const
+std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point, bool useEarlyOuts, int maxSteps, HitRecord& outHitRecord) const
 {
-	if (currentStep >= maxSteps)
-	{
-		if (m_ObjectUPtr)
-		{
-			return{ m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord), m_ObjectUPtr };
-		}
-
-		float const boundingVolumeDistance
-		{
-			[&]()
-			{
-				if (m_BoxBVH)
-				{
-					glm::vec3 const q{ glm::abs(point - m_Origin) - m_Extent };
-					return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
-				}
-				return glm::length(point - m_Origin) - m_Radius;
-			}()
-		};
-		return { boundingVolumeDistance, nullptr };
-	}
-	currentStep++;
+	//if (outHitRecord.BVHDepth >= maxSteps)
+	//{
+	//	if (m_ObjectUPtr)
+	//	{
+	//		return{ m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord), m_ObjectUPtr };
+	//	}
+	//
+	//	float const boundingVolumeDistance
+	//	{
+	//		[&]()
+	//		{
+	//			if (m_BoxBVH)
+	//			{
+	//				glm::vec3 const q{ glm::abs(point - m_Origin) - m_Extent };
+	//				return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
+	//			}
+	//			return glm::length(point - m_Origin) - m_Radius;
+	//		}()
+	//	};
+	//	return { boundingVolumeDistance, nullptr };
+	//}
 	
 	//if leaf node just return the distance to the object
 	if (m_ObjectUPtr)
 	{
 		return { m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord), m_ObjectUPtr };
 	}
+	++outHitRecord.BVHDepth;
 
-	//if the distance to the bounding volume is large enough return it 
 	float const boundingVolumeDistance
 	{ 
 		[&]()
@@ -60,15 +59,15 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 		}()
 	};
 
+	//if the distance to the bounding volume is large enough return it 
 	if (boundingVolumeDistance > 0.1f)
 	{
-		++outHitRecord.StepsUsingBVH;
 		return { boundingVolumeDistance, nullptr };
 	}
 
 	//we are in the bounding volume check the children
-	auto const leftResult{ m_LeftNodeUPtr->GetDistance(point, useEarlyOuts, currentStep, maxSteps, outHitRecord) };
-	auto const rightResult{ m_RightNodeUPtr->GetDistance(point, useEarlyOuts, currentStep, maxSteps, outHitRecord) };
+	auto const leftResult{ m_LeftNodeUPtr->GetDistance(point, useEarlyOuts, maxSteps, outHitRecord) };
+	auto const rightResult{ m_RightNodeUPtr->GetDistance(point, useEarlyOuts, maxSteps, outHitRecord) };
 
 	if (leftResult.first < rightResult.first)
 	{

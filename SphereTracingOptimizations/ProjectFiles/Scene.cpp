@@ -60,6 +60,7 @@ namespace sdf
 
 		hitRecord.Distance = currentDistance;
 		hitRecord.TotalSteps = currentStep;
+		hitRecord.BVHDepth /= currentStep;
 
 		return hitRecord;
 	}
@@ -73,7 +74,7 @@ namespace sdf
 	{
 		if (m_UseBVH)
 		{
-			return m_BVHRoot->GetDistance(point, m_UseEarlyOut, 0, m_BVHSteps, outHitRecord);
+			return m_BVHRoot->GetDistance(point, m_UseEarlyOut, m_BVHSteps, outHitRecord);
 		}
 
 		float minDistance{ std::numeric_limits<float>::max() };
