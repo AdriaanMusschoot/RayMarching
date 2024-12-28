@@ -8,8 +8,7 @@
 
 #include "Scene.h"
 #include "SdEngine.h"
-
-#define IMGUI_DISABLE_DEBUG_TOOLS
+#include "BVHNode.h"
 
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
@@ -62,8 +61,12 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     ImGui::SetWindowSize(size, ImGuiCond_Once);
 
     ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
+	ImGui::Checkbox("Use Box early out", &sdf::Object::m_BoxEarlyOut);
+
     ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
-	ImGui::InputInt("BVH Steps", &sdf::Scene::m_BVHSteps);
+	ImGui::Checkbox("Use Box BVH", &sdf::BVHNode::m_BoxBVH);
+
+	ImGui::InputInt("BVH Stepss", &sdf::Scene::m_BVHSteps);
 
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());

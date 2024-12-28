@@ -86,7 +86,14 @@ void sdf::Renderer::Render(Scene const& pScene) const
 				//no static white in this case because multithreaded?
 				hitRecord.Shade += (ColorRGB{ 1.f, 1.f, 1.f } * hitRecord.TotalSteps * 0.04f);
 				hitRecord.Shade.MaxToOne();
-				m_PixelVec[pixelIdx] = SDL_MapRGB(m_PixelFormatPtr, hitRecord.Shade.r * 255, hitRecord.Shade.g * 255, hitRecord.Shade.b * 255);
+				m_PixelVec[pixelIdx] = 
+					SDL_MapRGB
+					(
+						m_PixelFormatPtr, 
+						static_cast<int>(hitRecord.Shade.r * 255), 
+						static_cast<int>(hitRecord.Shade.g * 255), 
+						static_cast<int>(hitRecord.Shade.b * 255)
+					);
 			}
 		});
 	//int old{ Scene::m_BVHSteps };

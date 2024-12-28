@@ -21,6 +21,8 @@ namespace sdf
         ColorRGB const& Shade() const;
 
         float GetEarlyOutRadius() const;
+
+        static bool m_BoxEarlyOut;
     protected:
         virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
 

@@ -6,9 +6,12 @@
 #include "SDFObjects.h"
 #include "Misc.h"
 
-sdf::BVHNode::BVHNode(glm::vec3 origin, float radius)
+bool sdf::BVHNode::m_BoxBVH{ true };
+
+sdf::BVHNode::BVHNode(glm::vec3 const& origin, float radius, glm::vec3 const& extent)
 	: m_Origin{ origin }
 	, m_Radius{ radius }
+	, m_Extent{ extent }
 {
 }
 
@@ -20,10 +23,23 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 		{
 			return{ m_ObjectUPtr->GetDistance(point - m_ObjectUPtr->Origin(), useEarlyOuts, outHitRecord), m_ObjectUPtr };
 		}
-		return { glm::length(point - m_Origin) - m_Radius, nullptr };
-	}
 
+		float const boundingVolumeDistance
+		{
+			[&]()
+			{
+				if (m_BoxBVH)
+				{
+					glm::vec3 const q{ glm::abs(point - m_Origin) - m_Extent };
+					return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
+				}
+				return glm::length(point - m_Origin) - m_Radius;
+			}()
+		};
+		return { boundingVolumeDistance, nullptr };
+	}
 	currentStep++;
+	
 	//if leaf node just return the distance to the object
 	if (m_ObjectUPtr)
 	{
@@ -31,9 +47,22 @@ std::pair<float, sdf::Object*> sdf::BVHNode::GetDistance(const glm::vec3& point,
 	}
 
 	//if the distance to the bounding volume is large enough return it 
-	if (float boundingVolumeDistance{ glm::length(point - m_Origin) - m_Radius };
-		boundingVolumeDistance > 0.1f)
+	float const boundingVolumeDistance
+	{ 
+		[&]()
+		{
+			if (m_BoxBVH)
+			{
+				glm::vec3 const q{ glm::abs(point - m_Origin) - m_Extent };
+				return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
+			}
+			return glm::length(point - m_Origin) - m_Radius;
+		}()
+	};
+
+	if (boundingVolumeDistance > 0.1f)
 	{
+		++outHitRecord.StepsUsingBVH;
 		return { boundingVolumeDistance, nullptr };
 	}
 
@@ -57,8 +86,9 @@ std::unique_ptr<sdf::BVHNode> sdf::BVHNode::CreateBVHNode(std::vector<sdf::Objec
 
 	glm::vec3 const origin{ CalculateBVHOrigin(objects) };
 	float const radius{ CalculateBVHRadius(objects, origin) };
+	glm::vec3 const extent{ CalculateBVHExtent(objects, origin) };
 
-	std::unique_ptr nodeUPtr{ std::make_unique<BVHNode>(origin, radius) };
+	std::unique_ptr nodeUPtr{ std::make_unique<BVHNode>(origin, radius, extent) };
 
 	if (objects.size() == 1)
 	{
@@ -109,6 +139,19 @@ float sdf::BVHNode::CalculateBVHRadius(std::vector<sdf::Object*> const& objects,
 	}
 
 	return 0.0f;
+}
+
+glm::vec3 sdf::BVHNode::CalculateBVHExtent(std::vector<sdf::Object*> const& objects, glm::vec3 const& origin)
+{
+	glm::vec3 extent{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+	for (const auto& obj : objects)
+	{
+		glm::vec3 distance = glm::abs(obj->Origin() - origin) + glm::vec3(obj->GetEarlyOutRadius());
+		extent = glm::max(extent, distance);
+	}
+
+	return extent;
 }
 
 std::pair<std::vector<sdf::Object*>, std::vector<sdf::Object*>> sdf::BVHNode::SplitObjects(std::vector<sdf::Object*> const& objects)

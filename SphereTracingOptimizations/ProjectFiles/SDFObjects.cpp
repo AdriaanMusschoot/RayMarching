@@ -7,6 +7,8 @@
 
 #include "Misc.h"
 
+bool sdf::Object::m_BoxEarlyOut{ true };
+
 sdf::Object::Object(glm::vec3 const& origin, sdf::ColorRGB const& color)
     : m_Origin{ origin }, m_Color{ color }
 {
@@ -28,6 +30,11 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::H
 
 float sdf::Object::EarlyOutTest(glm::vec3 const& point)
 {
+    if (m_BoxEarlyOut)
+    {
+        glm::vec3 const q{ glm::abs(point) - glm::vec3{ m_EarlyOutRadius, m_EarlyOutRadius, m_EarlyOutRadius } };
+        return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
+    }
     return glm::length(point) - m_EarlyOutRadius;
 }
 
