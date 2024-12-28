@@ -70,7 +70,7 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 
     if (ImGui::Button("Start Tracking Statistics"))
 	{
-		engine.GetStatTracker().StartTracking();
+        engine.GetRenderer().GetStatTracker().StartTracking();
     }
 
     ImGui::End();
@@ -84,8 +84,8 @@ void GUI::LoadStatsWindow(sdf::Engine& engine, std::string const& name, ImVec2 c
 
     ImGui::Value("FPS", ImGui::GetIO().Framerate);
     
-    sdf::StatTracker& statTracker{ engine.GetStatTracker() };
-
+    sdf::StatTracker const& statTracker{ engine.GetRenderer().GetStatTracker() };
+    //
     ImGui::Text("Rays hit: %d", statTracker.GetNrCollisions());
     ImGui::Text("Rays missed: %d", statTracker.GetNrMisses());
 

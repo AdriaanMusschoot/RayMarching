@@ -15,6 +15,8 @@ sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneHighComplexity>());
 }
 
+sdf::Engine::~Engine() = default;
+
 void sdf::Engine::Run()
 {
     while (not ShouldQuit)
@@ -29,7 +31,7 @@ void sdf::Engine::Run()
 
         scene.Update(m_Timer.GetElapsed());
         
-		m_StatTracker.Update(std::move(m_Renderer.RenderFrame(scene)) , *this);
+		m_Renderer.RenderFrame(scene, m_Timer);
     }
 }
 

@@ -10,19 +10,20 @@ sdf::StatTracker::StatTracker() = default;
 
 sdf::StatTracker::~StatTracker() = default;
 
-void sdf::StatTracker::Update(std::vector<HitRecord>&& hitRecord, Engine& engine)
+void sdf::StatTracker::Update(std::vector<HitRecord>const& hitRecordVec, GameTimer& timer)
 {
+	m_CurrentFrameHitRecordVec = hitRecordVec;
+
 	if (m_IsTracking)
 	{
-		m_CurrentTrackTime += engine.GetTimer().GetElapsed();
+		m_CurrentTrackTime += timer.GetElapsed();
+		m_TrackedHitRecordVecVec.emplace_back(hitRecordVec);
 		if (m_CurrentTrackTime >= m_TotalTrackTime)
 		{
 			m_IsTracking = false;
 			std::cout << "Tracking finished!\n";
 		}
-		return;
 	}
-	m_CurrentFrameHitRecords = std::move(hitRecord);
 }
 
 void sdf::StatTracker::StartTracking()
@@ -31,13 +32,17 @@ void sdf::StatTracker::StartTracking()
 	{
 		return;
 	}
-	m_CurrentTrackTime = 0.0f;
 	m_IsTracking = true;
+	m_CurrentTrackTime = 0.0f;
+	m_TrackedHitRecordVecVec.clear();
+	m_TrackedHitRecordVecVec.reserve(static_cast<int>(60 * m_TotalTrackTime));
+	std::cout << "Tracking started!\n";
 }
 
 int sdf::StatTracker::GetNrCollisions() const
 {
-	return std::count_if(std::execution::par_unseq, m_CurrentFrameHitRecords.begin(), m_CurrentFrameHitRecords.end(), [](HitRecord const& hitRecord)
+	return std::count_if(std::execution::par_unseq, m_CurrentFrameHitRecordVec.begin(), m_CurrentFrameHitRecordVec.end(), 
+		[](HitRecord const& hitRecord)
 		{
 			return hitRecord.DidHit;
 		});
@@ -45,5 +50,5 @@ int sdf::StatTracker::GetNrCollisions() const
 
 int sdf::StatTracker::GetNrMisses() const
 {
-	return m_CurrentFrameHitRecords.size() - GetNrCollisions();
+	return m_CurrentFrameHitRecordVec.size() - GetNrCollisions();
 }
