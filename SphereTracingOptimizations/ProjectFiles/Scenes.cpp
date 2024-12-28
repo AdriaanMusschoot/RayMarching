@@ -9,23 +9,17 @@ sdf::SceneEasyComplexity::SceneEasyComplexity()
 {
     constexpr float spacing{ 1.5f };
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.8f, 0.8f, 0.2f, glm::vec3{ 0.f, 0.f, spacing }, colors::Red));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.4f, 0.4f, 0.1f, glm::vec3{ spacing, spacing, 0.f }, colors::Red));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.2f, 0.2f, 0.05f, glm::vec3{ -spacing, -spacing, -spacing }, colors::Red));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.3f, 0.3f, 0.08f, glm::vec3{ spacing, -spacing, spacing }, colors::Red));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.5f, 0.5f, 0.13f, glm::vec3{ -spacing, spacing, 0.f }, colors::Red));
     
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.8f, glm::vec3{ 0.f, 0.f, -spacing }, colors::Green));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.f, glm::vec3{ spacing, spacing, spacing }, colors::Green));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.6f, glm::vec3{ -spacing, -spacing, 0.f}, colors::Green));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(0.7f, glm::vec3{ spacing, -spacing, -spacing }, colors::Green));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.1f, glm::vec3{ -spacing, spacing, spacing }, colors::Green));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.1f, glm::vec3{ -spacing, -spacing, spacing }, colors::Green));
     
 	CreateBVHStructure();
 }
 
 sdf::SceneMediumComplexity::SceneMediumComplexity()
 {
-    constexpr float spacing{ 1.5f };
+    constexpr float spacing{ 2.0f };
     constexpr float halfSpacing{ spacing / 2.0f };
 
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>(glm::vec3{ 0.7f, 0.7f, 0.7f }, 0.05f, glm::vec3{ 0.f, halfSpacing, 0.f }, colors::Blue));
@@ -36,18 +30,17 @@ sdf::SceneMediumComplexity::SceneMediumComplexity()
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.6f, 0.6f, glm::vec3{ spacing, -halfSpacing, spacing }, colors::Yellow));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.8f, 0.8f, glm::vec3{ -spacing, 0.f, -halfSpacing }, colors::Yellow));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.5f, 0.5f, glm::vec3{ spacing, halfSpacing, -spacing }, colors::Yellow));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.9f, 0.9f, glm::vec3{ 0.f, spacing, spacing }, colors::Yellow));
 
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.f, glm::vec3{ 0.f, -spacing, 0.f }, colors::Magenta));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(1.8f, glm::vec3{ spacing, halfSpacing, halfSpacing }, colors::Magenta));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(2.2f, glm::vec3{ -spacing, -spacing, -spacing }, colors::Magenta));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(1.5f, glm::vec3{ halfSpacing, 0.f, -halfSpacing }, colors::Magenta));
+
 	CreateBVHStructure();
 }
 
 sdf::SceneHighComplexity::SceneHighComplexity()
 {
-    constexpr float spacing{ 2.0f };
+    constexpr float spacing{ 4.0f };
     constexpr float halfSpacing{ spacing / 2.0f };
 
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ halfSpacing, -halfSpacing, halfSpacing }, colors::Cyan));
