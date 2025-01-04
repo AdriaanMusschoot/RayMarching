@@ -32,7 +32,7 @@ namespace sdf
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
 
-        glm::vec3 m_BoxExtent{};
+        glm::vec3 m_BoxExtent{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
         ColorRGB m_Color{ 1.f, 0.f, 0.f };
 

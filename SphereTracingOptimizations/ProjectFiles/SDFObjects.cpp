@@ -20,7 +20,7 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::H
     if (useEarlyOuts)
     {
         float const earlyOutDistance{ EarlyOutTest(point) };
-        if (earlyOutDistance >= 0.1f)
+        if (earlyOutDistance >= 0.001f)
         {
 			++outHitRecord.EarlyOutUsage;
             return earlyOutDistance;
@@ -158,62 +158,25 @@ void sdf::Object::FurthestSurfaceAlongAxis(float initialDistance)
             })
         );
 
-    glm::vec3 m_MinPoint{};
-    glm::vec3 m_MaxPoint{};
-
-	std::for_each(pointArr.begin(), pointArr.end(),
+	std::for_each(std::execution::par_unseq, pointArr.begin(), pointArr.end(),
 		[&](std::optional<glm::vec3> const& point)
 		{
-			if (m_MinPoint.x > point.value().x)
+			if (float const positiveXValue{ glm::abs(point.value().x) };
+                m_BoxExtent.x < positiveXValue)
 			{
-				m_MinPoint.x = point.value().x;
+				m_BoxExtent.x = positiveXValue;
 			}
-			if (m_MinPoint.y > point.value().y)
-			{
-				m_MinPoint.y = point.value().y;
+			if (float const positiveYValue{ glm::abs(point.value().y) };
+                m_BoxExtent.y < positiveYValue)
+            {
+                m_BoxExtent.y = positiveYValue;
 			}
-			if (m_MinPoint.z > point.value().z)
-			{
-				m_MinPoint.z = point.value().z;
-			}
-			if (m_MaxPoint.x < point.value().x)
-			{
-				m_MaxPoint.x = point.value().x;
-			}
-			if (m_MaxPoint.y < point.value().y)
-			{
-				m_MaxPoint.y = point.value().y;
-			}
-			if (m_MaxPoint.z < point.value().z)
-			{
-				m_MaxPoint.z = point.value().z;
+			if (float const positiveZValue{ glm::abs(point.value().z) };
+                m_BoxExtent.z < positiveZValue)
+            {
+                m_BoxExtent.z = positiveZValue;
 			}
 		});
-
-    if (glm::abs(m_MinPoint.x) < glm::abs(m_MaxPoint.x))
-    {
-		m_BoxExtent.x = glm::abs(m_MaxPoint.x);
-    }
-    else
-    {
-        m_BoxExtent.x = glm::abs(m_MinPoint.x);
-    }
-    if (glm::abs(m_MinPoint.y) < glm::abs(m_MaxPoint.y))
-    {
-		m_BoxExtent.y = glm::abs(m_MaxPoint.y);
-    }
-	else
-	{
-		m_BoxExtent.y = glm::abs(m_MinPoint.y);
-	}
-	if (glm::abs(m_MinPoint.z) < glm::abs(m_MaxPoint.z))
-	{
-		m_BoxExtent.z = glm::abs(m_MaxPoint.z);
-	}
-	else
-	{
-		m_BoxExtent.z = glm::abs(m_MinPoint.z);
-	}
 }
 
 glm::vec3 const& sdf::Object::Origin() const
