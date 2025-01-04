@@ -22,8 +22,8 @@ namespace sdf
 	Scene::Scene() = default;
 	Scene::~Scene() = default;
 
-	Camera Scene::m_Camera{ glm::vec3{ 0, 0, -5 }, 90, glm::vec3{ 0, 0, 1 } };
-	//Camera Scene::m_Camera{ glm::vec3{ 3, 2, 8 }, 90, glm::vec3{ -0.3, -0.3, -1 } };
+	//Camera Scene::m_Camera{ glm::vec3{ 0, 0, -5 }, 90, glm::vec3{ 0, 0, 1 } };
+	Camera Scene::m_Camera{ glm::vec3{ 3, 2, 8 }, 90, glm::vec3{ -0.3, -0.3, -1 } };
 
 	HitRecord Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
@@ -72,7 +72,7 @@ namespace sdf
 
 	void Scene::Update(float ElapsedSec)
 	{
-		m_Camera.Update(ElapsedSec);
+		//m_Camera.Update(ElapsedSec);
 	}
 
 	std::pair<float, const sdf::Object*> Scene::GetDistanceToScene(const glm::vec3& point, HitRecord& outHitRecord) const
