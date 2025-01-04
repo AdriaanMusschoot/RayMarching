@@ -22,14 +22,18 @@ namespace sdf
 
         float GetEarlyOutRadius() const;
 
-        static bool m_BoxEarlyOut;
+        static bool m_UseBoxEarlyOut;
     protected:
         virtual float GetDistanceUnoptimized(glm::vec3 const& point) = 0;
 
         void FurthestSurfaceConcentricCircles(float initialRadius = 10);
+		void FurthestSurfaceAlongAxis(float initialDistance = 10);
     private:
         glm::vec3 m_Origin{ 0.f, 0.f, 0.f };
         float m_EarlyOutRadius{};
+
+        glm::vec3 m_BoxExtent{};
+
         ColorRGB m_Color{ 1.f, 0.f, 0.f };
 
         float EarlyOutTest(glm::vec3 const& point);
@@ -118,7 +122,9 @@ namespace sdf
 
     static float SmoothMin(float dist1, float dist2, float smoothness);
 
-    constexpr int PointCountHorizontal{ 360 };
-    constexpr int PointCountVertical{ 360 };
-    static std::vector<glm::vec3> GenerateSpherePoints(glm::vec3 const& origin, float radius);
+    constexpr int PointCountSphereHorizontal{ 360 };
+    constexpr int PointCountSphereVertical{ 360 };
+    constexpr int PointCountWall{ 1001 };
+    std::vector<glm::vec3> GenerateSpherePoints(glm::vec3 const& origin, float radius);
+    std::vector<glm::vec3> GenerateWallPoints(glm::vec3 const& direction, float intervalDistance, float distance);
 }

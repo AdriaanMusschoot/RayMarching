@@ -62,6 +62,7 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     ImGui::SetWindowSize(size, ImGuiCond_Once);
 
     ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
+    ImGui::Checkbox("Box Early Out", &sdf::Object::m_UseBoxEarlyOut);
 
     ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
     ImGui::Checkbox("Box BVH", &sdf::BVHNode::m_BoxBVH);

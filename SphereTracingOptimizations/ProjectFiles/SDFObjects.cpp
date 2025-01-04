@@ -6,8 +6,9 @@
 #include <array>
 
 #include "Misc.h"
+#include <iostream>
 
-bool sdf::Object::m_BoxEarlyOut{ false };
+bool sdf::Object::m_UseBoxEarlyOut{ true };
 
 sdf::Object::Object(glm::vec3 const& origin, sdf::ColorRGB const& color)
     : m_Origin{ origin }, m_Color{ color }
@@ -30,9 +31,9 @@ float sdf::Object::GetDistance(glm::vec3 const& point, bool useEarlyOuts, sdf::H
 
 float sdf::Object::EarlyOutTest(glm::vec3 const& point)
 {
-    if (m_BoxEarlyOut)
+    if (m_UseBoxEarlyOut)
     {
-        glm::vec3 const q{ glm::abs(point) - glm::vec3{ m_EarlyOutRadius, m_EarlyOutRadius, m_EarlyOutRadius } };
+        glm::vec3 const q{ glm::abs(point) - m_BoxExtent };
         return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
     }
     return glm::length(point) - m_EarlyOutRadius;
@@ -85,6 +86,136 @@ void sdf::Object::FurthestSurfaceConcentricCircles(float initialRadius)
     m_EarlyOutRadius = glm::length(surfacePoint.value());
 }
 
+void sdf::Object::FurthestSurfaceAlongAxis(float initialDistance)
+{
+	std::mutex closestPointMutex{};
+
+    static std::array<std::pair<int, glm::vec3>, 6> directionArr
+    {
+        std::make_pair(0, glm::vec3{1, 0, 0}), std::make_pair(1, glm::vec3{-1, 0, 0 }),
+        std::make_pair(2, glm::vec3{0, 1, 0}), std::make_pair(3, glm::vec3{0, -1, 0 }),
+        std::make_pair(4, glm::vec3{0, 0, 1}), std::make_pair(5, glm::vec3{0, 0, -1 })
+    };
+
+    std::array<float, 6> distanceArr{};
+	std::fill(std::execution::par_unseq, distanceArr.begin(), distanceArr.end(), initialDistance);
+    std::array<std::optional<glm::vec3>, 6> pointArr{};
+
+    do
+    {
+        std::for_each(std::execution::par_unseq, directionArr.begin(), directionArr.end(),
+            [&](std::pair<int, glm::vec3> const& direction)
+            {
+                {
+					std::lock_guard<std::mutex> lock(closestPointMutex);
+				    if (pointArr[direction.first].has_value())
+				    {
+				    	return;
+				    }
+                }
+                std::vector<glm::vec3> points{ GenerateWallPoints(direction.second, 0.01, distanceArr[direction.first]) };
+
+                std::vector<float> closestDistanceVec(std::thread::hardware_concurrency(), std::numeric_limits<float>::max());
+                std::vector<glm::vec3> closestPointVec(std::thread::hardware_concurrency(), glm::vec3{ 0.f, 0.f, 0.f });
+
+                std::for_each(std::execution::par_unseq, points.begin(), points.end(),
+                    [&](const glm::vec3& point)
+                    {
+                        float distance{ GetDistanceUnoptimized(point) };
+
+                        if (distance < 0.1f)
+                        {
+                            std::lock_guard<std::mutex> lock(closestPointMutex);
+                            if (not pointArr[direction.first].has_value())
+                            {
+                                pointArr[direction.first] = point;
+                            }
+                            return;
+                        }
+
+                        size_t threadId{ std::hash<std::thread::id>{}(std::this_thread::get_id()) % closestDistanceVec.size() };
+                        if (auto& closestDistance{ closestDistanceVec[threadId] };
+                            distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestPointVec[threadId] = point;
+                        }
+                    });
+                auto minElementIter = std::min_element(closestDistanceVec.begin(), closestDistanceVec.end());
+                size_t minElementIndex = std::distance(closestDistanceVec.begin(), minElementIter);
+
+                float const newDistanceValue{ glm::length(closestPointVec[minElementIndex] * direction.second) - *minElementIter };
+
+                distanceArr[direction.first] = newDistanceValue;
+			});
+    } 
+    while 
+        (
+            std::any_of(std::execution::par_unseq, pointArr.begin(), pointArr.end(),
+            [](std::optional<glm::vec3> const& point)
+            {
+                return not point.has_value();
+            })
+        );
+
+    glm::vec3 m_MinPoint{};
+    glm::vec3 m_MaxPoint{};
+
+	std::for_each(pointArr.begin(), pointArr.end(),
+		[&](std::optional<glm::vec3> const& point)
+		{
+			if (m_MinPoint.x > point.value().x)
+			{
+				m_MinPoint.x = point.value().x;
+			}
+			if (m_MinPoint.y > point.value().y)
+			{
+				m_MinPoint.y = point.value().y;
+			}
+			if (m_MinPoint.z > point.value().z)
+			{
+				m_MinPoint.z = point.value().z;
+			}
+			if (m_MaxPoint.x < point.value().x)
+			{
+				m_MaxPoint.x = point.value().x;
+			}
+			if (m_MaxPoint.y < point.value().y)
+			{
+				m_MaxPoint.y = point.value().y;
+			}
+			if (m_MaxPoint.z < point.value().z)
+			{
+				m_MaxPoint.z = point.value().z;
+			}
+		});
+
+    if (glm::abs(m_MinPoint.x) < glm::abs(m_MaxPoint.x))
+    {
+		m_BoxExtent.x = glm::abs(m_MaxPoint.x);
+    }
+    else
+    {
+        m_BoxExtent.x = glm::abs(m_MinPoint.x);
+    }
+    if (glm::abs(m_MinPoint.y) < glm::abs(m_MaxPoint.y))
+    {
+		m_BoxExtent.y = glm::abs(m_MaxPoint.y);
+    }
+	else
+	{
+		m_BoxExtent.y = glm::abs(m_MinPoint.y);
+	}
+	if (glm::abs(m_MinPoint.z) < glm::abs(m_MaxPoint.z))
+	{
+		m_BoxExtent.z = glm::abs(m_MaxPoint.z);
+	}
+	else
+	{
+		m_BoxExtent.z = glm::abs(m_MinPoint.z);
+	}
+}
+
 glm::vec3 const& sdf::Object::Origin() const
 {
     return m_Origin;
@@ -104,7 +235,6 @@ sdf::Sphere::Sphere(float radius, glm::vec3 const& origin, sdf::ColorRGB const& 
     : Object(origin, color)
     , m_Radius{ radius }
 {
-    FurthestSurfaceConcentricCircles();
 }
 
 float sdf::Sphere::GetDistanceUnoptimized(glm::vec3 const& point)
@@ -118,6 +248,7 @@ sdf::Link::Link(float height, float innerRadius, float tubeRadius, glm::vec3 con
     , m_InnerRadius{ innerRadius }
     , m_RadiusTube{ tubeRadius }
 {
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -134,6 +265,7 @@ sdf::Octahedron::Octahedron(float size, glm::vec3 const& origin, sdf::ColorRGB c
     : Object(origin, color)
     , m_Size{ size }
 {
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -173,6 +305,7 @@ sdf::BoxFrame::BoxFrame(glm::vec3 const& boxExtent, float roundedValue, glm::vec
     , m_BoxExtent{ boxExtent }
     , m_RoundedValue{ roundedValue }
 {
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -191,6 +324,7 @@ sdf::HexagonalPrism::HexagonalPrism(float depth, float radius, glm::vec3 const& 
     , m_Depth{ depth }
     , m_Radius{ radius }
 {
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -222,7 +356,7 @@ sdf::Pyramid::Pyramid(float height, glm::vec3 const& origin, sdf::ColorRGB const
     : Object(origin, color)
     , m_Height{ height }
 {
-    //std::cout << "Pyramid" << std::endl;
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -260,6 +394,7 @@ float sdf::Pyramid::GetDistanceUnoptimized(glm::vec3 const& point)
 sdf::MandelBulb::MandelBulb(glm::vec3 const& origin, sdf::ColorRGB const& color)
     : Object(origin, color)
 {
+	FurthestSurfaceAlongAxis();
     FurthestSurfaceConcentricCircles();
 }
 
@@ -310,35 +445,78 @@ float sdf::SmoothMin(float dist1, float dist2, float smoothness)
 
 std::vector<glm::vec3> sdf::GenerateSpherePoints(glm::vec3 const& origin, float radius)
 {
-    static std::array<uint32_t, sdf::PointCountHorizontal* sdf::PointCountVertical> idxPointArr
+    static std::array<uint32_t, sdf::PointCountSphereHorizontal* sdf::PointCountSphereVertical> idxPointArr
     {
         []()
         {
-            for (uint32_t pixelIdx{}; pixelIdx < idxPointArr.size(); ++pixelIdx)
-            {
-                idxPointArr[pixelIdx] = pixelIdx;
-            }
+            std::iota(idxPointArr.begin(), idxPointArr.end(), 0);
             return idxPointArr;
         }()
     };
 
-    std::vector<glm::vec3> spherePointArr{ idxPointArr.size() };
+    std::vector<glm::vec3> spherePointVec{ idxPointArr.size() };
 
     std::for_each(std::execution::par_unseq, idxPointArr.begin(), idxPointArr.end(),
         [&](uint32_t index)
         {
-            int i = index % sdf::PointCountHorizontal;  // Vertical angle index (phi)
-            int j = index / sdf::PointCountHorizontal;    // Horizontal angle index (theta)
+            int i = index % sdf::PointCountSphereHorizontal;
+            int j = index / sdf::PointCountSphereHorizontal;
 
-            float theta = glm::radians(static_cast<float>(i)); // Convert degrees to radians
-            float phi = glm::radians(static_cast<float>(j));   // Convert degrees to radians
+            float theta = glm::radians(static_cast<float>(i));
+            float phi = glm::radians(static_cast<float>(j));
 
             float x = radius * sin(phi) * cos(theta);
             float y = radius * sin(phi) * sin(theta);
             float z = radius * cos(phi);
 
-            spherePointArr[index] = origin + glm::vec3(x, y, z);
+            spherePointVec[index] = origin + glm::vec3(x, y, z);
         });
 
-    return spherePointArr;
+    return spherePointVec;
 }
+
+std::vector<glm::vec3> sdf::GenerateWallPoints(glm::vec3 const& direction, float intervalDistance, float distance)
+{
+    static std::array<uint32_t, sdf::PointCountWall* sdf::PointCountWall> idxPointArr
+    {
+        []()
+        {
+			std::iota(idxPointArr.begin(), idxPointArr.end(), 0);
+            return idxPointArr;
+        }()
+    };
+
+    std::vector<glm::vec3> wallPointVec{ idxPointArr.size() };
+
+    std::for_each(std::execution::par_unseq, idxPointArr.begin(), idxPointArr.end(),
+        [&](uint32_t index)
+        {
+            int const i{ static_cast<int>(index % sdf::PointCountWall) };
+            int const j{ static_cast<int>(index / sdf::PointCountWall) };
+
+            int const normalized_i{ i - sdf::PointCountWall / 2 };
+            int const normalized_j{ j - sdf::PointCountWall / 2 };  
+
+            wallPointVec[index] =
+                [&]()
+                {
+                    // Scale the normalized values to the desired distance and radius
+                    if (direction.x != 0)
+                    {
+                        return glm::vec3{ direction.x * distance, normalized_i * intervalDistance, normalized_j * intervalDistance };
+                    }
+                    else if (direction.y != 0)
+                    {
+                        return glm::vec3{ normalized_j * intervalDistance, direction.y * distance, normalized_i * intervalDistance };
+                    }
+                    else
+                    {
+                        return glm::vec3{ normalized_i * intervalDistance, normalized_j * intervalDistance, direction.z * distance };
+                    }
+                }();
+        });
+
+
+    return wallPointVec;
+}
+
