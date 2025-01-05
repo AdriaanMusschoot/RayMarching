@@ -18,12 +18,12 @@ namespace sdf
 
 	//int Scene::m_BVHSteps{ 5 };
 
-	//needs to be defaulted here, because it needs the full definition of the unique_ptr
+	//needs to be defaulted here, because it needs the full definition of the unique_ptr and vector
 	Scene::Scene() = default;
 	Scene::~Scene() = default;
 
 	//Camera Scene::m_Camera{ glm::vec3{ 0, 0, -5 }, 90, glm::vec3{ 0, 0, 1 } };
-	Camera Scene::m_Camera{ glm::vec3{ 3, 2, 8 }, 90, glm::vec3{ -0.3, -0.3, -1 } };
+	Camera Scene::m_Camera{ glm::vec3{ 3, 2, 8 }, 90, glm::vec3{ -0.35, -0.2, -1 } };
 
 	HitRecord Scene::GetClosestHit(const glm::vec3& origin, const glm::vec3& direction, float minDistance, float maxDistance, int maxSteps) const
 	{
@@ -116,5 +116,9 @@ namespace sdf
 			});
 
 		m_BVHRoot = std::move(sdf::BVHNode::CreateBVHNode(objectVec));		
+	}
+	void Scene::MoveCameraPos(float moveDistance)
+	{
+		m_Camera.origin += m_Camera.forward * moveDistance;
 	}
 }

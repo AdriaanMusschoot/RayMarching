@@ -126,11 +126,12 @@ void sdf::Renderer::Render(Scene const& pScene) const
 	SDL_RenderPresent(m_RendererPtr);
 }
 
-bool sdf::Renderer::SaveBufferToImage() const
+bool sdf::Renderer::SaveBufferToImage(std::string const& imageName) const
 {
 	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, m_Width, m_Height, 32, SDL_PIXELFORMAT_ARGB8888);
 	SDL_RenderReadPixels(m_RendererPtr, nullptr, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
-	bool result = SDL_SaveBMP(surface, "RayTracing_Buffer.bmp") == 0;
+	std::string fullName{ imageName + ".png" };
+	bool result = SDL_SaveBMP(surface, fullName.c_str()) == 0;
 	SDL_FreeSurface(surface);
 	return result;
 }
@@ -221,5 +222,5 @@ void sdf::Renderer::CalculateHitRecords(Scene const& pScene, float fovValue, glm
 
 	glm::vec3 const cameraDirection{ glm::normalize(cameraToWorld * glm::vec3{ cx, cy, 1.f }) };
 
-	m_HitRecordVec[pixelIdx] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 100, 10000);
+	m_HitRecordVec[pixelIdx] = pScene.GetClosestHit(cameraOrigin, cameraDirection, 0.001f, 1000, 100000);
 }

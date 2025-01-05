@@ -13,6 +13,12 @@ sdf::Engine::Engine(uint32_t const& width, uint32_t const& height)
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneEasyComplexity>());
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneMediumComplexity>());
     m_SceneUPtrVec.emplace_back(std::make_unique<SceneHighComplexity>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneLink>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneOctahedron>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneBoxFrame>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneHexagonalPrism>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<ScenePyramid>());
+    m_SceneUPtrVec.emplace_back(std::make_unique<SceneMandelBulb>());
 }
 
 void sdf::Engine::Run()

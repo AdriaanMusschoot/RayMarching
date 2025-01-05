@@ -5,13 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "SDFObjects.h"
-
 namespace sdf
 {
 	struct HitRecord;
 	struct Camera;
 
+	class Object;
 	class BVHNode;
 
 	class Scene
@@ -38,10 +37,12 @@ namespace sdf
 		static bool m_UseBVH;
 
 		//static int m_BVHSteps;
-	protected:		
+		static void MoveCameraPos(float moveDistance);
+	protected:
 		//vector needs full definition upon construction, so it can call the destructor of the unique_ptrs
-		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec{};
+		std::vector<std::unique_ptr<Object>> m_SDObjectUPtrVec;
 		static Camera m_Camera;
+		static bool m_CameraMoved;
 
 	private:
 		std::unique_ptr<BVHNode> m_BVHRoot{ nullptr };

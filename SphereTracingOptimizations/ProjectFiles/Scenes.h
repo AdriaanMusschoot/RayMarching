@@ -40,4 +40,46 @@ namespace sdf
 		SceneHighComplexity& operator=(SceneHighComplexity&&) noexcept = delete;
 	};
 
+	class SceneLink final : public Scene
+	{
+	public:
+		SceneLink();
+	private:
+	};
+
+	class SceneOctahedron final : public Scene
+	{
+	public:
+		SceneOctahedron();
+	private:
+	};
+
+	class SceneBoxFrame final : public Scene
+	{
+	public:
+		SceneBoxFrame();
+	private:
+	};
+
+	class SceneHexagonalPrism final : public Scene
+	{
+	public:
+		SceneHexagonalPrism();
+	private:
+	};
+
+	class ScenePyramid final : public Scene
+	{
+	public:
+		ScenePyramid();
+	private:
+	};
+
+	class SceneMandelBulb final : public Scene
+	{
+	public:
+		SceneMandelBulb();
+	private:
+	};
+
 }

@@ -62,3 +62,33 @@ sdf::SceneHighComplexity::SceneHighComplexity()
     
     CreateBVHStructure();
 }
+
+sdf::SceneLink::SceneLink()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Link>(0.8f, 0.8f, 0.2f, glm::vec3{ 0.f, 0.f, 0.f }, colors::Red));
+}
+
+sdf::SceneOctahedron::SceneOctahedron()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Octahedron>(1.3f, glm::vec3{ 0.f, 0.f, 0.f }, colors::Green));
+}
+
+sdf::SceneBoxFrame::SceneBoxFrame()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::BoxFrame>(glm::vec3{ 0.9f, 0.9f, 1.f }, 0.1f, glm::vec3{ 0.f, 0.f, 0.f }, colors::Blue));
+}
+
+sdf::SceneHexagonalPrism::SceneHexagonalPrism()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::HexagonalPrism>(0.8f, 0.8f, glm::vec3{ 0.f, 0.f, 0.f }, colors::Yellow));
+}
+
+sdf::ScenePyramid::ScenePyramid()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::Pyramid>(4.f, glm::vec3{ 0.f, -1.5f, 0.f }, colors::Magenta));
+}
+
+sdf::SceneMandelBulb::SceneMandelBulb()
+{
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 0.f, 0.f, 0.f }, colors::Blue));
+}

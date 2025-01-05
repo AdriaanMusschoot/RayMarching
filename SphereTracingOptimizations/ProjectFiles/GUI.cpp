@@ -10,6 +10,7 @@
 #include "SdEngine.h"
 #include "BVHNode.h"
 #include "Misc.h"
+#include "SDFObjects.h"
 
 void GUI::Initialize(SDL_Window* windowPtr, SDL_Renderer* rendererPtr)
 {
@@ -62,17 +63,44 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
     ImGui::SetWindowSize(size, ImGuiCond_Once);
 
     ImGui::Checkbox("Use Early Out", &sdf::Scene::m_UseEarlyOut);
-    ImGui::Checkbox("Box Early Out", &sdf::Object::m_UseBoxEarlyOut);
+	if (sdf::Scene::m_UseEarlyOut)
+	{
+        ImGui::Checkbox("Box Early Out", &sdf::Object::m_UseBoxEarlyOut);
+	}
+    else
+    {
+		sdf::Object::m_UseBoxEarlyOut = false;
+    }
 
     ImGui::Checkbox("Use BVH", &sdf::Scene::m_UseBVH);
-    ImGui::Checkbox("Box BVH", &sdf::BVHNode::m_BoxBVH);
-
+    if (sdf::Scene::m_UseBVH)
+    {
+        ImGui::Checkbox("Box BVH", &sdf::BVHNode::m_BoxBVH);
+    }
+	else
+	{
+		sdf::BVHNode::m_BoxBVH = false;
+	}
 	//ImGui::InputInt("BVH Stepss", &sdf::Scene::m_BVHSteps);
 
 	ImGui::Text("Scene complexity: ");
     ImGui::Combo("|", &engine.SetCurrentSceneID(), engine.GetSceneComplexities(), engine.GetSceneComplexityCount());
 
     sdf::GameTimer& timer{ engine.GetTimer() };
+
+    static int cameraPos{ 2 };
+    ImGui::Text("CameraPos");
+	if (ImGui::Button("Move Forward"))
+	{
+		sdf::Scene::MoveCameraPos(3.0f);
+        --cameraPos;
+	}
+	if (ImGui::Button("Move Backward"))
+	{
+        ++cameraPos;
+		sdf::Scene::MoveCameraPos(-3.0f);
+	}
+    
 
 	ImGui::Text("Time Benchmark: ");
 	ImGui::InputFloat("##", &timer.SetBenchmarkTargetFrames());
@@ -83,6 +111,18 @@ void GUI::LoadSettingsWindow(sdf::Engine& engine, std::string const& name, ImVec
 
         sdf::ResultStats const hitStats{ renderer.GetCollisionStats(false) };
         sdf::ResultStats const missStats{ renderer.GetCollisionStats(true) };
+
+        std::string imgName{ engine.GetSceneComplexities()[engine.SetCurrentSceneID()] };
+        imgName += sdf::Scene::m_UseEarlyOut ? "1" : "0";
+        imgName += sdf::Object::m_UseBoxEarlyOut ? "1" : "0";
+        imgName += sdf::Scene::m_UseBVH ? "1" : "0";
+        imgName += sdf::BVHNode::m_BoxBVH ? "1" : "0";
+		imgName += std::to_string(cameraPos);
+
+        if (renderer.SaveBufferToImage(imgName))
+        {
+            std::cout << "Benchmark image saved successfully" << "\n";
+        }
 
 		timer.StartBenchmark(engine.GetSceneComplexities()[engine.SetCurrentSceneID()], hitStats, missStats);
     }

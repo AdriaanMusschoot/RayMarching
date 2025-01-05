@@ -32,7 +32,7 @@ namespace sdf
         std::vector<std::unique_ptr<Scene>> m_SceneUPtrVec{};
 
         int m_CurrentSceneID{ 0 };
-        std::vector<const char*> m_SceneComplexity{ "Low", "Medium", "High" };
+        std::vector<const char*> m_SceneComplexity{ "Low", "Medium", "High", "Link", "Octahedron", "BoxFrame", "HexagonalPrism", "Pyramid", "MandelBulb" };
         
         bool ShouldQuit{ false };
         void HandleInput();

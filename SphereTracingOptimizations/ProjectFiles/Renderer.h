@@ -15,7 +15,7 @@ namespace sdf
         ~Renderer();
 
         void Render(Scene const& pScene) const;
-        bool SaveBufferToImage() const;
+        bool SaveBufferToImage(std::string const& imageName) const;
 
 		ResultStats GetCollisionStats(bool miss) const;
 
