@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "SDL.h"
 #include "BVHNode.h"
+#include "SDFObjects.h"
 
 sdf::GameTimer::GameTimer()
 {
@@ -79,7 +80,7 @@ void sdf::GameTimer::EndBenchmark()
 
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, std::cout);
 	
-	std::ofstream fileStream("benchmark.csv");
+	std::ofstream fileStream("benchmark.csv", std::ios::app);
 	OutputBenchmarkResults(m_BenchmarkFrameTimeVec, fileStream);
 	fileStream.close();
 }
@@ -111,6 +112,7 @@ void sdf::GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeV
 		outputStream
 			<< delimiter << "SCENE COMPLEXITY"
 			<< delimiter << "EARLY OUT"
+			<< delimiter << "BOX EARLY OUT"
 			<< delimiter << "BVH"
 			<< delimiter << "BOX BVH"
 			<< delimiter << "TOTAL TIME"
@@ -131,6 +133,7 @@ void sdf::GameTimer::OutputBenchmarkResults(std::vector<float> const& frameTimeV
 	outputStream << delimiter
 		<< m_CurrentSceneName << delimiter
 		<< std::boolalpha << Scene::m_UseEarlyOut << delimiter
+		<< std::boolalpha << Object::m_UseBoxEarlyOut << delimiter
 		<< std::boolalpha << Scene::m_UseBVH << delimiter
 		<< std::boolalpha << BVHNode::m_BoxBVH << delimiter
 		<< std::to_string(benchMarkTotalTime) << delimiter
