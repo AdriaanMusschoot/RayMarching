@@ -52,7 +52,7 @@ sdf::SceneHighComplexity::SceneHighComplexity()
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 0.f, -spacing, -halfSpacing }, colors::Yellow));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ 0.f, 0.f, spacing }, colors::Yellow));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ spacing, 0.f, 0.f }, colors::Magenta));
-    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -spacing, spacing, spacing }, colors::Magenta));
+    m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -spacing, spacing, halfSpacing }, colors::Magenta));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ spacing, spacing, -spacing }, colors::Red));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -spacing, 0.f, -halfSpacing }, colors::Red));
     m_SDObjectUPtrVec.emplace_back(std::make_unique<sdf::MandelBulb>(glm::vec3{ -spacing, -spacing, 0.f }, colors::Green));
